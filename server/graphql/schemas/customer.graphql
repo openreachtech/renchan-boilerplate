@@ -1,0 +1,68 @@
+scalar Upload
+
+################################################################################
+#### QUERY
+################################################################################
+
+## !!!!!!!! Please add in dictionary order.
+
+type Query {
+  customer: Customer!
+  payments: [Payment!]!
+}
+
+################################################################################
+#### MUTATION
+################################################################################
+
+## !!!!!!!! Please add in dictionary order.
+
+type Mutation {
+  signIn(input: SignInInput!): AuthResult!
+  signUp(input: SignUpInput!): AuthResult!
+}
+
+################################################################################
+#### TYPE
+################################################################################
+
+## !!!!!!!! Please add in dictionary order.
+
+type AuthResult {
+  accessToken: String!
+}
+
+type Customer {
+  id: Int!
+  inviteCode: String!
+  username: String!
+
+  CustomerDetail: CustomerDetail
+}
+
+type CustomerDetail {
+  email: String!
+}
+
+type Payment {
+  amount: String!
+  coinType: String!
+  fixedAt: String!
+}
+
+################################################################################
+#### INPUT
+################################################################################
+
+## !!!!!!!! Please add in dictionary order.
+
+input SignInInput {
+  email: String!
+  password: String!
+}
+
+input SignUpInput {
+  email: String!
+  inviteCode: String!
+  password: String!
+}

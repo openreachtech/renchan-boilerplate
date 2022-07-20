@@ -1,0 +1,54 @@
+{
+  "name": "@openreachtech/renchan-boilerplate",
+  "version": "0.0.0",
+  "description": "NFT investor DAO API by ORT.",
+  "main": "index.js",
+  "scripts": {
+    "db:drop": "npm run db:teardown",
+    "db:seed:master": "sequelize-cli db:seed:all --seeders-path sequelize/seeders/master --debug",
+    "db:seed:dev": "sequelize-cli db:seed:all --seeders-path sequelize/seeders/development --debug",
+    "db:setup": "sequelize-cli db:migrate;",
+    "db:teardown": "rm sequelize/storage/*.sqlite3",
+    "dev": "export NODE_ENV=development; nodemon server",
+    "jest": "jest --forceExit --detectOpenHandles --passWithNoTests",
+    "l": "npm run lint",
+    "lint": "eslint .",
+    "test": "export NODE_ENV=development; ./test.sh",
+    "test:live": "export NODE_ENV=live; ./test-live.sh"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/openreachtech/nft-investor-dao-api.git"
+  },
+  "keywords": [
+    "NFT",
+    "DAO"
+  ],
+  "author": "Open Reach Tech inc.",
+  "license": "UNLICENSED",
+  "bugs": {
+    "url": "https://github.com/openreachtech/nft-investor-dao-api/issues"
+  },
+  "homepage": "https://github.com/openreachtech/nft-investor-dao-api#readme",
+  "dependencies": {
+    "@graphql-tools/graphql-file-loader": "^7.4.0",
+    "@graphql-tools/load": "^7.7.0",
+    "@graphql-tools/schema": "^8.5.0",
+    "@openreachtech/renchan": "0.0.12",
+    "express": "^4.18.1",
+    "express-graphql": "^0.12.0",
+    "graphql": "^16.5.0",
+    "mariadb": "^3.0.0",
+    "sequelize": "^6.21.3",
+    "sqlite3": "^5.0.9"
+  },
+  "devDependencies": {
+    "@openreachtech/eslint-config": "^0.3.0",
+    "@types/jest": "^28.1.5",
+    "eslint": "^8.19.0",
+    "jest": "^28.1.3",
+    "nodemon": "^2.0.19",
+    "sequelize-cli": "^6.4.1",
+    "sequelize-mig": "^3.1.3"
+  }
+}

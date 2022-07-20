@@ -1,0 +1,9 @@
+// @ts-check
+'use strict'
+
+module.exports = {
+  'config': 'sequelize/config.js',
+  'migrations-path': 'sequelize/migrations',
+  'models-path': 'sequelize/models',
+  'seeders-path': 'sequelize/seeders',
+}
