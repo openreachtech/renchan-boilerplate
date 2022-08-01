@@ -7,6 +7,7 @@ const { SequelizeActivator } = require('@openreachtech/renchan').sequelize
 module.exports = SequelizeActivator
   .create({
     configPath: path.join(__dirname, './config'),
-    modelsPath: path.join(__dirname, './models')
+    modelsPath: path.join(__dirname, './models'),
+    complexModelsPath: path.join(__dirname, './complexModels'),
   })
   .activateSequelize()
