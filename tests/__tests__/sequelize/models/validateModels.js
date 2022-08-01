@@ -1,7 +1,7 @@
 // @ts-check
 'use strict'
 
-const models = require('../../../../sequelize/activatedModels')
+const models = require('../../../../sequelize/activatedModels').activatedModels
 
 describe('validate models', () => {
   test.each(
