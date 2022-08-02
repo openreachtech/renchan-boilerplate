@@ -1,7 +1,7 @@
 {
   "name": "@openreachtech/renchan-boilerplate",
   "version": "0.0.0",
-  "description": "NFT investor DAO API by ORT.",
+  "description": "Application boilerplate with Renchan.",
   "main": "index.js",
   "scripts": {
     "db:drop": "npm run db:teardown",
