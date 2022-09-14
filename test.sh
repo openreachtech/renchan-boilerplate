@@ -3,7 +3,7 @@
 ############################################################## declare functions
 
 function jestCommand () {
-  npm run jest "$@";
+  npx jest --forceExit --detectOpenHandles --passWithNoTests "$@";
 }
 
 function setupStorage () {
