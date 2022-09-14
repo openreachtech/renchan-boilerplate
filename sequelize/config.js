@@ -1,6 +1,8 @@
 // @ts-check
 'use strict'
 
+const env = require('@openreachtech/renchan-env').createEnv()
+
 module.exports = {
   development: {
     database: 'development_database',
@@ -30,12 +32,12 @@ module.exports = {
     port: 3306,
   },
   production: {
-    database: 'production_database',
-    username: 'admin-production',
-    password: 'production-password',
+    database: env.DATABASE_NAME,
+    username: env.DATABASE_USERNAME,
+    password: env.DATABASE_PASSWORD,
 
-    dialect: 'mysql',
-    host: 'http://pruduction.sample.openreach.tech',
-    port: 3306,
+    dialect: env.DATABASE_DIALECT,
+    host: env.DATABASE_HOST,
+    port: env.DATABASE_PORT,
   }
 }
