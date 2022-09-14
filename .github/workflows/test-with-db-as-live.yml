@@ -5,11 +5,11 @@ on:
     branches:
       - main
       - dev
+      - migrations
+      - env
   pull_request:
     branches:
-      - main
-      - dev
-      - env
+      - '**'
 jobs:
   build:
     runs-on: ubuntu-20.04
@@ -53,8 +53,8 @@ jobs:
       - run: echo "NODE_ENV=live" >> $GITHUB_ENV
       - run: npm run db:setup
       - run: npm run db:seed:master
-      - run: npm run jest tests/empty/__tests__/
-      - run: npm run jest tests/empty/_orders/
+      - run: npm run test:live --empty tests/empty/__tests__/
+      - run: npm run test:live --empty tests/empty/_orders/
       - run: npm run db:seed:dev
-      - run: npm run jest tests/__tests__/
-      - run: npm run jest tests/_orders/
+      - run: npm run test:live --seeded tests/__tests__/
+      - run: npm run test:live --seeded tests/_orders/

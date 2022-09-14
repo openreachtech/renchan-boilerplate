@@ -5,11 +5,11 @@ on:
     branches:
       - main
       - dev
+      - migrations
+      - env
   pull_request:
     branches:
-      - main
-      - dev
-      - env
+      - '**'
 jobs:
   test:
     runs-on: ubuntu-latest
