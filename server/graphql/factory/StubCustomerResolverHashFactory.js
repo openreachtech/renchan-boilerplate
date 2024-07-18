@@ -1,10 +1,8 @@
 'use strict'
 
 const path = require('path')
-
 const {
   graphql: {
-    BaseResolverHashFactory,
     FilterResolverHashCascaderPayload,
     ResolverHashCascader,
   }
@@ -13,25 +11,22 @@ const {
 const schemaStatus = new Proxy({
   signUp: true,
   signIn: true,
-  privacyPolicy: true,
-  generatePasswordResetToken: true,
-  updateCustomerPasswordWithResetToken: true,
+  locales: true,
+  updatePasswordWithResetToken: true,
   verifyEmail: true,
+  createPasswordResetToken: true,
 }, {
   get: (fallthrough, schema) => !(schema in fallthrough)
 })
 
+const CustomerResolverHashFactory = require('./CustomerResolverHashFactory')
+
 /**
  * Resolver hash factory for customer category.
  */
-class CustomerResolverHashFactory extends BaseResolverHashFactory {
+class StubCustomerResolverHashFactory extends CustomerResolverHashFactory {
   /** @inheritdoc */
   get actualResolversDirectoryPath () {
-    return path.join(__dirname, '../resolvers/customer/actual')
-  }
-
-  /** @inheritdoc */
-  get stubResolversDirectoryPath () {
     return path.join(__dirname, '../resolvers/customer/stub')
   }
 
@@ -41,9 +36,9 @@ class CustomerResolverHashFactory extends BaseResolverHashFactory {
       async executeToFilter ({
         context,
       }) {
-        if (context.customer === null) {
-          throw Error('no auth')
-        }
+        // if (context.customer === null) {
+        // throw Error('no auth')
+        // }
       },
       schemaStatus,
     })
@@ -52,4 +47,4 @@ class CustomerResolverHashFactory extends BaseResolverHashFactory {
   }
 }
 
-module.exports = CustomerResolverHashFactory
+module.exports = StubCustomerResolverHashFactory
