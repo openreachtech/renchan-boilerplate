@@ -35,7 +35,7 @@ class ReferralNode extends RenchanReferralNode {
       },
     }
   }
-  
+
   /** @inheritdoc */
   static associate () {
     super.associate?.()
