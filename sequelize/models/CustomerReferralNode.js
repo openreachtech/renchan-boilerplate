@@ -2,14 +2,17 @@
 'use strict'
 
 const {
-  RenchanModel,
+  ReferralNode: RenchanReferralNode,
+} = require('@openreachtech/renchan').models
+
+const {
   ModelAttributeFactory,
 } = require('@openreachtech/renchan-sequelize')
 
 /**
- * Customer model.
+ * Customer Referral node model.
  */
-class Customer extends RenchanModel {
+class CustomerReferralNode extends RenchanReferralNode {
   /** @inheritdoc */
   static createAttributes (DataTypes) {
     const factory = ModelAttributeFactory.create(DataTypes)
@@ -17,8 +20,17 @@ class Customer extends RenchanModel {
     return {
       ...factory.ID_BIGINT,
 
-      registeredAt: {
-        type: DataTypes.DATE(3),
+      // Foreign keys must start with upper case
+      CustomerId: {
+        type: DataTypes.BIGINT,
+        allowNull: false,
+      },
+      ffQueue: {
+        type: DataTypes.BIGINT,
+        allowNull: false,
+      },
+      ffDepth: {
+        type: DataTypes.BIGINT,
         allowNull: false,
       },
     }
@@ -39,4 +51,4 @@ class Customer extends RenchanModel {
   }
 }
 
-module.exports = Customer
+module.exports = CustomerReferralNode

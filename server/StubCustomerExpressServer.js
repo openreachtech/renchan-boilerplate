@@ -7,14 +7,14 @@ const {
 } = require('@openreachtech/renchan')
 
 const AppRootRouteComposer = require('./express/AppRootRouteComposer')
-const CustomerGraphqlRouteComposer = require('./express/CustomerGraphqlRouteComposer')
+const StubCustomerGraphqlRouteComposer = require('./express/StubCustomerGraphqlRouteComposer')
 
 class CustomerExpressServer extends BaseExpressServer {
   /** @inheritdoc */
   composeRoutes () {
     return [
       AppRootRouteComposer.create().createRoute(),
-      CustomerGraphqlRouteComposer.create().createRoute({ path: '/graphql-customer' }),
+      StubCustomerGraphqlRouteComposer.create().createRoute({ path: '/graphql-customer-stub' }),
     ]
   }
 
@@ -25,8 +25,8 @@ class CustomerExpressServer extends BaseExpressServer {
    * @returns {CustomerExpressServer} - For method chain.
    */
   runAsCustomer ({
-    message = 'Express GraphQL Server Now Running On http://localhost:3900/graphql-customer',
-    port = 3900,
+    message = 'Express GraphQL Server Now Running On http://localhost:2600/graphql-customer-stub',
+    port = 2600,
   } = {}) {
     this.run({
       port,
