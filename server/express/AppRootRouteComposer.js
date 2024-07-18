@@ -1,6 +1,6 @@
-// @ts-check
 'use strict'
 
+const path = require('path')
 const {
   express: {
     BaseRouteComposer,
@@ -18,7 +18,9 @@ class AppRootRouteComposer extends BaseRouteComposer {
     return [
       CorsMiddlewareFactory.create().createMiddleware(),
       ExpressJsonMiddlewareFactory.create().createMiddleware(),
-      ExpressStaticMiddlewareFactory.create().createMiddleware('../../app/public'),
+      ExpressStaticMiddlewareFactory.create().createMiddleware(
+        path.join(__dirname, '../../app/public')
+      ),
     ]
   }
 }
