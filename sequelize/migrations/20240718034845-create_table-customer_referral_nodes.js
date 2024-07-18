@@ -4,7 +4,7 @@ const {
   MigrationAttributeFactory,
 } = require('@openreachtech/renchan-sequelize')
 
-const TABLE_NAME = 'referral_nodes'
+const TABLE_NAME = 'customer_referral_nodes'
 const COLUMN_NAME = {
   CUSTOMER_ID: 'customer_id',
   FF_QUEUE: 'ff_queue',

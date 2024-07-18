@@ -10,9 +10,9 @@ const {
 } = require('@openreachtech/renchan-sequelize')
 
 /**
- * Referral node model.
+ * Customer Referral node model.
  */
-class ReferralNode extends RenchanReferralNode {
+class CustomerReferralNode extends RenchanReferralNode {
   /** @inheritdoc */
   static createAttributes (DataTypes) {
     const factory = ModelAttributeFactory.create(DataTypes)
