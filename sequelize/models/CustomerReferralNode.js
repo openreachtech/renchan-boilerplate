@@ -51,4 +51,4 @@ class CustomerReferralNode extends RenchanReferralNode {
   }
 }
 
-module.exports = ReferralNode
+module.exports = CustomerReferralNode
