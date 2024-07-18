@@ -1,16 +1,16 @@
-// @ts-check
 'use strict'
 
-const models = require('../../../../sequelize/activatedModels').activatedModels
+const sequelizeActivator = require('../../../../sequelize/activatedModels')
 
 describe('validate models', () => {
-  test.each(
-    Object.values(models)
-      .map(model => ({ model }))
-  )('$model.name', async ({ model }) => {
-    await expect(model.findOne())
+  const table = Object.values(sequelizeActivator.modelHash)
+    .map(Model => ({
+      Model
+    }))
+
+  test.each(table)('Model: $Model.name', async ({ Model }) => {
+    await expect(Model.findOne())
       .resolves
-      .not
-      .toThrowError()
+      .not.toThrowError()
   })
 })
