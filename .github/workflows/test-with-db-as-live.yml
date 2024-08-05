@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-20.04
     strategy:
       matrix:
-        node-version: [14.x]
+        node-version: [20.x]
     services:
       mariadb:
         image: mariadb:10.5.12
@@ -46,7 +46,7 @@ jobs:
           cache-dependency-path: '**/package-lock.json'
           node-version: ${{ matrix.node-version }}
           registry-url: https://npm.pkg.github.com
-      - run: npm ci
+      - run: npm ci --legacy-peer-deps
         env:
           NODE_AUTH_TOKEN: ${{ secrets.TO_REPO_OF_ORT_PRIVATE }}
       - run: npm run lint
