@@ -3,6 +3,7 @@
 require('../sequelize/activatedModels')
 
 const AppRestfulServer = require('./AppRestfulServer')
+const AdminExpressServer = require('./AdminExpressServer')
 const CustomerExpressServer = require('./CustomerExpressServer')
 const StubCustomerExpressServer = require('./StubCustomerExpressServer')
 
@@ -14,6 +15,7 @@ const apiServer = /** @type {*} */ (AppRestfulServer.create({
 
 const server = /** @type {CustomerExpressServer} */ (CustomerExpressServer.create())
 const stubCustomerServer = /** @type {StubCustomerExpressServer} */ (StubCustomerExpressServer.create())
+const adminServer = /** @type {AdminExpressServer} */ (AdminExpressServer.create())
 
 apiServer.runAsRestfulApi({
   message: 'Express GraphQL Server Now Running On http://localhost:8001/',
@@ -22,3 +24,4 @@ apiServer.runAsRestfulApi({
 
 server.runAsCustomer()
 stubCustomerServer.runAsCustomer()
+adminServer.runAsAdmin()
