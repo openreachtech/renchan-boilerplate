@@ -4,8 +4,8 @@ const {
   graphql: {
     visa: {
       BaseAuthorizer,
-    }
-  }
+    },
+  },
 } = require('@openreachtech/renchan')
 
 class CustomerAuthorizer extends BaseAuthorizer {

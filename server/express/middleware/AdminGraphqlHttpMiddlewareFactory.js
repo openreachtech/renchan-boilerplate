@@ -6,11 +6,11 @@ const {
   express: {
     middleware: {
       BaseGraphqlHttpMiddlewareFactory,
-    }
+    },
   },
   graphql: {
     SchemaLoader,
-  }
+  },
 } = require('@openreachtech/renchan')
 
 const AdminContext = require('../../graphql/contexts/AdminContext')

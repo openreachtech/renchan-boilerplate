@@ -3,9 +3,9 @@
 const {
   graphql: {
     visa: {
-      BaseAuthenticator
-    }
-  }
+      BaseAuthenticator,
+    },
+  },
 } = require('@openreachtech/renchan')
 
 class CustomerAuthenticator extends BaseAuthenticator {

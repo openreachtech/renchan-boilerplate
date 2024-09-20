@@ -3,9 +3,9 @@
 const {
   graphql: {
     visa: {
-      BaseCertifier
-    }
-  }
+      BaseCertifier,
+    },
+  },
 } = require('@openreachtech/renchan')
 
 const CustomerAuthenticator = require('./CustomerAuthenticator')

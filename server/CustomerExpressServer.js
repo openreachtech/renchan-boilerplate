@@ -3,7 +3,7 @@
 const {
   express: {
     BaseExpressServer,
-  }
+  },
 } = require('@openreachtech/renchan')
 
 const AppRootRouteComposer = require('./express/AppRootRouteComposer')
