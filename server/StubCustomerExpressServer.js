@@ -13,8 +13,10 @@ class CustomerExpressServer extends BaseExpressServer {
   /** @inheritdoc */
   composeRoutes () {
     return [
-      AppRootRouteComposer.create().createRoute(),
-      StubCustomerGraphqlRouteComposer.create().createRoute({ path: '/graphql-customer-stub' }),
+      AppRootRouteComposer.create()
+        .createRoute(),
+      StubCustomerGraphqlRouteComposer.create()
+        .createRoute({ path: '/graphql-customer-stub' }),
     ]
   }
 
