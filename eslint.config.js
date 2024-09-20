@@ -22,8 +22,6 @@ module.exports = [
   // Turn off some rules temporary
   {
     rules: {
-      'jest/no-alias-methods': 'off',
-
       'jsdoc/check-types': 'off',
       'jsdoc/sort-tags': 'off',
       'jsdoc/valid-types': 'off',
