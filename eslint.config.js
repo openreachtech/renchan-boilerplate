@@ -22,7 +22,6 @@ module.exports = [
   // Turn off some rules temporary
   {
     rules: {
-      '@stylistic/comma-dangle': 'off',
       '@stylistic/newline-per-chained-call': 'off',
 
       'jest/no-alias-methods': 'off',
