@@ -18,7 +18,7 @@ class AdminsQueryResolver extends BaseResolver {
   /**
    * Resolve the admins query
    *
-   * @param {Object} _
+   * @param {object} _
    * @param {import('../../../contexts/AdminContext')} context
    * @returns {Promise<AdminsResult>}
    */
