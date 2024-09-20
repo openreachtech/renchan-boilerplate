@@ -11,6 +11,7 @@ describe('validate models', () => {
   test.each(table)('Model: $Model.name', async ({ Model }) => {
     await expect(Model.findOne())
       .resolves
-      .not.toThrowError()
+      .not
+      .toThrow()
   })
 })
