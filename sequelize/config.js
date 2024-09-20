@@ -1,4 +1,3 @@
-// @ts-check
 'use strict'
 
 const env = require('@openreachtech/renchan-env').createEnv()
