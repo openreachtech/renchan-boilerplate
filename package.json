@@ -46,7 +46,7 @@
     "sqlite3": "^5.0.9"
   },
   "devDependencies": {
-    "@openreachtech/eslint-config": "^0.3.0",
+    "@openreachtech/eslint-config": "^3.0.2",
     "@types/jest": "^28.1.5",
     "eslint": "^9.10.0",
     "jest": "^28.1.3",
