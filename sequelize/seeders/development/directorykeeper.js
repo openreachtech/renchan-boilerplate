@@ -1,6 +1,10 @@
 'use strict'
 
 module.exports = {
-  async up () {},
-  async down () {},
+  async up () {
+    // noop
+  },
+  async down () {
+    // noop
+  },
 }
