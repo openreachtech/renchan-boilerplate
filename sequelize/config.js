@@ -1,7 +1,8 @@
 // @ts-check
 'use strict'
 
-const env = require('@openreachtech/renchan-env').createEnv()
+const env = require('@openreachtech/renchan-env')
+  .createEnv()
 
 module.exports = {
   development: {
