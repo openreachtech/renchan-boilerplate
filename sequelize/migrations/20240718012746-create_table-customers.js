@@ -12,7 +12,7 @@ const COLUMN_NAME = {
 module.exports = {
   async up (
     queryInterface,
-    Sequelize,
+    Sequelize
   ) {
     const factory = MigrationAttributeFactory.create(Sequelize)
 

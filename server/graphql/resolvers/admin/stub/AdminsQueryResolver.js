@@ -18,9 +18,9 @@ class AdminsQueryResolver extends BaseResolver {
           roles: [
             {
               roleId: 1,
-              roleName: 'Super Admin'
-            }
-          ]
+              roleName: 'Super Admin',
+            },
+          ],
         },
         {
           adminId: 2,
@@ -29,11 +29,11 @@ class AdminsQueryResolver extends BaseResolver {
           roles: [
             {
               roleId: 2,
-              roleName: 'Content Manager'
-            }
-          ]
-        }
-      ]
+              roleName: 'Content Manager',
+            },
+          ],
+        },
+      ],
     }
   }
 

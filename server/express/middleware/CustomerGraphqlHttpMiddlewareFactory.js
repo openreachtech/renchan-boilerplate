@@ -7,11 +7,11 @@ const {
   express: {
     middleware: {
       BaseGraphqlHttpMiddlewareFactory,
-    }
+    },
   },
   graphql: {
     SchemaLoader,
-  }
+  },
 } = require('@openreachtech/renchan')
 
 const CustomerContext = require('../../graphql/contexts/CustomerContext')
