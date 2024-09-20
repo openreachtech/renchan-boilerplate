@@ -73,8 +73,8 @@ class CustomerVisaIssuer extends BaseVisaIssuer {
    * Find customer id by access token.
    *
    * @param {{
-   *   accessToken?: string?,
-   *   now?: Date,
+   *   accessToken?: string | null
+   *   now?: Date
    * }} accessToken - Access token.
    * @returns {Promise<number?>} - Customer id.
    */
