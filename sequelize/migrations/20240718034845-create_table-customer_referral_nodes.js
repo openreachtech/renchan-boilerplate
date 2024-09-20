@@ -12,7 +12,10 @@ const COLUMN_NAME = {
 }
 
 module.exports = {
-  up: async (queryInterface, Sequelize) => {
+  async up (
+    queryInterface,
+    Sequelize
+  ) {
     const factory = MigrationAttributeFactory.create(Sequelize)
 
     await queryInterface.createTable(TABLE_NAME, {
@@ -84,7 +87,7 @@ module.exports = {
     return Promise.resolve()
   },
 
-  down: async (queryInterface, Sequelize) => {
+  async down (queryInterface) {
     return queryInterface.dropTable(TABLE_NAME)
-  }
+  },
 }
