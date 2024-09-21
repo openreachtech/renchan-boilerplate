@@ -13,8 +13,8 @@ class CustomerVisa extends BaseVisa {
   /**
    * Constructor.
    *
-   * @todo Fulfill * type.
    * @param {CustomerVisaOptions} options - Options of this constructor.
+   * @todo Fulfill * type.
    */
   constructor ({
     extra,
@@ -28,8 +28,8 @@ class CustomerVisa extends BaseVisa {
   /**
    * Get customer entity.
    *
-   * @todo Fulfill * type.
    * @returns {*} - Customer entity of Sequelize model.
+   * @todo Fulfill * type.
    */
   getCustomer () {
     return this.getUser()
@@ -57,11 +57,11 @@ class CustomerVisa extends BaseVisa {
 module.exports = CustomerVisa
 
 /**
- * @todo Fulfill * types.
  * @typedef {{
  *   extra: *,
  *   certification: *,
  *   schemaPermissionHash?: *,
  *   user?: *,
  * }} CustomerVisaOptions
+ * @todo Fulfill * types.
  */
