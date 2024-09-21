@@ -12,7 +12,10 @@ const COLUMN_NAME = {
 }
 
 module.exports = {
-  up: async (queryInterface, Sequelize) => {
+  async up (
+    queryInterface,
+    Sequelize
+  ) {
     const factory = MigrationAttributeFactory.create(Sequelize)
 
     await queryInterface.createTable(TABLE_NAME, {
@@ -22,17 +25,17 @@ module.exports = {
       CustomerId: {
         type: Sequelize.BIGINT,
         field: COLUMN_NAME.CUSTOMER_ID,
-        allowNull: false
+        allowNull: false,
       },
       ffQueue: {
         type: Sequelize.BIGINT,
         field: COLUMN_NAME.FF_QUEUE,
-        allowNull: false
+        allowNull: false,
       },
       ffDepth: {
         type: Sequelize.BIGINT,
         field: COLUMN_NAME.FF_DEPTH,
-        allowNull: false
+        allowNull: false,
       },
 
       ...factory.TIMESTAMPS,
@@ -47,8 +50,8 @@ module.exports = {
           name: [
             TABLE_NAME,
             COLUMN_NAME.FF_QUEUE,
-            'index'
-          ].join('_')
+            'index',
+          ].join('_'),
         }
       ),
       queryInterface.addIndex(
@@ -62,8 +65,8 @@ module.exports = {
             TABLE_NAME,
             COLUMN_NAME.FF_DEPTH,
             COLUMN_NAME.FF_QUEUE,
-            'index'
-          ].join('_')
+            'index',
+          ].join('_'),
         }
       ),
 
@@ -75,7 +78,7 @@ module.exports = {
           name: [
             TABLE_NAME,
             COLUMN_NAME.CUSTOMER_ID,
-            'index'
+            'index',
           ].join('_'),
         }
       ),
@@ -84,7 +87,7 @@ module.exports = {
     return Promise.resolve()
   },
 
-  down: async (queryInterface, Sequelize) => {
+  async down (queryInterface) {
     return queryInterface.dropTable(TABLE_NAME)
-  }
+  },
 }

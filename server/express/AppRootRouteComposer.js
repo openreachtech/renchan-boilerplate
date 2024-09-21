@@ -8,19 +8,22 @@ const {
       CorsMiddlewareFactory,
       ExpressJsonMiddlewareFactory,
       ExpressStaticMiddlewareFactory,
-    }
-  }
+    },
+  },
 } = require('@openreachtech/renchan')
 
 class AppRootRouteComposer extends BaseRouteComposer {
   /** @inheritdoc */
   fulfillMiddleware () {
     return [
-      CorsMiddlewareFactory.create().createMiddleware(),
-      ExpressJsonMiddlewareFactory.create().createMiddleware(),
-      ExpressStaticMiddlewareFactory.create().createMiddleware(
-        path.join(__dirname, '../../app/public')
-      ),
+      CorsMiddlewareFactory.create()
+        .createMiddleware(),
+      ExpressJsonMiddlewareFactory.create()
+        .createMiddleware(),
+      ExpressStaticMiddlewareFactory.create()
+        .createMiddleware(
+          path.join(__dirname, '../../app/public')
+        ),
     ]
   }
 }

@@ -3,7 +3,7 @@
 const {
   express: {
     BaseExpressServer,
-  }
+  },
 } = require('@openreachtech/renchan')
 
 const AppRootRouteComposer = require('./express/AppRootRouteComposer')
@@ -13,8 +13,10 @@ class CustomerExpressServer extends BaseExpressServer {
   /** @inheritdoc */
   composeRoutes () {
     return [
-      AppRootRouteComposer.create().createRoute(),
-      StubCustomerGraphqlRouteComposer.create().createRoute({ path: '/graphql-customer-stub' }),
+      AppRootRouteComposer.create()
+        .createRoute(),
+      StubCustomerGraphqlRouteComposer.create()
+        .createRoute({ path: '/graphql-customer-stub' }),
     ]
   }
 

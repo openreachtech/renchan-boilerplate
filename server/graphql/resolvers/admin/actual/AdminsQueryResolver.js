@@ -18,7 +18,7 @@ class AdminsQueryResolver extends BaseResolver {
   /**
    * Resolve the admins query
    *
-   * @param {Object} _
+   * @param {object} _
    * @param {import('../../../contexts/AdminContext')} context
    * @returns {Promise<AdminsResult>}
    */
@@ -27,11 +27,11 @@ class AdminsQueryResolver extends BaseResolver {
     context
   ) {
     const admins = await this.findAdmins({
-      adminId: context.admin.id
+      adminId: context.admin.id,
     })
 
     return this.formatResponse({
-      admins
+      admins,
     })
   }
 
@@ -44,22 +44,22 @@ class AdminsQueryResolver extends BaseResolver {
    * @returns {Promise<Array<AdminWithAssociationsEntity>>}
    */
   async findAdmins ({
-    adminId
+    adminId,
   }) {
     return /** @type {Promise<*>} */ (
       Admin.findAll({
         where: {
           id: {
-            [Op.ne]: adminId
-          }
+            [Op.ne]: adminId,
+          },
         },
         include: [
           AdminSecret,
-          AdminRole
+          AdminRole,
         ],
         order: [
-          ['registeredAt', 'DESC']
-        ]
+          ['registeredAt', 'DESC'],
+        ],
       })
     )
   }
@@ -73,18 +73,18 @@ class AdminsQueryResolver extends BaseResolver {
    * @returns {AdminsResult}
    */
   formatResponse ({
-    admins
+    admins,
   }) {
     return {
-      admins: admins.map((admin) => ({
+      admins: admins.map(admin => ({
         adminId: admin.id,
         username: admin.username,
         email: admin.AdminSecret.email,
-        roles: admin.AdminRoles.map((role) => ({
+        roles: admin.AdminRoles.map(role => ({
           roleId: role.id,
-          roleName: role.name
-        }))
-      }))
+          roleName: role.name,
+        })),
+      })),
     }
   }
 

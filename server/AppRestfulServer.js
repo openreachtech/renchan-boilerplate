@@ -12,7 +12,7 @@ class AppRestfulServer extends BaseRestfulServer {
   composeGetRoutes () {
     return RestfulRoutesProducer.create({
       method: 'get',
-      path: path.join(__dirname, './express/renderers/get')
+      path: path.join(__dirname, './express/renderers/get'),
     })
       .produceRoutes()
   }
@@ -21,7 +21,7 @@ class AppRestfulServer extends BaseRestfulServer {
   composePostRoutes () {
     return RestfulRoutesProducer.create({
       method: 'post',
-      path: path.join(__dirname, './express/renderers/post')
+      path: path.join(__dirname, './express/renderers/post'),
     })
       .produceRoutes()
   }

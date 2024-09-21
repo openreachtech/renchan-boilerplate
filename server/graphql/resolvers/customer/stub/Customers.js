@@ -2,8 +2,8 @@
 
 const {
   graphql: {
-    BaseResolver
-  }
+    BaseResolver,
+  },
 } = require('@openreachtech/renchan')
 
 class CustomerQueryResolver extends BaseResolver {
@@ -14,8 +14,8 @@ class CustomerQueryResolver extends BaseResolver {
       username: 'hakudajin',
       inviteCode: 'gFQ0pK6T',
       CustomerDetail: {
-        email: 'customer@example.com'
-      }
+        email: 'customer@example.com',
+      },
     }
   }
 

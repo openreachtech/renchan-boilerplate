@@ -5,8 +5,8 @@ const {
     visa: {
       BaseAuthorizer,
       BaseVisaIssuer,
-    }
-  }
+    },
+  },
 } = require('@openreachtech/renchan')
 
 const CustomerCertifier = require('./certifier/CustomerCertifier')
@@ -25,7 +25,7 @@ class CustomerVisaIssuer extends BaseVisaIssuer {
   /** @inheritdoc */
   async findCertification () {
     const certifier = CustomerCertifier.create({
-      request: this.request
+      request: this.request,
     })
 
     return certifier.getCertification()
@@ -72,8 +72,8 @@ class CustomerVisaIssuer extends BaseVisaIssuer {
    * Find customer id by access token.
    *
    * @param {{
-   *   accessToken?: string?,
-   *   now?: Date,
+   *   accessToken?: string | null
+   *   now?: Date
    * }} accessToken - Access token.
    * @returns {Promise<number?>} - Customer id.
    */
