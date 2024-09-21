@@ -18,11 +18,4 @@ module.exports = [
       },
     },
   },
-
-  // Turn off some rules temporary
-  {
-    rules: {
-      'jsdoc/valid-types': 'off',
-    },
-  },
 ]
