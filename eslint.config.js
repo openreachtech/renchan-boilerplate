@@ -22,8 +22,6 @@ module.exports = [
   // Turn off some rules temporary
   {
     rules: {
-      '@stylistic/newline-per-chained-call': 'off',
-
       'jest/no-alias-methods': 'off',
 
       'jsdoc/check-types': 'off',

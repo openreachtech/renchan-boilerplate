@@ -13,8 +13,10 @@ class AdminExpressServer extends BaseExpressServer {
   /** @inheritdoc */
   composeRoutes () {
     return [
-      AppRootRouteComposer.create().createRoute(),
-      AdminGraphqlRouteComposer.create().createRoute({ path: '/graphql-admin' }),
+      AppRootRouteComposer.create()
+        .createRoute(),
+      AdminGraphqlRouteComposer.create()
+        .createRoute({ path: '/graphql-admin' }),
     ]
   }
 
