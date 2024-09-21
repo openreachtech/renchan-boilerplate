@@ -42,7 +42,7 @@ class CustomerContext extends BaseContext {
   /**
    * getter: Customer entity
    *
-   * @returns {Object.<string, *>} - Customer entity.
+   * @returns {Record<string, *>} - Customer entity.
    */
   get customer () {
     return this.visa.getUser()
