@@ -4,9 +4,9 @@
 const {
   graphql: {
     visa: {
-      BaseVisa
-    }
-  }
+      BaseVisa,
+    },
+  },
 } = require('@openreachtech/renchan')
 
 class CustomerVisa extends BaseVisa {

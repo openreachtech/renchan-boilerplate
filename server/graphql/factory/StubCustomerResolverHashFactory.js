@@ -5,7 +5,7 @@ const {
   graphql: {
     FilterResolverHashCascaderPayload,
     ResolverHashCascader,
-  }
+  },
 } = require('@openreachtech/renchan')
 
 const schemaStatus = new Proxy({
@@ -16,7 +16,7 @@ const schemaStatus = new Proxy({
   verifyEmail: true,
   createPasswordResetToken: true,
 }, {
-  get: (fallthrough, schema) => !(schema in fallthrough)
+  get: (fallthrough, schema) => !(schema in fallthrough),
 })
 
 const CustomerResolverHashFactory = require('./CustomerResolverHashFactory')

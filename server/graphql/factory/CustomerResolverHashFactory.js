@@ -7,7 +7,7 @@ const {
     BaseResolverHashFactory,
     FilterResolverHashCascaderPayload,
     ResolverHashCascader,
-  }
+  },
 } = require('@openreachtech/renchan')
 
 const schemaStatus = new Proxy({
@@ -18,7 +18,7 @@ const schemaStatus = new Proxy({
   updateCustomerPasswordWithResetToken: true,
   verifyEmail: true,
 }, {
-  get: (fallthrough, schema) => !(schema in fallthrough)
+  get: (fallthrough, schema) => !(schema in fallthrough),
 })
 
 /**

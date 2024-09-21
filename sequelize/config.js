@@ -20,7 +20,7 @@ module.exports = {
     host: '127.0.0.1',
 
     dialect: 'mariadb',
-    port: '3306'
+    port: '3306',
   },
   staging: {
     database: 'staging_database',
@@ -39,5 +39,5 @@ module.exports = {
     dialect: env.DATABASE_DIALECT,
     host: env.DATABASE_HOST,
     port: env.DATABASE_PORT,
-  }
+  },
 }
