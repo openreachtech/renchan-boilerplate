@@ -22,8 +22,6 @@ module.exports = [
   // Turn off some rules temporary
   {
     rules: {
-      'no-empty-function': 'off',
-
       '@stylistic/arrow-parens': 'off',
       '@stylistic/comma-dangle': 'off',
       '@stylistic/newline-per-chained-call': 'off',
