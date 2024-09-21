@@ -76,11 +76,11 @@ class AdminsQueryResolver extends BaseResolver {
     admins
   }) {
     return {
-      admins: admins.map((admin) => ({
+      admins: admins.map(admin => ({
         adminId: admin.id,
         username: admin.username,
         email: admin.AdminSecret.email,
-        roles: admin.AdminRoles.map((role) => ({
+        roles: admin.AdminRoles.map(role => ({
           roleId: role.id,
           roleName: role.name
         }))
