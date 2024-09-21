@@ -10,7 +10,7 @@ const StubCustomerExpressServer = require('./StubCustomerExpressServer')
 /** @type {AppRestfulServer} */
 const apiServer = /** @type {*} */ (AppRestfulServer.create({
   pathPrefix: '/v1',
-  message: 'Express GraphQL Server Now Running On http://localhost:8001/'
+  message: 'Express GraphQL Server Now Running On http://localhost:8001/',
 }))
 
 const server = /** @type {CustomerExpressServer} */ (CustomerExpressServer.create())

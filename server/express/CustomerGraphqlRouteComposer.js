@@ -6,8 +6,8 @@ const {
     middleware: {
       GraphqlUploadExpressMiddlewareFactory,
       VisaIssuerMiddlewareFactory,
-    }
-  }
+    },
+  },
 } = require('@openreachtech/renchan')
 
 const CustomerVisaIssuer = require('../graphql/contexts/visa/CustomerVisaIssuer')
@@ -26,7 +26,7 @@ class CustomerGraphqlRouteComposer extends BaseGraphqlRouteComposer {
     return [
       GraphqlUploadExpressMiddlewareFactory
         .create()
-        .createMiddleware()
+        .createMiddleware(),
     ]
   }
 

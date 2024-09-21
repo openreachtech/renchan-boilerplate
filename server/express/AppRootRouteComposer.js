@@ -8,8 +8,8 @@ const {
       CorsMiddlewareFactory,
       ExpressJsonMiddlewareFactory,
       ExpressStaticMiddlewareFactory,
-    }
-  }
+    },
+  },
 } = require('@openreachtech/renchan')
 
 class AppRootRouteComposer extends BaseRouteComposer {
