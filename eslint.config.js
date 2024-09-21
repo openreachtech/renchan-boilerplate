@@ -22,7 +22,6 @@ module.exports = [
   // Turn off some rules temporary
   {
     rules: {
-      'jsdoc/sort-tags': 'off',
       'jsdoc/valid-types': 'off',
     },
   },
