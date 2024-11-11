@@ -3,6 +3,7 @@
   "version": "0.0.0",
   "description": "Application boilerplate with Renchan.",
   "main": "index.js",
+  "type": "module",
   "scripts": {
     "db:drop": "npm run db:teardown",
     "db:seed:master": "sequelize-cli db:seed:all --seeders-path sequelize/seeders/master --debug",
