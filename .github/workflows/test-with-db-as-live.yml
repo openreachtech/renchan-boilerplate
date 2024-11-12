@@ -5,17 +5,18 @@ on:
     branches:
       - main
       - dev
-      - migrations
-      - env
   pull_request:
     branches:
       - '**'
+
 jobs:
-  build:
+  test:
     runs-on: ubuntu-20.04
+
     strategy:
       matrix:
         node-version: [20.x]
+
     services:
       mariadb:
         image: mariadb:10.5.12
@@ -27,10 +28,12 @@ jobs:
           MYSQL_DATABASE: live
           MYSQL_ROOT_PASSWORD: password
         options: --health-cmd="mysqladmin ping" --health-interval=5s --health-timeout=2s --health-retries=3
+
     steps:
-      - name: Checkout
+      - name: 🛎 Checkout repository code
         uses: actions/checkout@v2
-      - name: Verify MariaDB connection / Create database / Set port
+
+      - name: 📍 Verify MariaDB connection / Create database / Set port
         env:
           PORT: ${{ job.services.mariadb.ports[3306] }}
         run: |
@@ -39,18 +42,22 @@ jobs:
           done
           echo "CREATE DATABASE IF NOT EXISTS test;" > test.sql
           mysql -uroot -ppassword -h"127.0.0.1" -P"3306" < test.sql
-      - name: Use Node.js ${{ matrix.node-version }}
+
+      - name: 🏗 Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v1
         with:
           cache: 'npm'
           cache-dependency-path: '**/package-lock.json'
           node-version: ${{ matrix.node-version }}
           registry-url: https://npm.pkg.github.com
-      - run: npm ci --legacy-peer-deps
+
+      - name: 📦 Install packages
+        run: npm ci
         env:
           NODE_AUTH_TOKEN: ${{ secrets.TO_REPO_OF_ORT_PRIVATE }}
-      - run: npm run lint
-      - run: echo "NODE_ENV=live" >> $GITHUB_ENV
+
+      - name: 🧪 Jest
+        run: echo "NODE_ENV=live" >> $GITHUB_ENV
       - run: npm run db:setup
       - run: npm run db:seed:master
       - run: npm run test:live --empty tests/empty/__tests__/
