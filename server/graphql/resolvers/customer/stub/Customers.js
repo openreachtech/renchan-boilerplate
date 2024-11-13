@@ -4,7 +4,7 @@ import {
 
 export default class CustomerQueryResolver extends BaseQueryResolver {
   /**
-   * Resolve the admins query
+   * Resolve the customer query
    *
    * @param {{}} params - Parameters.
    * @returns {Promise<object>}
