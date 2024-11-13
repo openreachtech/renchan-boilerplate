@@ -1,7 +1,6 @@
 'use strict'
 
-const env = require('@openreachtech/renchan-env')
-  .createEnv()
+const env = require('../app/globals/env.cjs')
 
 module.exports = {
   development: {
