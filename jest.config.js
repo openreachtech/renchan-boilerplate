@@ -1,6 +1,6 @@
 export default {
   setupFilesAfterEnv: [
-    '@openreachtech/renchan-test-tools/lib/environment/setupAfterEnv.js',
+    '<rootDir>/tests/setupAfterEnv.js',
   ],
   moduleNameMapper: {
     '^(@.*)$': '<rootDir>/node_modules/$1',
