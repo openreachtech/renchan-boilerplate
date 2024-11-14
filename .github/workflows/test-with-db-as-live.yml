@@ -51,17 +51,17 @@ jobs:
           node-version: ${{ matrix.node-version }}
           registry-url: https://npm.pkg.github.com
 
-      # - name: 📦 Install packages
-      #   run: npm ci
-      #   env:
-      #     NODE_AUTH_TOKEN: ${{ secrets.TO_REPO_OF_ORT_PRIVATE }}
+      - name: 📦 Install packages
+        run: npm ci
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.TO_REPO_OF_ORT_PRIVATE }}
 
-      # - name: 🧪 Jest
-      #   run: echo "NODE_ENV=live" >> $GITHUB_ENV
-      # - run: npm run db:setup
-      # - run: npm run db:seed:master
-      # - run: npm run test:live --empty tests/empty/__tests__/
-      # - run: npm run test:live --empty tests/empty/_orders/
-      # - run: npm run db:seed:dev
-      # - run: npm run test:live --seeded tests/__tests__/
-      # - run: npm run test:live --seeded tests/_orders/
+      - name: 🧪 Jest
+        run: echo "NODE_ENV=live" >> $GITHUB_ENV
+      - run: npm run db:setup
+      - run: npm run db:seed:master
+      - run: npm run test:live --empty tests/empty/__tests__/
+      - run: npm run test:live --empty tests/empty/_orders/
+      - run: npm run db:seed:dev
+      - run: npm run test:live --seeded tests/__tests__/
+      - run: npm run test:live --seeded tests/_orders/
