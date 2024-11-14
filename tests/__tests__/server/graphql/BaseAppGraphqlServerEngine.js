@@ -2,6 +2,8 @@ import {
   BaseGraphqlServerEngine,
 } from '@openreachtech/renchan'
 
+import rootPath from '../../../../app/globals/root-path.js'
+
 import BaseAppGraphqlServerEngine from '../../../../server/graphql/BaseAppGraphqlServerEngine.js'
 
 describe('BaseAppGraphqlServerEngine', () => {
@@ -17,8 +19,13 @@ describe('BaseAppGraphqlServerEngine', () => {
 
 describe('BaseAppGraphqlServerEngine', () => {
   describe('#collectMiddleware()', () => {
-    test('to be fixed value', async () => {
-      const engine = await BaseAppGraphqlServerEngine.createAsync()
+    test('to be fixed value', () => {
+      const engine = new BaseAppGraphqlServerEngine({
+        config: /** @type {*} */ ({
+          staticPath: rootPath.to('public/'),
+        }),
+        share: /** @type {*} */ ({}),
+      })
 
       const expected = [
         expect.any(Function),
