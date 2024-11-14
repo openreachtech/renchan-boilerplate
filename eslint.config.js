@@ -34,4 +34,19 @@ export default [
       sourceType: 'commonjs',
     },
   },
+
+  // Turn off some rules temporary
+  {
+    rules: {
+      camelcase: 'off',
+      'no-shadow': 'off',
+      'sort-imports': 'off',
+
+      'jest/require-top-level-describe': 'off',
+
+      'jsdoc/check-tag-names': 'off',
+      'jsdoc/no-undefined-types': 'off',
+      'jsdoc/valid-types': 'off',
+    },
+  },
 ]
