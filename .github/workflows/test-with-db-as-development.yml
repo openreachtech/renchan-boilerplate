@@ -34,8 +34,8 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.TO_REPO_OF_ORT_PRIVATE }}
 
-      # - name: 🔍 ESLint
-      #   run: npm run lint
+      - name: 🔍 ESLint
+        run: npm run lint
 
       - name: 🧪 Jest
         run: echo "NODE_ENV=development" >> $GITHUB_ENV
