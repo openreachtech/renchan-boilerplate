@@ -1,3 +1,5 @@
+scalar BigNumber
+scalar DateTime
 scalar Upload
 
 ################################################################################
