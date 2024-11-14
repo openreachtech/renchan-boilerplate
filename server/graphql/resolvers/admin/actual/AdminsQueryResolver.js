@@ -1,31 +1,27 @@
-'use strict'
-
-const {
+import {
   Op,
-} = require('sequelize')
+} from 'sequelize'
 
-const {
-  graphql: {
-    BaseResolver,
-  },
-} = require('@openreachtech/renchan')
+import {
+  BaseQueryResolver,
+} from '@openreachtech/renchan'
 
-const Admin = require('../../../../../sequelize/models/Admin')
-const AdminSecret = require('../../../../../sequelize/models/AdminSecret')
-const AdminRole = require('../../../../../sequelize/models/AdminRole')
+import Admin from '../../../../../sequelize/models/Admin.js'
+import AdminSecret from '../../../../../sequelize/models/AdminSecret.js'
+import AdminRole from '../../../../../sequelize/models/AdminRole.js'
 
-class AdminsQueryResolver extends BaseResolver {
+export default class AdminsQueryResolver extends BaseQueryResolver {
   /**
    * Resolve the admins query
    *
-   * @param {object} _
-   * @param {import('../../../contexts/AdminContext')} context
+   * @param {{
+   *   context: renchan.GraphqlContext
+   * }} params - Parameters.
    * @returns {Promise<AdminsResult>}
    */
-  async resolve (
-    _,
+  async resolve ({
     context
-  ) {
+  }) {
     const admins = await this.findAdmins({
       adminId: context.admin.id,
     })
@@ -93,10 +89,3 @@ class AdminsQueryResolver extends BaseResolver {
     return 'admins'
   }
 }
-
-module.exports = AdminsQueryResolver
-
-/**
- * @typedef {import('../../../../../types/main').AdminWithAssociationsEntity} AdminWithAssociationsEntity
- * @typedef {import('../../../../../types/main').AdminsResult} AdminsResult
- */
