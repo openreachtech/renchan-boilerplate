@@ -36,6 +36,7 @@ export default class BaseAppGraphqlServerEngine extends BaseGraphqlServerEngine 
       express.urlencoded({
         extended: true,
         verify: (req, res, body) => {
+          // eslint-disable-next-line no-param-reassign
           req['rawBody'] = body.toString()
         },
       }),

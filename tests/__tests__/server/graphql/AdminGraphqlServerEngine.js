@@ -12,7 +12,6 @@ import BaseAppGraphqlServerEngine from '../../../../server/graphql/BaseAppGraphq
 import AdminGraphqlContext from '../../../../server/graphql/contexts/AdminGraphqlContext.js'
 import AdminGraphqlShare from '../../../../server/graphql/contexts/AdminGraphqlShare.js'
 
-
 describe('AdminGraphqlServerEngine', () => {
   describe('super class', () => {
     test('to be instance of base class', () => {
@@ -154,7 +153,7 @@ describe('AdminGraphqlServerEngine', () => {
           expect(canResolveSpy)
             .toHaveBeenCalledWith(expected)
           expect(hasAuthenticatedSpy)
-            .toHaveBeenCalled()
+            .toHaveBeenCalledWith()
           expect(hasAuthorizedSpy)
             .not
             .toHaveBeenCalled()

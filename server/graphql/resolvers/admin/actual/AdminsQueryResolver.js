@@ -20,7 +20,7 @@ export default class AdminsQueryResolver extends BaseQueryResolver {
    * @returns {Promise<AdminsResult>}
    */
   async resolve ({
-    context
+    context,
   }) {
     const admins = await this.findAdmins({
       adminId: context.admin.id,

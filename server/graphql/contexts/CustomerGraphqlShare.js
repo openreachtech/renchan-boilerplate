@@ -10,6 +10,12 @@ import {
  * please refer to this ExtraClient in this sample code.
  */
 const ExtraClient = class {
+  /**
+   * Factory method.
+   *
+   * @param {*} params - Parameters of this factory method.
+   * @returns {ExtraClient} - Instance of this constructor.
+   */
   static create ({
     config,
   }) {
