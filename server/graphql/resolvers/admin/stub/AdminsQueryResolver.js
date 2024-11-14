@@ -1,14 +1,15 @@
-'use strict'
+import {
+  BaseQueryResolver,
+} from '@openreachtech/renchan'
 
-const {
-  graphql: {
-    BaseResolver,
-  },
-} = require('@openreachtech/renchan')
-
-class AdminsQueryResolver extends BaseResolver {
-  /** @inheritdoc */
-  async resolve () {
+export default class AdminsQueryResolver extends BaseQueryResolver {
+  /**
+   * Resolve the admins query
+   *
+   * @param {{}} params - Parameters.
+   * @returns {Promise<AdminsResult>}
+   */
+  async resolve ({}) {
     return {
       admins: [
         {
@@ -42,5 +43,3 @@ class AdminsQueryResolver extends BaseResolver {
     return 'admins'
   }
 }
-
-module.exports = AdminsQueryResolver
