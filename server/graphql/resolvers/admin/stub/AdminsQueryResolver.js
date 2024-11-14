@@ -6,10 +6,12 @@ export default class AdminsQueryResolver extends BaseQueryResolver {
   /**
    * Resolve the admins query
    *
-   * @param {{}} params - Parameters.
+   * @param {*} params - Parameters.
    * @returns {Promise<AdminsResult>}
    */
-  async resolve ({}) {
+  async resolve ({
+    context,
+  }) {
     return {
       admins: [
         {
