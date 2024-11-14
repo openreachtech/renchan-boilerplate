@@ -1,6 +1,4 @@
-'use strict'
-
-module.exports = {
+export default {
   setupFilesAfterEnv: [
     '@openreachtech/renchan-test-tools/lib/environment/setupAfterEnv.js',
   ],
