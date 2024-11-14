@@ -15,7 +15,7 @@
     "l": "npm run lint",
     "lint": "eslint .",
     "test": "export NODE_OPTIONS=\"$NODE_OPTIONS --experimental-vm-modules\"; export NODE_ENV=development; ./test.sh",
-    "test:live": "export NODE_ENV=live; ./test-live.sh"
+    "test:live": "export NODE_OPTIONS=\"$NODE_OPTIONS --experimental-vm-modules\"; export NODE_ENV=live; ./test-live.sh"
   },
   "repository": {
     "type": "git",
