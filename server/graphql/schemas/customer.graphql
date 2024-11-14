@@ -16,6 +16,10 @@ type Query {
   companySponsors: CompanySponsorsResult!
   curriculums(input: CurriculumsSearchInput!): CurriculumsResult!
 
+  # for subscription -----------------------------------------------------------
+  chatMessages (input: ChatMessagesInput!): ChatMessagesResult!
+  chatRooms: ChatRoomsResult!
+
   # for scalar sample ----------------------------------------------------------
   customerAmounts: CustomerAmountsResult!
 }
@@ -33,8 +37,20 @@ type Mutation {
   # for furo boilerplate -------------------------------------------------------
   uploadCustomerForumPostImage(input: UploadCustomerForumPostImageInput!): UploadCustomerForumPostImageResult!
 
+  # for subscription -----------------------------------------------------------
+  createChatRoom (input: CreateChatRoomInput!): CreateChatRoomResult!
+  sendChatMessage (input: SendMessageInput!): SendChatMessageResult!
+
   # for scalar sample ----------------------------------------------------------
   postAppointment (input: PostAppointmentInput!): PostAppointmentResult!
+}
+
+################################################################################
+#### SUBSCRIPTION
+################################################################################
+
+type Subscription {
+  onReceiveMessage (input: OnReceiveMessageInput!): OnReceiveMessageResult!
 }
 
 ################################################################################
@@ -112,6 +128,39 @@ type Sort {
   orderBy: String!
 }
 
+# for subscription -----------------------------------------------------------
+
+type ChatMessagesResult {
+  messages: [ChatMessage!]!
+}
+
+type ChatRoomsResult {
+  rooms: [ChatRoom!]!
+}
+
+type SendChatMessageResult {
+  message: ChatMessage!
+}
+
+type CreateChatRoomResult {
+  rooms: [ChatRoom!]!
+}
+
+type OnReceiveMessageResult {
+  message: ChatMessage!
+}
+
+type ChatMessage {
+  id: Int! # for edit/delete
+  content: String!
+  sender: String!
+}
+
+type ChatRoom {
+  id: Int!
+  name: String!
+}
+
 # for scalar sample ------------------------------------------------------------
 
 type PostAppointmentResult {
@@ -164,6 +213,26 @@ input PaginationInput {
 input SortInput {
   targetColumn: String!
   orderBy: String!
+}
+
+# for subscription -------------------------------------------------------------
+
+input ChatMessagesInput {
+  roomId: Int!
+}
+
+input CreateChatRoomInput {
+  name: String! # room name
+}
+
+input SendMessageInput {
+  roomId: Int!
+  content: String!
+  sender: String! # username
+}
+
+input OnReceiveMessageInput {
+  roomId: Int!
 }
 
 # for scalar sample ------------------------------------------------------------
