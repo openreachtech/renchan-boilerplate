@@ -1,14 +1,12 @@
-'use strict'
-
-const {
+import {
   RenchanModel,
   ModelAttributeFactory,
-} = require('@openreachtech/renchan-sequelize')
+} from '@openreachtech/renchan-sequelize'
 
 /**
  * Customer model.
  */
-class Customer extends RenchanModel {
+export default class Customer extends RenchanModel {
   /** @inheritdoc */
   static createAttributes (DataTypes) {
     const factory = ModelAttributeFactory.create(DataTypes)
@@ -37,5 +35,3 @@ class Customer extends RenchanModel {
     // noop
   }
 }
-
-module.exports = Customer

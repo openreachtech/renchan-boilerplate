@@ -1,11 +1,11 @@
-// import activate from './sequelize/_.js'
+import activate from '../sequelize/_.js'
 
 // import GraphqlServerBuilder from '../lib/server/graphql/GraphqlServerBuilder.js'
 
 // import CustomerGraphqlServerEngine from './server/graphql/CustomerGraphqlServerEngine.js'
 // import AdminGraphqlServerEngine from './server/graphql/AdminGraphqlServerEngine.js'
 
-// await activate()
+await activate()
 
 // GraphqlServerBuilder.createAsync({
 //   Engine: CustomerGraphqlServerEngine,

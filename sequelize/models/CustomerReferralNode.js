@@ -1,17 +1,34 @@
-'use strict'
+import {
+  Sequelize,
+} from 'sequelize'
 
-const {
-  ReferralNode: RenchanReferralNode,
-} = require('@openreachtech/renchan').models
-
-const {
+import {
   ModelAttributeFactory,
-} = require('@openreachtech/renchan-sequelize')
+  RenchanModel,
+} from '@openreachtech/renchan-sequelize'
+
+import FertileForest from '@steweucen/fertile-forest-sequelize'
+
+const SequelizeWithFFModel = new Proxy(Sequelize, {
+  get (
+    Sequelize,
+    property,
+    receiver
+  ) {
+    if (property === 'Model') {
+      return RenchanModel
+    }
+
+    return Reflect.get(Sequelize, property, receiver)
+  },
+})
+
+FertileForest.init(SequelizeWithFFModel)
 
 /**
  * Customer Referral node model.
  */
-class CustomerReferralNode extends RenchanReferralNode {
+export default class CustomerReferralNode extends FertileForest.Model {
   /** @inheritdoc */
   static createAttributes (DataTypes) {
     const factory = ModelAttributeFactory.create(DataTypes)
@@ -49,5 +66,3 @@ class CustomerReferralNode extends RenchanReferralNode {
     // noop
   }
 }
-
-module.exports = CustomerReferralNode

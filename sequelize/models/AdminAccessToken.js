@@ -1,11 +1,12 @@
-'use strict'
-
-const {
+import {
   RenchanModel,
   ModelAttributeFactory,
-} = require('@openreachtech/renchan-sequelize')
+} from '@openreachtech/renchan-sequelize'
 
-class AdminAccessToken extends RenchanModel {
+/**
+ * AdminAccessToken model.
+ */
+export default class AdminAccessToken extends RenchanModel {
   /** @inheritdoc */
   static createAttributes (DataTypes) {
     const factory = ModelAttributeFactory.create(DataTypes)
@@ -68,8 +69,6 @@ class AdminAccessToken extends RenchanModel {
     // noop
   }
 }
-
-module.exports = AdminAccessToken
 
 /**
  * @typedef {AdminAccessToken & {

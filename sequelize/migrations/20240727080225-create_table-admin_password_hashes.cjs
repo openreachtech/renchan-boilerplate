@@ -1,13 +1,11 @@
 'use strict'
 
-const {
-  MigrationAttributeFactory,
-} = require('@openreachtech/renchan').sequelize
+const MigrationAttributeFactory = require('@openreachtech/renchan-sequelize/lib/tools/MigrationAttributeFactory.cjs')
 
-const TABLE_NAME = 'admin_secrets_bk'
+const TABLE_NAME = 'admin_password_hashes'
 const COLUMN_NAME = {
   ADMIN_ID: 'admin_id',
-  EMAIL: 'email',
+  PASSWORD_HASH: 'password_hash',
 }
 
 module.exports = {
@@ -27,26 +25,28 @@ module.exports = {
           field: COLUMN_NAME.ADMIN_ID,
           allowNull: false,
         },
-        email: {
+        passwordHash: {
           type: Sequelize.STRING(191),
-          field: COLUMN_NAME.EMAIL,
+          field: COLUMN_NAME.PASSWORD_HASH,
           allowNull: false,
         },
 
         ...factory.TIMESTAMPS,
       }
     )
-      .then(() => queryInterface.addIndex(
-        TABLE_NAME,
-        [COLUMN_NAME.ADMIN_ID],
-        {
-          name: [
-            TABLE_NAME,
-            COLUMN_NAME.ADMIN_ID,
-            'index',
-          ].join('_'),
-        }
-      ))
+      .then(
+        () => queryInterface.addIndex(
+          TABLE_NAME,
+          [COLUMN_NAME.ADMIN_ID],
+          {
+            name: [
+              TABLE_NAME,
+              COLUMN_NAME.ADMIN_ID,
+              'index',
+            ].join('_'),
+          }
+        )
+      )
   },
 
   async down (

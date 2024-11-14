@@ -1,8 +1,6 @@
 'use strict'
 
-const {
-  MigrationAttributeFactory,
-} = require('@openreachtech/renchan-sequelize')
+const MigrationAttributeFactory = require('@openreachtech/renchan-sequelize/lib/tools/MigrationAttributeFactory.cjs')
 
 const TABLE_NAME = 'customer_referral_nodes'
 const COLUMN_NAME = {

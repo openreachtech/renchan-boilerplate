@@ -1,8 +1,6 @@
 'use strict'
 
-const {
-  MigrationAttributeFactory,
-} = require('@openreachtech/renchan').sequelize
+const MigrationAttributeFactory = require('@openreachtech/renchan-sequelize/lib/tools/MigrationAttributeFactory.cjs')
 
 const TABLE_NAME = 'admin_access_tokens'
 const COLUMN_NAME = {
