@@ -1,8 +1,6 @@
-'use strict'
+import openreachtechConfig from '@openreachtech/eslint-config'
 
-const openreachtechConfig = require('@openreachtech/eslint-config')
-
-module.exports = [
+export default [
   ...openreachtechConfig,
 
   {
