@@ -154,7 +154,7 @@ describe('CustomerGraphqlServerEngine', () => {
           expect(canResolveSpy)
             .toHaveBeenCalledWith(expected)
           expect(hasAuthenticatedSpy)
-            .toHaveBeenCalled()
+            .toHaveBeenCalledWith()
           expect(hasAuthorizedSpy)
             .not
             .toHaveBeenCalled()
