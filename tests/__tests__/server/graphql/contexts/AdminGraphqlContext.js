@@ -89,7 +89,7 @@ describe('AdminGraphqlContext', () => {
 
 describe('AdminGraphqlContext', () => {
   describe('#get:adminId', () => {
-    describe('to return #userEntity', () => {
+    describe('to return #userId', () => {
       const cases = [
         {
           params: {
