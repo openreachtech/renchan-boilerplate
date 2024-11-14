@@ -11,6 +11,13 @@ scalar Upload
 type Query {
   customer: Customer!
   payments: [Payment!]!
+
+  # for furo boilerplate -------------------------------------------------------
+  companySponsors: CompanySponsorsResult!
+  curriculums(input: CurriculumsSearchInput!): CurriculumsResult!
+
+  # for scalar sample ----------------------------------------------------------
+  customerAmounts: CustomerAmountsResult!
 }
 
 ################################################################################
@@ -22,6 +29,12 @@ type Query {
 type Mutation {
   signIn(input: SignInInput!): AuthResult!
   signUp(input: SignUpInput!): AuthResult!
+
+  # for furo boilerplate -------------------------------------------------------
+  uploadCustomerForumPostImage(input: UploadCustomerForumPostImageInput!): UploadCustomerForumPostImageResult!
+
+  # for scalar sample ----------------------------------------------------------
+  postAppointment (input: PostAppointmentInput!): PostAppointmentResult!
 }
 
 ################################################################################
@@ -52,6 +65,70 @@ type Payment {
   fixedAt: String!
 }
 
+# for furo boilerplate ---------------------------------------------------------
+type CompanySponsorsResult {
+  companySponsors:  [CompanySponsor!]!
+}
+
+type CompanySponsor {
+  id: Int!
+  registeredAt: DateTime!
+  companyName: String!
+  companyDescription: String!
+  companySponsorHomepage: String
+  companySponsorLogo: String
+}
+
+type CurriculumsResult {
+  curriculums: [Curriculum!]!
+  pagination: Pagination!
+}
+
+type Curriculum {
+  id: Int!
+  title: String!
+  description: String!
+  thumbnailUrl: String!
+  postedAt: String!
+}
+
+type SignUpResult {
+  sentTo: String!
+}
+
+type UploadCustomerForumPostImageResult {
+  imageUrl: String!
+}
+
+type Pagination {
+  limit: Int!
+  offset: Int!
+  sort: Sort
+  totalRecords: Int!
+}
+
+type Sort {
+  targetColumn: String!
+  orderBy: String!
+}
+
+# for scalar sample ------------------------------------------------------------
+
+type PostAppointmentResult {
+  appointment: Appointment!
+}
+
+type Appointment {
+  id: Int!
+  appointedAt: DateTime!
+  place: String!
+}
+
+type CustomerAmountsResult {
+  stakedAmount: BigNumber!
+  rewardsAmount: BigNumber!
+}
+
 ################################################################################
 #### INPUT
 ################################################################################
@@ -67,4 +144,32 @@ input SignUpInput {
   email: String!
   inviteCode: String!
   password: String!
+}
+
+# for furo boilerplate ---------------------------------------------------------
+input CurriculumsSearchInput {
+  pagination: PaginationInput!
+}
+
+input UploadCustomerForumPostImageInput {
+  image: Upload!
+}
+
+input PaginationInput {
+  limit: Int!
+  offset: Int!
+  sort: SortInput
+}
+
+input SortInput {
+  targetColumn: String!
+  orderBy: String!
+}
+
+# for scalar sample ------------------------------------------------------------
+
+input PostAppointmentInput {
+  clientCustomerId: Int!
+  appointedAt: DateTime!
+  place: String!
 }
