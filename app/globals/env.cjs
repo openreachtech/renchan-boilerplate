@@ -1,3 +1,5 @@
+'use strict'
+
 const {
   EnvironmentFacade,
 } = require('@openreachtech/renchan-env')

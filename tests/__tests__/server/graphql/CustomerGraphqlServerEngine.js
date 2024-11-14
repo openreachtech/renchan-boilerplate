@@ -30,9 +30,9 @@ describe('CustomerGraphqlServerEngine', () => {
       const expected = {
         graphqlEndpoint: '/graphql-customer',
         staticPath: rootPath.to('public/'),
-        schemaPath: rootPath.to('app/server/graphql/schemas/customer-subscription.graphql'),
-        actualResolversPath: rootPath.to('app/server/graphql/resolvers/customer/actual/'),
-        stubResolversPath: rootPath.to('app/server/graphql/resolvers/customer/stub/'),
+        schemaPath: rootPath.to('server/graphql/schemas/customer.graphql'),
+        actualResolversPath: rootPath.to('server/graphql/resolvers/customer/actual/'),
+        stubResolversPath: rootPath.to('server/graphql/resolvers/customer/stub/'),
         redisOptions: null,
       }
 
@@ -154,7 +154,7 @@ describe('CustomerGraphqlServerEngine', () => {
           expect(canResolveSpy)
             .toHaveBeenCalledWith(expected)
           expect(hasAuthenticatedSpy)
-            .toHaveBeenCalled()
+            .toHaveBeenCalledWith()
           expect(hasAuthorizedSpy)
             .not
             .toHaveBeenCalled()

@@ -6,10 +6,12 @@ export default class CustomerQueryResolver extends BaseQueryResolver {
   /**
    * Resolve the customer query
    *
-   * @param {{}} params - Parameters.
+   * @param {*} params - Parameters.
    * @returns {Promise<object>}
    */
-  async resolve ({}) {
+  async resolve ({
+    context,
+  }) {
     return {
       id: 10001,
       username: 'Jiro',

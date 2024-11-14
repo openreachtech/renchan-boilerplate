@@ -29,17 +29,17 @@ jobs:
           node-version: ${{ matrix.node-version }}
           registry-url: https://npm.pkg.github.com
 
-      # - name: 📦 Install packages
-      #   run: npm ci
-      #   env:
-      #     NODE_AUTH_TOKEN: ${{ secrets.TO_REPO_OF_ORT_PRIVATE }}
+      - name: 📦 Install packages
+        run: npm ci
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.TO_REPO_OF_ORT_PRIVATE }}
 
-      # - name: 🔍 ESLint
-      #   run: npm run lint
+      - name: 🔍 ESLint
+        run: npm run lint
 
-      # - name: 🧪 Jest
-      #   run: echo "NODE_ENV=development" >> $GITHUB_ENV
-      # - run: npm test --empty tests/empty/__tests__/
-      # - run: npm test --empty tests/empty/_orders/
-      # - run: npm test --seeded tests/__tests__/
-      # - run: npm test --seeded tests/_orders/
+      - name: 🧪 Jest
+        run: echo "NODE_ENV=development" >> $GITHUB_ENV
+      - run: npm test --empty tests/empty/__tests__/
+      - run: npm test --empty tests/empty/_orders/
+      - run: npm test --seeded tests/__tests__/
+      - run: npm test --seeded tests/_orders/

@@ -12,7 +12,6 @@ import BaseAppGraphqlServerEngine from '../../../../server/graphql/BaseAppGraphq
 import AdminGraphqlContext from '../../../../server/graphql/contexts/AdminGraphqlContext.js'
 import AdminGraphqlShare from '../../../../server/graphql/contexts/AdminGraphqlShare.js'
 
-
 describe('AdminGraphqlServerEngine', () => {
   describe('super class', () => {
     test('to be instance of base class', () => {
@@ -30,9 +29,9 @@ describe('AdminGraphqlServerEngine', () => {
       const expected = {
         graphqlEndpoint: '/graphql-admin',
         staticPath: rootPath.to('public/'),
-        schemaPath: rootPath.to('app/server/graphql/schemas/admin-subscription.graphql'),
-        actualResolversPath: rootPath.to('app/server/graphql/resolvers/admin/actual/'),
-        stubResolversPath: rootPath.to('app/server/graphql/resolvers/admin/stub/'),
+        schemaPath: rootPath.to('server/graphql/schemas/admin.graphql'),
+        actualResolversPath: rootPath.to('server/graphql/resolvers/admin/actual/'),
+        stubResolversPath: rootPath.to('server/graphql/resolvers/admin/stub/'),
         redisOptions: null,
       }
 
@@ -154,7 +153,7 @@ describe('AdminGraphqlServerEngine', () => {
           expect(canResolveSpy)
             .toHaveBeenCalledWith(expected)
           expect(hasAuthenticatedSpy)
-            .toHaveBeenCalled()
+            .toHaveBeenCalledWith()
           expect(hasAuthorizedSpy)
             .not
             .toHaveBeenCalled()
