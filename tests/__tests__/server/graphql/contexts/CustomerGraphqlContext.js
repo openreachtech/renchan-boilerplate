@@ -89,7 +89,7 @@ describe('CustomerGraphqlContext', () => {
 
 describe('CustomerGraphqlContext', () => {
   describe('#get:customerId', () => {
-    describe('to return #userEntity', () => {
+    describe('to return #userId', () => {
       const cases = [
         {
           params: {
