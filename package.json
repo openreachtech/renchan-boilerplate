@@ -10,6 +10,7 @@
     "db:seed:dev": "sequelize-cli db:seed:all --seeders-path sequelize/seeders/development --debug",
     "db:setup": "sequelize-cli db:migrate;",
     "db:teardown": "rm sequelize/storage/*.sqlite3",
+    "db:refresh": "export NODE_ENV=development; npm run db:teardown; npm run db:setup; npm run db:seed:master; npm run db:seed:dev;",
     "dev": "export NODE_ENV=development; nodemon server",
     "jest": "jest --forceExit --detectOpenHandles --passWithNoTests",
     "l": "npm run lint",
