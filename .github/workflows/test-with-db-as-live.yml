@@ -61,7 +61,9 @@ jobs:
       - run: npm run db:setup
       - run: npm run db:seed:master
       - run: npm run test:live --empty tests/empty/__tests__/
+      - run: npm run test:live --empty tests/empty/_live/
       - run: npm run test:live --empty tests/empty/_orders/
       - run: npm run db:seed:dev
       - run: npm run test:live --seeded tests/__tests__/
+      - run: npm run test:live --seeded tests/_live/
       - run: npm run test:live --seeded tests/_orders/
