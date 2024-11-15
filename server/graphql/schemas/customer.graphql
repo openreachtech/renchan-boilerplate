@@ -1,3 +1,5 @@
+scalar BigNumber
+scalar DateTime
 scalar Upload
 
 ################################################################################
@@ -9,6 +11,17 @@ scalar Upload
 type Query {
   customer: Customer!
   payments: [Payment!]!
+
+  # for furo boilerplate -------------------------------------------------------
+  companySponsors: CompanySponsorsResult!
+  curriculums(input: CurriculumsSearchInput!): CurriculumsResult!
+
+  # for subscription -----------------------------------------------------------
+  chatMessages (input: ChatMessagesInput!): ChatMessagesResult!
+  chatRooms: ChatRoomsResult!
+
+  # for scalar sample ----------------------------------------------------------
+  customerAmounts: CustomerAmountsResult!
 }
 
 ################################################################################
@@ -20,6 +33,24 @@ type Query {
 type Mutation {
   signIn(input: SignInInput!): AuthResult!
   signUp(input: SignUpInput!): AuthResult!
+
+  # for furo boilerplate -------------------------------------------------------
+  uploadCustomerForumPostImage(input: UploadCustomerForumPostImageInput!): UploadCustomerForumPostImageResult!
+
+  # for subscription -----------------------------------------------------------
+  createChatRoom (input: CreateChatRoomInput!): CreateChatRoomResult!
+  sendChatMessage (input: SendMessageInput!): SendChatMessageResult!
+
+  # for scalar sample ----------------------------------------------------------
+  postAppointment (input: PostAppointmentInput!): PostAppointmentResult!
+}
+
+################################################################################
+#### SUBSCRIPTION
+################################################################################
+
+type Subscription {
+  onReceiveMessage (input: OnReceiveMessageInput!): OnReceiveMessageResult!
 }
 
 ################################################################################
@@ -50,6 +81,103 @@ type Payment {
   fixedAt: String!
 }
 
+# for furo boilerplate ---------------------------------------------------------
+type CompanySponsorsResult {
+  companySponsors:  [CompanySponsor!]!
+}
+
+type CompanySponsor {
+  id: Int!
+  registeredAt: DateTime!
+  companyName: String!
+  companyDescription: String!
+  companySponsorHomepage: String
+  companySponsorLogo: String
+}
+
+type CurriculumsResult {
+  curriculums: [Curriculum!]!
+  pagination: Pagination!
+}
+
+type Curriculum {
+  id: Int!
+  title: String!
+  description: String!
+  thumbnailUrl: String!
+  postedAt: String!
+}
+
+type SignUpResult {
+  sentTo: String!
+}
+
+type UploadCustomerForumPostImageResult {
+  imageUrl: String!
+}
+
+type Pagination {
+  limit: Int!
+  offset: Int!
+  sort: Sort
+  totalRecords: Int!
+}
+
+type Sort {
+  targetColumn: String!
+  orderBy: String!
+}
+
+# for subscription -----------------------------------------------------------
+
+type ChatMessagesResult {
+  messages: [ChatMessage!]!
+}
+
+type ChatRoomsResult {
+  rooms: [ChatRoom!]!
+}
+
+type SendChatMessageResult {
+  message: ChatMessage!
+}
+
+type CreateChatRoomResult {
+  rooms: [ChatRoom!]!
+}
+
+type OnReceiveMessageResult {
+  message: ChatMessage!
+}
+
+type ChatMessage {
+  id: Int! # for edit/delete
+  content: String!
+  sender: String!
+}
+
+type ChatRoom {
+  id: Int!
+  name: String!
+}
+
+# for scalar sample ------------------------------------------------------------
+
+type PostAppointmentResult {
+  appointment: Appointment!
+}
+
+type Appointment {
+  id: Int!
+  appointedAt: DateTime!
+  place: String!
+}
+
+type CustomerAmountsResult {
+  stakedAmount: BigNumber!
+  rewardsAmount: BigNumber!
+}
+
 ################################################################################
 #### INPUT
 ################################################################################
@@ -65,4 +193,52 @@ input SignUpInput {
   email: String!
   inviteCode: String!
   password: String!
+}
+
+# for furo boilerplate ---------------------------------------------------------
+input CurriculumsSearchInput {
+  pagination: PaginationInput!
+}
+
+input UploadCustomerForumPostImageInput {
+  image: Upload!
+}
+
+input PaginationInput {
+  limit: Int!
+  offset: Int!
+  sort: SortInput
+}
+
+input SortInput {
+  targetColumn: String!
+  orderBy: String!
+}
+
+# for subscription -------------------------------------------------------------
+
+input ChatMessagesInput {
+  roomId: Int!
+}
+
+input CreateChatRoomInput {
+  name: String! # room name
+}
+
+input SendMessageInput {
+  roomId: Int!
+  content: String!
+  sender: String! # username
+}
+
+input OnReceiveMessageInput {
+  roomId: Int!
+}
+
+# for scalar sample ------------------------------------------------------------
+
+input PostAppointmentInput {
+  clientCustomerId: Int!
+  appointedAt: DateTime!
+  place: String!
 }

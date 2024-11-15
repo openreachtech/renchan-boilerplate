@@ -1,11 +1,12 @@
-'use strict'
-
-const {
+import {
   RenchanModel,
   ModelAttributeFactory,
-} = require('@openreachtech/renchan-sequelize')
+} from '@openreachtech/renchan-sequelize'
 
-class AdminRoleAssignment extends RenchanModel {
+/**
+ * AdminRoleAssignment model.
+ */
+export default class AdminRoleAssignment extends RenchanModel {
   /** @inheritdoc */
   static createAttributes (DataTypes) {
     const factory = ModelAttributeFactory.create(DataTypes)
@@ -58,8 +59,6 @@ class AdminRoleAssignment extends RenchanModel {
     // 必要に応じてサブクエリを定義
   }
 }
-
-module.exports = AdminRoleAssignment
 
 /**
  * @typedef {AdminRoleAssignment & {

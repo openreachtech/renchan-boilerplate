@@ -1,3 +1,4 @@
+scalar DateTime
 scalar Upload
 
 ################################################################################
@@ -7,7 +8,10 @@ scalar Upload
 ## !!!!!!!! Please add in dictionary order.
 
 type Query {
-    admins: AdminsResult!
+  admins: AdminsResult!
+
+  customers: [Customer!]!
+  assets: [Asset!]!
 }
 
 ################################################################################
@@ -15,7 +19,8 @@ type Query {
 ################################################################################
 
 type Mutation {
-    signIn(input: SignInInput!): AuthResult!
+  signIn(input: SignInInput): AuthResult!
+  signUp(input: SignUpInput): AuthResult!
 }
 
 ################################################################################
@@ -42,11 +47,28 @@ type AuthResult {
     accessToken: String!
 }
 
+type Customer {
+  id: Int!
+  name: String!
+  inviteCode: String!
+}
+
+type Asset {
+  customerId: Int!
+  stakedAmount: String!
+  rewardsAmount: String!
+}
+
 ################################################################################
 #### INPUT
 ################################################################################
 
+input SignUpInput {
+  email: String!
+  password: String!
+}
+
 input SignInInput {
-    email: String!
-    password: String!
+  email: String!
+  password: String!
 }

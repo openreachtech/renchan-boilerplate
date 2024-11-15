@@ -1,12 +1,13 @@
-'use strict'
-
-const {
+import {
+  BackupMixinModel,
   RenchanModel,
   ModelAttributeFactory,
-  BackupMixinModel,
-} = require('@openreachtech/renchan-sequelize')
+} from '@openreachtech/renchan-sequelize'
 
-class AdminSecret extends RenchanModel {
+/**
+ * AdminSecret model.
+ */
+export default class AdminSecret extends RenchanModel {
   /** @inheritdoc */
   static createAttributes (DataTypes) {
     const factory = ModelAttributeFactory.create(DataTypes)
@@ -73,8 +74,6 @@ class AdminSecret extends RenchanModel {
     return this._.AdminSecretBk
   }
 }
-
-module.exports = AdminSecret
 
 /**
  * @typedef {AdminSecret & {

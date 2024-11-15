@@ -1,27 +1,26 @@
-'use strict'
+import activate from '../sequelize/_.js'
 
-require('../sequelize/activatedModels')
+import {
+  GraphqlServerBuilder,
+} from '@openreachtech/renchan'
 
-const AppRestfulServer = require('./AppRestfulServer')
-const AdminExpressServer = require('./AdminExpressServer')
-const CustomerExpressServer = require('./CustomerExpressServer')
-const StubCustomerExpressServer = require('./StubCustomerExpressServer')
+import CustomerGraphqlServerEngine from './graphql/CustomerGraphqlServerEngine.js'
+import AdminGraphqlServerEngine from './graphql/AdminGraphqlServerEngine.js'
 
-/** @type {AppRestfulServer} */
-const apiServer = /** @type {*} */ (AppRestfulServer.create({
-  pathPrefix: '/v1',
-  message: 'Express GraphQL Server Now Running On http://localhost:8001/',
-}))
+await activate()
 
-const server = /** @type {CustomerExpressServer} */ (CustomerExpressServer.create())
-const stubCustomerServer = /** @type {StubCustomerExpressServer} */ (StubCustomerExpressServer.create())
-const adminServer = /** @type {AdminExpressServer} */ (AdminExpressServer.create())
-
-apiServer.runAsRestfulApi({
-  message: 'Express GraphQL Server Now Running On http://localhost:8001/',
-  port: 8001,
+GraphqlServerBuilder.createAsync({
+  Engine: CustomerGraphqlServerEngine,
 })
+  .then(builder =>
+    builder.buildHttpServer()
+      .listen(3900)
+  )
 
-server.runAsCustomer()
-stubCustomerServer.runAsCustomer()
-adminServer.runAsAdmin()
+GraphqlServerBuilder.createAsync({
+  Engine: AdminGraphqlServerEngine,
+})
+  .then(builder =>
+    builder.buildHttpServer()
+      .listen(5800)
+  )

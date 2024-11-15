@@ -1,20 +1,23 @@
-'use strict'
+import {
+  BaseQueryResolver,
+} from '@openreachtech/renchan'
 
-const {
-  graphql: {
-    BaseResolver,
-  },
-} = require('@openreachtech/renchan')
-
-class CustomerQueryResolver extends BaseResolver {
-  /** @inheritdoc */
-  async resolve () {
+export default class CustomerQueryResolver extends BaseQueryResolver {
+  /**
+   * Resolve the customer query
+   *
+   * @param {*} params - Parameters.
+   * @returns {Promise<object>}
+   */
+  async resolve ({
+    context,
+  }) {
     return {
-      id: 999,
-      username: 'hakudajin',
-      inviteCode: 'gFQ0pK6T',
+      id: 10001,
+      username: 'Jiro',
+      inviteCode: 'invite-code-alpha',
       CustomerDetail: {
-        email: 'customer@example.com',
+        email: 'jiro@example.com',
       },
     }
   }
@@ -24,5 +27,3 @@ class CustomerQueryResolver extends BaseResolver {
     return 'customer'
   }
 }
-
-module.exports = CustomerQueryResolver
