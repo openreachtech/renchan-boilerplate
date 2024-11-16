@@ -14,10 +14,6 @@ export default class Admin extends RenchanModel {
     return {
       ...factory.ID_BIGINT,
 
-      username: {
-        type: DataTypes.STRING(191),
-        allowNull: false,
-      },
       registeredAt: {
         type: DataTypes.DATE(3),
         allowNull: false,

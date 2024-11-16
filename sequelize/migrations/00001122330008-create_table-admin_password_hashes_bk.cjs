@@ -6,6 +6,7 @@ const TABLE_NAME = 'admin_password_hashes_bk'
 const COLUMN_NAME = {
   ADMIN_ID: 'admin_id',
   PASSWORD_HASH: 'password_hash',
+  SAVED_AT: 'saved_at',
 }
 
 module.exports = {
@@ -28,6 +29,11 @@ module.exports = {
         passwordHash: {
           type: Sequelize.STRING(191),
           field: COLUMN_NAME.PASSWORD_HASH,
+          allowNull: false,
+        },
+        savedAt: {
+          type: Sequelize.DATE(3),
+          field: COLUMN_NAME.SAVED_AT,
           allowNull: false,
         },
 
