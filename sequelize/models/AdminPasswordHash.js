@@ -15,6 +15,10 @@ export default class AdminPasswordHash extends RenchanModel {
     return {
       ...factory.ID_BIGINT,
 
+      AdminId: {
+        type: DataTypes.BIGINT,
+        allowNull: false,
+      },
       passwordHash: {
         type: DataTypes.STRING(191),
         allowNull: false,
