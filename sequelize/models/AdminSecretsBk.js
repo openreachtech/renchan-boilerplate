@@ -4,9 +4,9 @@ import {
 } from '@openreachtech/renchan-sequelize'
 
 /**
- * AdminSecretBk model.
+ * AdminSecretsBk model.
  */
-export default class AdminSecretBk extends RenchanModel {
+export default class AdminSecretsBk extends RenchanModel {
   /** @inheritdoc */
   static createAttributes (DataTypes) {
     const factory = ModelAttributeFactory.create(DataTypes)
@@ -63,9 +63,9 @@ export default class AdminSecretBk extends RenchanModel {
 }
 
 /**
- * @typedef {AdminSecretBk & {
+ * @typedef {AdminSecretsBk & {
  *   id: number;
  *   AdminId: number;
  *   email: string;
- * }} AdminSecretBkEntity
+ * }} AdminSecretsBkEntity
  */
