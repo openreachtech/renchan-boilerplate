@@ -23,6 +23,10 @@ export default class AdminSecret extends RenchanModel {
         type: DataTypes.STRING(191),
         allowNull: false,
       },
+      savedAt: {
+        type: DataTypes.DATE(3),
+        allowNull: false,
+      },
     }
   }
 
