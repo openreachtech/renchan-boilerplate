@@ -12,7 +12,7 @@ export default class AdminRole extends RenchanModel {
     const factory = ModelAttributeFactory.create(DataTypes)
 
     return {
-      ...factory.ID_INT,
+      ...factory.ID_INTEGER,
 
       name: {
         type: DataTypes.STRING(191),
