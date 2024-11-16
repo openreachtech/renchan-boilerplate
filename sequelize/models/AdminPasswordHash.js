@@ -64,10 +64,10 @@ export default class AdminPasswordHash extends RenchanModel {
   /**
    * get: Backup model for BackupMixinModel
    *
-   * @returns {typeof import('./AdminPasswordHashBk')} - Backup model declaration
+   * @returns {typeof import('./AdminPasswordHashesBk')} - Backup model declaration
    */
   static get BackupModel () {
-    return this._.AdminPasswordHashBk
+    return this._.AdminPasswordHashesBk
   }
 }
 
