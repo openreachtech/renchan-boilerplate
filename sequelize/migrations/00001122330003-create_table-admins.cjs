@@ -21,11 +21,6 @@ module.exports = {
       {
         ...factory.ID_BIGINT,
 
-        username: {
-          type: Sequelize.STRING(191),
-          field: COLUMN_NAME.USERNAME,
-          allowNull: false,
-        },
         registeredAt: {
           type: Sequelize.DATE(3),
           field: COLUMN_NAME.REGISTERED_AT,
