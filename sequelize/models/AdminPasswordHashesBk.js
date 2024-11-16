@@ -4,9 +4,9 @@ import {
 } from '@openreachtech/renchan-sequelize'
 
 /**
- * AdminPasswordHashBk model.
+ * AdminPasswordHashesBk model.
  */
-export default class AdminPasswordHashBk extends RenchanModel {
+export default class AdminPasswordHashesBk extends RenchanModel {
   /** @inheritdoc */
   static createAttributes (DataTypes) {
     const factory = ModelAttributeFactory.create(DataTypes)
@@ -59,9 +59,9 @@ export default class AdminPasswordHashBk extends RenchanModel {
 }
 
 /**
- * @typedef {AdminPasswordHashBk & {
+ * @typedef {AdminPasswordHashesBk & {
  *   id: number;
  *   AdminId: number;
  *   passwordHash: string;
- * }} AdminPasswordHashBkEntity
+ * }} AdminPasswordHashesBkEntity
  */
