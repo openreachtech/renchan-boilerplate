@@ -58,7 +58,7 @@ export default class AdminRole extends RenchanModel {
 
 /**
  * @typedef {AdminRole & {
- *   id: number;
- *   name: string;
+ *   id: number
+ *   name: string
  * }} AdminRoleEntity
  */

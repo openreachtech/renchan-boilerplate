@@ -62,8 +62,8 @@ export default class AdminRoleAssignment extends RenchanModel {
 
 /**
  * @typedef {AdminRoleAssignment & {
- *   id: number;
- *   AdminId: number;
- *   AdminRoleId: number;
+ *   id: number
+ *   AdminId: number
+ *   AdminRoleId: number
  * }} AdminRoleAssignmentEntity
  */

@@ -64,8 +64,9 @@ export default class AdminPasswordHashesBk extends RenchanModel {
 
 /**
  * @typedef {AdminPasswordHashesBk & {
- *   id: number;
- *   AdminId: number;
- *   passwordHash: string;
+ *   id: number
+ *   AdminId: number
+ *   passwordHash: string
+ *   savedAt: Date
  * }} AdminPasswordHashesBkEntity
  */
