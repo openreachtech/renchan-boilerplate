@@ -72,10 +72,10 @@ export default class AdminSecret extends RenchanModel {
   /**
    * get: Backup model for BackupMixinModel
    *
-   * @returns {typeof import('./AdminSecretBk')} - Backup model declaration
+   * @returns {typeof import('./AdminSecretsBk')} - Backup model declaration
    */
   static get BackupModel () {
-    return this._.AdminSecretBk
+    return this._.AdminSecretsBk
   }
 }
 
