@@ -72,15 +72,15 @@ export default class AdminAccessToken extends RenchanModel {
 
 /**
  * @typedef {AdminAccessToken & {
- *   AdminId: number;
- *   accessToken: string;
- *   generatedAt: Date;
- *   expiredAt: Date;
+ *   AdminId: number
+ *   accessToken: string
+ *   generatedAt: Date
+ *   expiredAt: Date
  * }} AdminAccessTokenEntity
  */
 
 /**
  * @typedef {AdminAccessTokenEntity & {
  *   Admin: import('./Admin').AdminEntity
- * }} AdminAccessTokenWithAssociations
+ * }} AdminAccessTokenAssociatedEntity
  */

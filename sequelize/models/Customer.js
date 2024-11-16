@@ -35,3 +35,10 @@ export default class Customer extends RenchanModel {
     // noop
   }
 }
+
+/**
+ * @typedef {Customer & {
+ *   id: number
+ *   registeredAt: Date
+ * }} CustomerEntity
+ */

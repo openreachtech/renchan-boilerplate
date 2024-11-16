@@ -66,3 +66,12 @@ export default class CustomerReferralNode extends FertileForest.Model {
     // noop
   }
 }
+
+/**
+ * @typedef {CustomerReferralNode & {
+ *   id: number
+ *   CustomerId: number
+ *   ffQueue: number
+ *   ffDepth: number
+ * }} CustomerReferralNodeEntity
+ */

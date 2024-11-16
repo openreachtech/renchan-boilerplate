@@ -63,7 +63,7 @@ export default class Admin extends RenchanModel {
 
 /**
  * @typedef {Admin & {
- *   id: number;
- *   username: string;
+ *   id: number
+ *   registeredAt: Date
  * }} AdminEntity
  */

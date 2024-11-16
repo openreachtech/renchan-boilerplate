@@ -81,8 +81,9 @@ export default class AdminSecret extends RenchanModel {
 
 /**
  * @typedef {AdminSecret & {
- *   id: number;
- *   AdminId: number;
- *   email: string;
+ *   id: number
+ *   AdminId: number
+ *   email: string
+ *   savedAt: Date
  * }} AdminSecretEntity
  */
