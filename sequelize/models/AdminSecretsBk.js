@@ -7,7 +7,7 @@ import {
  * AdminSecretsBk model.
  */
 export default class AdminSecretsBk extends RenchanModel {
-  /** @inheritdoc */
+  /** @override */
   static createAttributes (DataTypes) {
     const factory = ModelAttributeFactory.create(DataTypes)
 
@@ -29,36 +29,41 @@ export default class AdminSecretsBk extends RenchanModel {
     }
   }
 
-  /** @inheritdoc */
+  /** @override */
   static createOptions (sequelizeClient) {
     return {
       ...super.createOptions(sequelizeClient),
+
       tableName: 'admin_secrets_bk',
     }
   }
 
-  /** @inheritdoc */
-  static associate (models) {
+  /** @override */
+  static associate () {
     super.associate?.()
-    // バックアップテーブルなので、通常は関連を定義しません
+
+    // noop
   }
 
-  /** @inheritdoc */
+  /** @override */
   static defineScopes (Op) {
     super.defineScopes?.(Op)
-    // 必要に応じてスコープを定義
+
+    // noop
   }
 
-  /** @inheritdoc */
+  /** @override */
   static setupHooks () {
     super.setupHooks?.()
-    // 必要に応じてフックを設定
+
+    // noop
   }
 
-  /** @inheritdoc */
+  /** @override */
   static defineSubqueries () {
     super.defineSubqueries?.()
-    // 必要に応じてサブクエリを定義
+
+    // noop
   }
 }
 

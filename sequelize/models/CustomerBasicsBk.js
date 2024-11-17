@@ -7,7 +7,7 @@ import {
  * CustomerBasicsBk model.
  */
 export default class CustomerBasicsBk extends RenchanModel {
-  /** @inheritdoc */
+  /** @override */
   static createAttributes (DataTypes) {
     const factory = ModelAttributeFactory.create(DataTypes)
 
@@ -29,37 +29,41 @@ export default class CustomerBasicsBk extends RenchanModel {
     }
   }
 
-  /** @inheritdoc */
+  /** @override */
   static createOptions (sequelizeClient) {
     return {
       ...super.createOptions(sequelizeClient),
+
       tableName: 'customer_basics_bk',
     }
   }
 
-  /** @inheritdoc */
-  static associate (models) {
+  /** @override */
+  static associate () {
     super.associate?.()
 
     this.belongsTo(this._.Customer)
   }
 
-  /** @inheritdoc */
+  /** @override */
   static defineScopes (Op) {
     super.defineScopes?.(Op)
-    // 必要に応じてスコープを定義
+
+    // noop
   }
 
-  /** @inheritdoc */
+  /** @override */
   static setupHooks () {
     super.setupHooks?.()
-    // 必要に応じてフックを設定
+
+    // noop
   }
 
-  /** @inheritdoc */
+  /** @override */
   static defineSubqueries () {
     super.defineSubqueries?.()
-    // 必要に応じてサブクエリを定義
+
+    // noop
   }
 }
 

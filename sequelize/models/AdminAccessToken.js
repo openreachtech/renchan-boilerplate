@@ -7,7 +7,7 @@ import {
  * AdminAccessToken model.
  */
 export default class AdminAccessToken extends RenchanModel {
-  /** @inheritdoc */
+  /** @override */
   static createAttributes (DataTypes) {
     const factory = ModelAttributeFactory.create(DataTypes)
 
@@ -34,38 +34,38 @@ export default class AdminAccessToken extends RenchanModel {
     }
   }
 
-  /** @inheritdoc */
+  /** @override */
   static createOptions (sequelizeClient) {
     return {
       ...super.createOptions(sequelizeClient),
     }
-
-    // noop
   }
 
-  /** @inheritdoc */
+  /** @override */
   static associate () {
     super.associate?.()
 
     this.belongsTo(this._.Admin)
   }
 
-  /** @inheritdoc */
+  /** @override */
   static defineScopes (Op) {
     super.defineScopes?.(Op)
 
     // noop
   }
 
-  /** @inheritdoc */
+  /** @override */
   static setupHooks () {
     super.setupHooks?.()
+
     // noop
   }
 
-  /** @inheritdoc */
+  /** @override */
   static defineSubqueries () {
     super.defineSubqueries?.()
+
     // noop
   }
 }
