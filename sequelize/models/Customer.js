@@ -34,6 +34,20 @@ export default class Customer extends RenchanModel {
 
     // noop
   }
+
+  /** @override */
+  static setupHooks () {
+    super.setupHooks?.()
+
+    // noop
+  }
+
+  /** @override */
+  static defineSubqueries () {
+    super.defineSubqueries?.()
+
+    // noop
+  }
 }
 
 /**
