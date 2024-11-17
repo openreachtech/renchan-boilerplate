@@ -130,3 +130,121 @@ describe('CustomerAccessToken', () => {
     })
   })
 })
+
+describe('CustomerAccessToken', () => {
+  describe('.buildWithGeneratedAttributes()', () => {
+    describe('to be instance of own Model', () => {
+      const cases = [
+        {
+          params: {
+            customerId: 100001,
+            generatedAt: new Date('2024-01-21T00:00:01.000Z'),
+            expiredAt: new Date('2024-01-22T00:00:01.000Z'),
+            accessToken: 'accessTOKEN$01',
+          },
+        },
+        {
+          params: {
+            customerId: 100002,
+            generatedAt: new Date('2024-01-22T00:00:02.000Z'),
+            expiredAt: new Date('2024-01-23T00:00:02.000Z'),
+            // accessToken: 'accessTOKEN$02',
+          },
+        },
+        {
+          params: {
+            customerId: 100003,
+            generatedAt: new Date('2024-01-23T00:00:03.000Z'),
+            // expiredAt: new Date('2024-01-24T00:00:03.000Z'),
+            accessToken: 'accessTOKEN$03',
+          },
+        },
+        {
+          params: {
+            customerId: 100004,
+            generatedAt: new Date('2024-01-24T00:00:04.000Z'),
+            // expiredAt: new Date('2024-01-25T00:00:04.000Z'),
+            // accessToken: 'accessTOKEN$04',
+          },
+        },
+      ]
+
+      test.each(cases)('customerId: $params.customerId', ({ params }) => {
+        const actual = CustomerAccessToken.buildWithGeneratedAttributes(params)
+
+        expect(actual)
+          .toBeInstanceOf(CustomerAccessToken)
+      })
+    })
+
+    describe('to call .build()', () => {
+      const cases = [
+        {
+          params: {
+            customerId: 100001,
+            generatedAt: new Date('2024-01-21T00:00:01.000Z'),
+            expiredAt: new Date('2024-01-22T00:00:01.000Z'),
+            accessToken: 'accessTOKEN$01',
+          },
+          expected: {
+            CustomerId: 100001,
+            generatedAt: new Date('2024-01-21T00:00:01.000Z'),
+            expiredAt: new Date('2024-01-22T00:00:01.000Z'),
+            accessToken: 'accessTOKEN$01',
+          },
+        },
+        {
+          params: {
+            customerId: 100002,
+            generatedAt: new Date('2024-01-22T00:00:02.000Z'),
+            expiredAt: new Date('2024-01-23T00:00:02.000Z'),
+            // accessToken: 'accessTOKEN$02',
+          },
+          expected: {
+            CustomerId: 100002,
+            generatedAt: new Date('2024-01-22T00:00:02.000Z'),
+            expiredAt: new Date('2024-01-23T00:00:02.000Z'),
+            accessToken: expect.stringMatching(/^[a-zA-Z0-9]{10}$/u),
+          },
+        },
+        {
+          params: {
+            customerId: 100003,
+            generatedAt: new Date('2024-01-23T00:00:03.000Z'),
+            // expiredAt: new Date('2024-01-24T00:00:03.000Z'),
+            accessToken: 'accessTOKEN$03',
+          },
+          expected: {
+            CustomerId: 100003,
+            generatedAt: new Date('2024-01-23T00:00:03.000Z'),
+            expiredAt: new Date('2024-01-24T00:00:03.000Z'),
+            accessToken: 'accessTOKEN$03',
+          },
+        },
+        {
+          params: {
+            customerId: 100004,
+            generatedAt: new Date('2024-01-24T00:00:04.000Z'),
+            // expiredAt: new Date('2024-01-25T00:00:04.000Z'),
+            // accessToken: 'accessTOKEN$04',
+          },
+          expected: {
+            CustomerId: 100004,
+            generatedAt: new Date('2024-01-24T00:00:04.000Z'),
+            expiredAt: new Date('2024-01-25T00:00:04.000Z'),
+            accessToken: expect.stringMatching(/^[a-zA-Z0-9]{10}$/u),
+          },
+        },
+      ]
+
+      test.each(cases)('customerId: $params.customerId', ({ params, expected }) => {
+        const buildSpy = jest.spyOn(CustomerAccessToken, 'build')
+
+        CustomerAccessToken.buildWithGeneratedAttributes(params)
+
+        expect(buildSpy)
+          .toHaveBeenCalledWith(expected)
+      })
+    })
+  })
+})
