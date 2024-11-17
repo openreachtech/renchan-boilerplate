@@ -3,6 +3,11 @@ import {
 } from '@openreachtech/renchan'
 
 export default class CustomerQueryResolver extends BaseQueryResolver {
+  /** @override */
+  get schema () {
+    return 'customer'
+  }
+
   /**
    * Resolve the customer query
    *
@@ -20,10 +25,5 @@ export default class CustomerQueryResolver extends BaseQueryResolver {
         email: 'jiro@example.com',
       },
     }
-  }
-
-  /** @override */
-  get schema () {
-    return 'customer'
   }
 }

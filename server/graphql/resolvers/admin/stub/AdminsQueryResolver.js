@@ -3,6 +3,11 @@ import {
 } from '@openreachtech/renchan'
 
 export default class AdminsQueryResolver extends BaseQueryResolver {
+  /** @override */
+  get schema () {
+    return 'admins'
+  }
+
   /**
    * Resolve the admins query
    *
@@ -38,10 +43,5 @@ export default class AdminsQueryResolver extends BaseQueryResolver {
         },
       ],
     }
-  }
-
-  /** @override */
-  get schema () {
-    return 'admins'
   }
 }
