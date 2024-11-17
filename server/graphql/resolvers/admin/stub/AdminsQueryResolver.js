@@ -40,7 +40,7 @@ export default class AdminsQueryResolver extends BaseQueryResolver {
     }
   }
 
-  /** @inheritdoc */
+  /** @override */
   get schema () {
     return 'admins'
   }
