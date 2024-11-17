@@ -29,7 +29,8 @@ export default class AdminRoleAssignment extends RenchanModel {
   static createOptions (sequelizeClient) {
     return {
       ...super.createOptions(sequelizeClient),
-      paranoid: true, // deleted_at カラムがあるため
+
+      paranoid: true, // for deleted_at column
     }
   }
 

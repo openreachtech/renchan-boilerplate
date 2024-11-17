@@ -33,6 +33,7 @@ export default class AdminPasswordHashesBk extends RenchanModel {
   static createOptions (sequelizeClient) {
     return {
       ...super.createOptions(sequelizeClient),
+
       tableName: 'admin_password_hashes_bk',
     }
   }

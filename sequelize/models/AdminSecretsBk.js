@@ -33,6 +33,7 @@ export default class AdminSecretsBk extends RenchanModel {
   static createOptions (sequelizeClient) {
     return {
       ...super.createOptions(sequelizeClient),
+
       tableName: 'admin_secrets_bk',
     }
   }

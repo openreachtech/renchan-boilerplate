@@ -34,6 +34,7 @@ export default class AdminBasicsBk extends RenchanModel {
   static createOptions (sequelizeClient) {
     return {
       ...super.createOptions(sequelizeClient),
+
       tableName: 'admin_basics_bk',
     }
   }
