@@ -14,23 +14,19 @@ module.exports = {
   ) {
     const factory = MigrationAttributeFactory.create(Sequelize)
 
-    return queryInterface.createTable(
-      TABLE_NAME,
-      {
-        id: {
-          type: Sequelize.INTEGER,
-          primaryKey: true,
-          autoIncrement: true,
-        },
-        name: {
-          type: Sequelize.STRING(191),
-          field: COLUMN_NAME.NAME,
-          allowNull: false,
-        },
+    await queryInterface.createTable(TABLE_NAME, {
+      ...factory.ID_INTEGER,
 
-        ...factory.TIMESTAMPS,
-      }
-    )
+      name: {
+        type: Sequelize.STRING(191),
+        field: COLUMN_NAME.NAME,
+        allowNull: false,
+      },
+
+      ...factory.TIMESTAMPS,
+    })
+
+    return Promise.resolve()
   },
 
   async down (

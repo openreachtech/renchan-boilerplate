@@ -41,45 +41,37 @@ module.exports = {
 
     await Promise.all([
       // indexes for FF Model
-      queryInterface.addIndex(
-        TABLE_NAME,
-        [COLUMN_NAME.FF_QUEUE],
-        {
-          name: [
-            TABLE_NAME,
-            COLUMN_NAME.FF_QUEUE,
-            'index',
-          ].join('_'),
-        }
-      ),
-      queryInterface.addIndex(
-        TABLE_NAME,
-        [
+      queryInterface.addIndex(TABLE_NAME, [
+        COLUMN_NAME.FF_QUEUE,
+      ], {
+        name: [
+          TABLE_NAME,
+          COLUMN_NAME.FF_QUEUE,
+          'index',
+        ].join('_'),
+      }),
+      queryInterface.addIndex(TABLE_NAME, [
+        COLUMN_NAME.FF_DEPTH,
+        COLUMN_NAME.FF_QUEUE,
+      ], {
+        name: [
+          TABLE_NAME,
           COLUMN_NAME.FF_DEPTH,
           COLUMN_NAME.FF_QUEUE,
-        ],
-        {
-          name: [
-            TABLE_NAME,
-            COLUMN_NAME.FF_DEPTH,
-            COLUMN_NAME.FF_QUEUE,
-            'index',
-          ].join('_'),
-        }
-      ),
+          'index',
+        ].join('_'),
+      }),
 
       // index for renchan.
-      queryInterface.addIndex(
-        TABLE_NAME,
-        [COLUMN_NAME.CUSTOMER_ID],
-        {
-          name: [
-            TABLE_NAME,
-            COLUMN_NAME.CUSTOMER_ID,
-            'index',
-          ].join('_'),
-        }
-      ),
+      queryInterface.addIndex(TABLE_NAME, [
+        COLUMN_NAME.CUSTOMER_ID,
+      ], {
+        name: [
+          TABLE_NAME,
+          COLUMN_NAME.CUSTOMER_ID,
+          'index',
+        ].join('_'),
+      }),
     ])
 
     return Promise.resolve()

@@ -50,6 +50,8 @@ module.exports = {
         ].join('_'),
       }),
     ])
+
+    return Promise.resolve()
   },
 
   async down (
