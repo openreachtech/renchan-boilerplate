@@ -38,7 +38,7 @@ export default class CustomerPasswordHash extends RenchanModel {
   }
 
   /** @inheritdoc */
-  static associate (models) {
+  static associate () {
     super.associate?.()
 
     this.belongsTo(this._.Customer)

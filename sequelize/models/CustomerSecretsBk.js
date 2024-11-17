@@ -39,7 +39,7 @@ export default class CustomerSecretsBk extends RenchanModel {
   }
 
   /** @inheritdoc */
-  static associate (models) {
+  static associate () {
     super.associate?.()
 
     // noop

@@ -39,7 +39,7 @@ export default class AdminPasswordHashesBk extends RenchanModel {
   }
 
   /** @inheritdoc */
-  static associate (models) {
+  static associate () {
     super.associate?.()
 
     // noop

@@ -35,7 +35,7 @@ export default class AdminRoleAssignment extends RenchanModel {
   }
 
   /** @inheritdoc */
-  static associate (models) {
+  static associate () {
     super.associate?.()
 
     this.belongsTo(this._.Admin)
