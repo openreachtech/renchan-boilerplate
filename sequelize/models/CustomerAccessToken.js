@@ -68,6 +68,27 @@ export default class CustomerAccessToken extends RenchanModel {
 
     // noop
   }
+
+  /**
+   * Create expired at.
+   *
+   * @param {{
+   *   generatedAt: Date
+   * }} params - Parameters.
+   * @returns {Date} - Expired at.
+   */
+  static createExpiredAt ({
+    generatedAt,
+  }) {
+    const oneDayMilliseconds = 60 * 60 * 24 * 1000 // milliseconds in a day
+
+    const expiredAt = new Date(
+      generatedAt.getTime()
+      + oneDayMilliseconds
+    )
+
+    return expiredAt
+  }
 }
 
 /**
