@@ -4,7 +4,7 @@ import {
 
 export default class CustomerQueryResolver extends BaseQueryResolver {
   /** @override */
-  get schema () {
+  static get schema () {
     return 'customer'
   }
 

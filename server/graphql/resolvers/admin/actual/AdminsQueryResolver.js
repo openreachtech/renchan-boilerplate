@@ -12,7 +12,7 @@ import AdminRole from '../../../../../sequelize/models/AdminRole.js'
 
 export default class AdminsQueryResolver extends BaseQueryResolver {
   /** @override */
-  get schema () {
+  static get schema () {
     return 'admins'
   }
 
