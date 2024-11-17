@@ -47,19 +47,22 @@ export default class AdminPasswordHash extends RenchanModel {
   /** @inheritdoc */
   static defineScopes (Op) {
     super.defineScopes?.(Op)
-    // 必要に応じてスコープを定義
+
+    // noop
   }
 
   /** @inheritdoc */
   static setupHooks () {
     super.setupHooks?.()
-    // 必要に応じてフックを設定
+
+    // noop
   }
 
   /** @inheritdoc */
   static defineSubqueries () {
     super.defineSubqueries?.()
-    // 必要に応じてサブクエリを定義
+
+    // noop
   }
 
   /** @override */

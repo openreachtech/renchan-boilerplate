@@ -60,12 +60,14 @@ export default class CustomerAccessToken extends RenchanModel {
   /** @inheritdoc */
   static setupHooks () {
     super.setupHooks?.()
+
     // noop
   }
 
   /** @inheritdoc */
   static defineSubqueries () {
     super.defineSubqueries?.()
+
     // noop
   }
 }
