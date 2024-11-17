@@ -27,7 +27,9 @@ module.exports = {
     })
 
     await Promise.all([
-      queryInterface.addIndex(TABLE_NAME, [COLUMN_NAME.REGISTERED_AT], {
+      queryInterface.addIndex(TABLE_NAME, [
+        COLUMN_NAME.REGISTERED_AT,
+      ], {
         name: [
           TABLE_NAME,
           COLUMN_NAME.REGISTERED_AT,

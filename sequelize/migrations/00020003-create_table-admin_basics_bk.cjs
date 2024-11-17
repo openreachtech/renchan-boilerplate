@@ -40,7 +40,9 @@ module.exports = {
     })
 
     await Promise.all([
-      queryInterface.addIndex(TABLE_NAME, [COLUMN_NAME.ADMIN_ID], {
+      queryInterface.addIndex(TABLE_NAME, [
+        COLUMN_NAME.ADMIN_ID,
+      ], {
         name: [
           TABLE_NAME,
           COLUMN_NAME.ADMIN_ID,

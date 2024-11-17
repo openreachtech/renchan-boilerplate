@@ -44,32 +44,24 @@ module.exports = {
     })
 
     await Promise.all([
-      queryInterface.addIndex(
-        TABLE_NAME,
-        [
+      queryInterface.addIndex(TABLE_NAME, [
+        COLUMN_NAME.CUSTOMER_ID,
+      ], {
+        name: [
+          TABLE_NAME,
           COLUMN_NAME.CUSTOMER_ID,
-        ],
-        {
-          name: [
-            TABLE_NAME,
-            COLUMN_NAME.CUSTOMER_ID,
-            'index',
-          ].join('_'),
-        }
-      ),
-      queryInterface.addIndex(
-        TABLE_NAME,
-        [
+          'index',
+        ].join('_'),
+      }),
+      queryInterface.addIndex(TABLE_NAME, [
+        COLUMN_NAME.ACCESS_TOKEN,
+      ], {
+        name: [
+          TABLE_NAME,
           COLUMN_NAME.ACCESS_TOKEN,
-        ],
-        {
-          name: [
-            TABLE_NAME,
-            COLUMN_NAME.ACCESS_TOKEN,
-            'index',
-          ].join('_'),
-        }
-      ),
+          'index',
+        ].join('_'),
+      }),
     ])
 
     return Promise.resolve()

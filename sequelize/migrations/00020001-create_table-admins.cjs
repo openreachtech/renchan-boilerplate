@@ -4,8 +4,6 @@ const MigrationAttributeFactory = require('@openreachtech/renchan-sequelize/lib/
 
 const TABLE_NAME = 'admins'
 const COLUMN_NAME = {
-  USERNAME: 'username',
-  PASSWORD_HASH: 'password_hash',
   REGISTERED_AT: 'registered_at',
 }
 
@@ -16,20 +14,31 @@ module.exports = {
   ) {
     const factory = MigrationAttributeFactory.create(Sequelize)
 
-    return queryInterface.createTable(
-      TABLE_NAME,
-      {
-        ...factory.ID_BIGINT,
+    await queryInterface.createTable(TABLE_NAME, {
+      ...factory.ID_BIGINT,
 
-        registeredAt: {
-          type: Sequelize.DATE(3),
-          field: COLUMN_NAME.REGISTERED_AT,
-          allowNull: false,
-        },
+      registeredAt: {
+        type: Sequelize.DATE(3),
+        field: COLUMN_NAME.REGISTERED_AT,
+        allowNull: false,
+      },
 
-        ...factory.TIMESTAMPS,
-      }
-    )
+      ...factory.TIMESTAMPS,
+    })
+
+    await Promise.all([
+      queryInterface.addIndex(TABLE_NAME, [
+        COLUMN_NAME.REGISTERED_AT,
+      ], {
+        name: [
+          TABLE_NAME,
+          COLUMN_NAME.REGISTERED_AT,
+          'index',
+        ].join('_'),
+      }),
+    ])
+
+    return Promise.resolve()
   },
 
   async down (

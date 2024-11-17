@@ -16,43 +16,41 @@ module.exports = {
   ) {
     const factory = MigrationAttributeFactory.create(Sequelize)
 
-    return queryInterface.createTable(
-      TABLE_NAME,
-      {
-        ...factory.ID_BIGINT,
+    await queryInterface.createTable(TABLE_NAME, {
+      ...factory.ID_BIGINT,
 
-        AdminId: {
-          type: Sequelize.BIGINT,
-          field: COLUMN_NAME.ADMIN_ID,
-          allowNull: false,
-        },
-        email: {
-          type: Sequelize.STRING(191),
-          field: COLUMN_NAME.EMAIL,
-          allowNull: false,
-        },
-        savedAt: {
-          type: Sequelize.DATE(3),
-          field: COLUMN_NAME.SAVED_AT,
-          allowNull: false,
-        },
+      AdminId: {
+        type: Sequelize.BIGINT,
+        field: COLUMN_NAME.ADMIN_ID,
+        allowNull: false,
+      },
+      email: {
+        type: Sequelize.STRING(191),
+        field: COLUMN_NAME.EMAIL,
+        allowNull: false,
+      },
+      savedAt: {
+        type: Sequelize.DATE(3),
+        field: COLUMN_NAME.SAVED_AT,
+        allowNull: false,
+      },
 
-        ...factory.TIMESTAMPS,
-      }
-    )
-      .then(
-        () => queryInterface.addIndex(
+      ...factory.TIMESTAMPS,
+    })
+
+    await Promise.all([
+      queryInterface.addIndex(TABLE_NAME, [
+        COLUMN_NAME.ADMIN_ID,
+      ], {
+        name: [
           TABLE_NAME,
-          [COLUMN_NAME.ADMIN_ID],
-          {
-            name: [
-              TABLE_NAME,
-              COLUMN_NAME.ADMIN_ID,
-              'index',
-            ].join('_'),
-          }
-        )
-      )
+          COLUMN_NAME.ADMIN_ID,
+          'index',
+        ].join('_'),
+      }),
+    ])
+
+    return Promise.resolve()
   },
 
   async down (
