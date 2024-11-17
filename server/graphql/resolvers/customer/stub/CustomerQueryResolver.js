@@ -22,7 +22,7 @@ export default class CustomerQueryResolver extends BaseQueryResolver {
     }
   }
 
-  /** @inheritdoc */
+  /** @override */
   get schema () {
     return 'customer'
   }
