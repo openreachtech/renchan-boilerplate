@@ -39,8 +39,6 @@ export default class AdminAccessToken extends RenchanModel {
     return {
       ...super.createOptions(sequelizeClient),
     }
-
-    // noop
   }
 
   /** @inheritdoc */

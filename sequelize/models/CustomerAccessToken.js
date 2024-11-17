@@ -39,8 +39,6 @@ export default class CustomerAccessToken extends RenchanModel {
     return {
       ...super.createOptions(sequelizeClient),
     }
-
-    // noop
   }
 
   /** @inheritdoc */
