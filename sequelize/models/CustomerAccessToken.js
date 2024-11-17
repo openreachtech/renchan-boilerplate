@@ -3,6 +3,10 @@ import {
   ModelAttributeFactory,
 } from '@openreachtech/renchan-sequelize'
 
+import {
+  RandomTextGenerator,
+} from '@openreachtech/renchan-tools'
+
 /**
  * CustomerAccessToken model.
  */
@@ -88,6 +92,22 @@ export default class CustomerAccessToken extends RenchanModel {
     )
 
     return expiredAt
+  }
+
+  /**
+   * Generate access token.
+   *
+   * @param {{
+   *   length?: number
+   * }} [params] - Parameters.
+   * @returns {string} - Access token.
+   */
+  static generateAccessToken ({
+    length = 10,
+  } = {}) {
+    const generator = RandomTextGenerator.create()
+
+    return generator.generate(length)
   }
 }
 
