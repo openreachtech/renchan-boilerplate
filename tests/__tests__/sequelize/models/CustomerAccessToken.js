@@ -1,3 +1,7 @@
+import {
+  RandomTextGenerator,
+} from '@openreachtech/renchan-tools'
+
 import CustomerAccessToken from '../../../../sequelize/models/CustomerAccessToken.js'
 
 describe('CustomerAccessToken', () => {
@@ -41,6 +45,87 @@ describe('CustomerAccessToken', () => {
 
         expect(actual)
           .toStrictEqual(expected)
+      })
+    })
+  })
+})
+
+describe('CustomerAccessToken', () => {
+  describe('.generateAccessToken()', () => {
+    describe('to be fixed length string', () => {
+      const cases = [
+        {
+          params: {
+            length: 10,
+          },
+          expected: /^[a-zA-Z0-9]{10}$/u,
+        },
+        {
+          params: {
+            length: 15,
+          },
+          expected: /^[a-zA-Z0-9]{15}$/u,
+        },
+        {
+          params: {
+            length: 20,
+          },
+          expected: /^[a-zA-Z0-9]{20}$/u,
+        },
+      ]
+
+      test.each(cases)('length: $params.length', ({ params, expected }) => {
+        const actual = CustomerAccessToken.generateAccessToken(params)
+
+        expect(actual)
+          .toMatch(expected)
+      })
+
+      test('with no parameter', () => {
+        const expected = /^[a-zA-Z0-9]{10}$/u
+
+        const actual = CustomerAccessToken.generateAccessToken()
+
+        expect(actual)
+          .toMatch(expected)
+      })
+    })
+
+    describe('to call factory method of Generator', () => {
+      const cases = [
+        {
+          params: {
+            length: 10,
+          },
+        },
+        {
+          params: {
+            length: 15,
+          },
+        },
+        {
+          params: {
+            length: 20,
+          },
+        },
+      ]
+
+      test.each(cases)('length: $params.length', ({ params, expected }) => {
+        const createSpy = jest.spyOn(RandomTextGenerator, 'create')
+
+        CustomerAccessToken.generateAccessToken(params)
+
+        expect(createSpy)
+          .toHaveBeenCalledWith()
+      })
+
+      test('with no parameter', () => {
+        const createSpy = jest.spyOn(RandomTextGenerator, 'create')
+
+        CustomerAccessToken.generateAccessToken()
+
+        expect(createSpy)
+          .toHaveBeenCalledWith()
       })
     })
   })
