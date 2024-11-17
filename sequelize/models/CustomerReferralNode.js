@@ -29,7 +29,7 @@ FertileForest.init(SequelizeWithFFModel)
  * Customer Referral node model.
  */
 export default class CustomerReferralNode extends FertileForest.Model {
-  /** @inheritdoc */
+  /** @override */
   static createAttributes (DataTypes) {
     const factory = ModelAttributeFactory.create(DataTypes)
 
@@ -52,28 +52,28 @@ export default class CustomerReferralNode extends FertileForest.Model {
     }
   }
 
-  /** @inheritdoc */
+  /** @override */
   static associate () {
     super.associate?.()
 
     // noop
   }
 
-  /** @inheritdoc */
+  /** @override */
   static defineScopes (Op) {
     super.defineScopes?.(Op)
 
     // noop
   }
 
-  /** @inheritdoc */
+  /** @override */
   static setupHooks () {
     super.setupHooks?.()
 
     // noop
   }
 
-  /** @inheritdoc */
+  /** @override */
   static defineSubqueries () {
     super.defineSubqueries?.()
 

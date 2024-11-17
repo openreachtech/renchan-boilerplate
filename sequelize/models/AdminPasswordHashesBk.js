@@ -7,7 +7,7 @@ import {
  * AdminPasswordHashesBk model.
  */
 export default class AdminPasswordHashesBk extends RenchanModel {
-  /** @inheritdoc */
+  /** @override */
   static createAttributes (DataTypes) {
     const factory = ModelAttributeFactory.create(DataTypes)
 
@@ -29,7 +29,7 @@ export default class AdminPasswordHashesBk extends RenchanModel {
     }
   }
 
-  /** @inheritdoc */
+  /** @override */
   static createOptions (sequelizeClient) {
     return {
       ...super.createOptions(sequelizeClient),
@@ -38,28 +38,28 @@ export default class AdminPasswordHashesBk extends RenchanModel {
     }
   }
 
-  /** @inheritdoc */
+  /** @override */
   static associate () {
     super.associate?.()
 
     // noop
   }
 
-  /** @inheritdoc */
+  /** @override */
   static defineScopes (Op) {
     super.defineScopes?.(Op)
 
     // noop
   }
 
-  /** @inheritdoc */
+  /** @override */
   static setupHooks () {
     super.setupHooks?.()
 
     // noop
   }
 
-  /** @inheritdoc */
+  /** @override */
   static defineSubqueries () {
     super.defineSubqueries?.()
 
