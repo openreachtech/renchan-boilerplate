@@ -65,6 +65,20 @@ export default class CustomerReferralNode extends FertileForest.Model {
 
     // noop
   }
+
+  /** @inheritdoc */
+  static setupHooks () {
+    super.setupHooks?.()
+
+    // noop
+  }
+
+  /** @inheritdoc */
+  static defineSubqueries () {
+    super.defineSubqueries?.()
+
+    // noop
+  }
 }
 
 /**
