@@ -1,5 +1,7 @@
 import SignInMutationResolver from '../../../../../../../../server/graphql/resolvers/customer/actual/mutations/SignInMutationResolver.js'
 
+import CustomerAccessToken from '../../../../../../../../sequelize/models/CustomerAccessToken.js'
+
 describe('SignInMutationResolver', () => {
   describe('.get:schema', () => {
     test('to be fixed value', () => {
@@ -58,6 +60,60 @@ describe('SignInMutationResolver', () => {
     })
 
     describe('with non-existing email', () => {
+    })
+  })
+})
+
+describe('SignInMutationResolver', () => {
+  describe('#formatResponse()', () => {
+    const resolver = SignInMutationResolver.create()
+
+    describe('from access token entity', () => {
+      /**
+       * @type {Array<{
+       *   params: {
+       *     accessTokenEntity: import('../../../../../../../../sequelize/models/CustomerAccessToken.js').CustomerAccessTokenEntity
+       *   }
+       *   expected: {
+       *     accessToken: string
+       *   }
+       * }>}
+       */
+      const cases = /** @type {Array<*>} */ ([
+        {
+          params: {
+            accessTokenEntity: CustomerAccessToken.build({
+              CustomerId: 100001,
+              accessToken: 'accessToken.100001',
+              generatedAt: new Date('2024-11-01T00:00:01.001Z'),
+              expiredAt: new Date('2024-11-02T00:00:01.001Z'),
+            }),
+          },
+          expected: {
+            accessToken: 'accessToken.100001',
+          },
+        },
+        {
+          params: {
+            accessTokenEntity: CustomerAccessToken.build({
+              CustomerId: 100002,
+              accessToken: 'accessToken.100002',
+              generatedAt: new Date('2024-11-02T00:00:02.002Z'),
+              expiredAt: new Date('2024-11-03T00:00:02.002Z'),
+            }),
+          },
+          expected: {
+            accessToken: 'accessToken.100002',
+          },
+        },
+      ])
+
+      test.each(cases)('CustomerId: $params.accessTokenEntity.CustomerId', async ({ params, expected }) => {
+        const actual = resolver.formatResponse(params)
+
+        expect(actual)
+          .toEqual(expected)
+      })
     })
   })
 })
