@@ -25,7 +25,7 @@ export default class Customer extends RenchanModel {
   static associate () {
     super.associate?.()
 
-    // noop
+    this.hasOne(this._.CustomerPasswordHash)
   }
 
   /** @override */
