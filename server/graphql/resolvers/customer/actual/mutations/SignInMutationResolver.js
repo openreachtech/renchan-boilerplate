@@ -7,6 +7,8 @@ import CustomerPasswordHash from '../../../../../../sequelize/models/CustomerPas
 import CustomerSecret from '../../../../../../sequelize/models/CustomerSecret.js'
 import CustomerAccessToken from '../../../../../../sequelize/models/CustomerAccessToken.js'
 
+import InvalidInputSignInGraphqlError from '../../../../errors/IncorrectSecretSignInGraphqlError.js'
+
 export default class SignInMutationResolver extends BaseMutationResolver {
   /** @override */
   static get schema () {
@@ -14,15 +16,39 @@ export default class SignInMutationResolver extends BaseMutationResolver {
   }
 
   /** @override */
-  async resolve () {
-    return {
-      accessToken: 'actual-access-token-0001',
-      customer: {
-        id: 50001,
-        name: 'Actual John Doe',
-        inviteCode: 'actual0123',
+  async resolve ({
+    variables: {
+      input: {
+        email,
+        password,
       },
+    },
+    context,
+  }) {
+    const passwordHashEntity = await this.findPasswordHashByEmail({
+      email,
+    })
+
+    if (!passwordHashEntity) {
+      throw InvalidInputSignInGraphqlError.create()
     }
+
+    const isValidPassword = await passwordHashEntity.verifiesPassword({
+      password,
+    })
+
+    if (!isValidPassword) {
+      throw InvalidInputSignInGraphqlError.create()
+    }
+
+    const accessTokenEntity = await this.saveAccessToken({
+      context,
+      customerId: passwordHashEntity.CustomerId,
+    })
+
+    return this.formatResponse({
+      accessTokenEntity,
+    })
   }
 
   /**

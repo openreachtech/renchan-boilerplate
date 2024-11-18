@@ -243,3 +243,137 @@ describe('SignInMutationResolver', () => {
     })
   })
 })
+
+describe('SignInMutationResolver', () => {
+  describe('#resolve()', () => {
+    const resolver = SignInMutationResolver.create()
+
+    describe('with existing email and correct password', () => {
+      /**
+       * @type {Array<{
+       *   params: {
+       *     variables: {
+       *       input: {
+       *         email: string
+       *         password: string
+       *       }
+       *     }
+       *     context: import('../../../../../../../../server/graphql/contexts/CustomerGraphqlContext.js').default
+       *   }
+       *   expected: {
+       *     accessToken: RegExp
+       *   }
+       * }>}
+       */
+      const cases = /** @type {Array<*>} */ ([
+        {
+          params: {
+            variables: {
+              input: {
+                email: 'customer.100001@example.com',
+                password: 'pAsswOrd$01',
+              },
+            },
+            context: {
+              now: new Date('2024-01-01T00:00:01.001Z'),
+            },
+          },
+          expected: {
+            accessToken: expect.stringMatching(/^[a-zA-Z0-9]{10}$/u),
+          },
+        },
+        {
+          params: {
+            variables: {
+              input: {
+                email: 'customer.100002@example.com',
+                password: 'pAsswOrd$02',
+              },
+            },
+            context: {
+              now: new Date('2024-01-02T00:00:02.002Z'),
+            },
+          },
+          expected: {
+            accessToken: expect.stringMatching(/^[a-zA-Z0-9]{10}$/u),
+          },
+        },
+      ])
+
+      test.each(cases)('email: $params.variables.input.email', async ({ params, expected }) => {
+        const actual = await resolver.resolve(params)
+
+        expect(actual)
+          .toEqual(expected)
+      })
+    })
+
+    describe('with incorrect email or password', () => {
+      /**
+       * @type {Array<{
+       *   params: {
+       *     variables: {
+       *       input: {
+       *         email: string
+       *         password: string
+       *       }
+       *     }
+       *     context: import('../../../../../../../../server/graphql/contexts/CustomerGraphqlContext.js').default
+       *   }
+       *   expected: {
+       *     accessToken: RegExp
+       *   }
+       * }>}
+       */
+      const cases = /** @type {Array<*>} */ ([
+        {
+          params: {
+            variables: {
+              input: {
+                email: 'customer.100001@example.com',
+                password: 'incorrectPassword', // ❌️
+              },
+            },
+            context: {
+              now: new Date('2024-01-01T00:00:01.001Z'),
+            },
+          },
+        },
+        {
+          params: {
+            variables: {
+              input: {
+                email: 'incorrect.email@example.com', // ❌️
+                password: 'pAsswOrd$02',
+              },
+            },
+            context: {
+              now: new Date('2024-01-02T00:00:02.002Z'),
+            },
+          },
+        },
+        {
+          params: {
+            variables: {
+              input: {
+                email: 'incorrect.both@example.com', // ❌️
+                password: 'incorrectBoth', // ❌️
+              },
+            },
+            context: {
+              now: new Date('2024-01-03T00:00:03.003Z'),
+            },
+          },
+        },
+      ])
+
+      test.each(cases)('email: $params.variables.input.email, password: $params.variables.input.password', async ({ params, expected }) => {
+        await expect(
+          resolver.resolve(params)
+        )
+          .rejects
+          .toThrow('[22.02.01] Incorrect email or password.')
+      })
+    })
+  })
+})
