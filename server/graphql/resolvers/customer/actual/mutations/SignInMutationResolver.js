@@ -5,6 +5,7 @@ import {
 import Customer from '../../../../../../sequelize/models/Customer.js'
 import CustomerPasswordHash from '../../../../../../sequelize/models/CustomerPasswordHash.js'
 import CustomerSecret from '../../../../../../sequelize/models/CustomerSecret.js'
+import CustomerAccessToken from '../../../../../../sequelize/models/CustomerAccessToken.js'
 
 export default class SignInMutationResolver extends BaseMutationResolver {
   /** @override */
@@ -69,5 +70,30 @@ export default class SignInMutationResolver extends BaseMutationResolver {
     } = customerSecretEntity
 
     return /** @type {*} */ (passwordHashEntity)
+  }
+
+  /**
+   * Generate transaction callback.
+   *
+   * @param {{
+   *   customerId: number
+   *   now,
+   * }} params
+   * @returns {function(): Promise<import('../../../../../../sequelize/models/CustomerAccessToken.js').CustomerAccessTokenEntity>}
+   */
+  generateTransactionCallback ({
+    customerId,
+    now,
+  }) {
+    const accessTokenEntity = CustomerAccessToken.buildWithGeneratedAttributes({
+      generatedAt: now,
+      customerId,
+    })
+
+    return async transaction => /** @type {*} */ (
+      accessTokenEntity.save({
+        transaction,
+      })
+    )
   }
 }
