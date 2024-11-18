@@ -60,6 +60,27 @@ describe('SignInMutationResolver', () => {
     })
 
     describe('with non-existing email', () => {
+      const cases = [
+        {
+          params: {
+            email: 'unknown.100001@example.com',
+          },
+        },
+        {
+          params: {
+            email: 'unknown.100002@example.com',
+          },
+        },
+      ]
+
+      test.each(cases)('email: $params.email', async ({ params }) => {
+        const resolver = SignInMutationResolver.create()
+
+        const actual = await resolver.findPasswordHashByEmail(params)
+
+        expect(actual)
+          .toBeNull()
+      })
     })
   })
 })
