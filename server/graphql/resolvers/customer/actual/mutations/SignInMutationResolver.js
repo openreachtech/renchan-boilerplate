@@ -73,6 +73,28 @@ export default class SignInMutationResolver extends BaseMutationResolver {
   }
 
   /**
+   * Save access token.
+   *
+   * @param {{
+   *   context: import('../../../../contexts/CustomerGraphqlContext.js').default
+   *   customerId: number
+   * }} params - Parameters.
+   * @returns {Promise<import('../../../../../../sequelize/models/CustomerAccessToken.js').CustomerAccessTokenEntity>}
+   * @throws {Error} - Throws error if transaction fails.
+   */
+  async saveAccessToken ({
+    context,
+    customerId,
+  }) {
+    const callback = this.generateTransactionCallback({
+      customerId,
+      now: context.now,
+    })
+
+    return CustomerAccessToken.beginTransaction(callback)
+  }
+
+  /**
    * Generate transaction callback.
    *
    * @param {{
