@@ -2,7 +2,7 @@
 
 const MigrationAttributeFactory = require('@openreachtech/renchan-sequelize/lib/tools/MigrationAttributeFactory.cjs')
 
-const TABLE_NAME = 'admin_roles'
+const TABLE_NAME = 'chat_rooms'
 const COLUMN_NAME = {
   NAME: 'name',
 }
@@ -14,23 +14,20 @@ module.exports = {
   ) {
     const factory = MigrationAttributeFactory.create(Sequelize)
 
-    return queryInterface.createTable(
-      TABLE_NAME,
-      {
-        id: {
-          type: Sequelize.INTEGER,
-          primaryKey: true,
-          autoIncrement: true,
-        },
-        name: {
-          type: Sequelize.STRING(191),
-          field: COLUMN_NAME.NAME,
-          allowNull: false,
-        },
+    await queryInterface.createTable(TABLE_NAME, {
+      ...factory.ID_BIGINT,
 
-        ...factory.TIMESTAMPS,
-      }
-    )
+      name: {
+        type: Sequelize.STRING(191),
+        field: COLUMN_NAME.NAME,
+        allowNull: false,
+        unique: true,
+      },
+
+      ...factory.TIMESTAMPS_WITH_DELETED_AT,
+    })
+
+    return Promise.resolve()
   },
 
   async down (

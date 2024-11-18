@@ -7,12 +7,12 @@ import {
  * AdminRole model.
  */
 export default class AdminRole extends RenchanModel {
-  /** @inheritdoc */
+  /** @override */
   static createAttributes (DataTypes) {
     const factory = ModelAttributeFactory.create(DataTypes)
 
     return {
-      ...factory.ID_INT,
+      ...factory.ID_INTEGER,
 
       name: {
         type: DataTypes.STRING(191),
@@ -21,15 +21,15 @@ export default class AdminRole extends RenchanModel {
     }
   }
 
-  /** @inheritdoc */
+  /** @override */
   static createOptions (sequelizeClient) {
     return {
       ...super.createOptions(sequelizeClient),
     }
   }
 
-  /** @inheritdoc */
-  static associate (models) {
+  /** @override */
+  static associate () {
     super.associate?.()
 
     this.belongsToMany(this._.Admin, {
@@ -37,28 +37,31 @@ export default class AdminRole extends RenchanModel {
     })
   }
 
-  /** @inheritdoc */
+  /** @override */
   static defineScopes (Op) {
     super.defineScopes?.(Op)
-    // 必要に応じてスコープを定義
+
+    // noop
   }
 
-  /** @inheritdoc */
+  /** @override */
   static setupHooks () {
     super.setupHooks?.()
-    // 必要に応じてフックを設定
+
+    // noop
   }
 
-  /** @inheritdoc */
+  /** @override */
   static defineSubqueries () {
     super.defineSubqueries?.()
-    // 必要に応じてサブクエリを定義
+
+    // noop
   }
 }
 
 /**
  * @typedef {AdminRole & {
- *   id: number;
- *   name: string;
+ *   id: number
+ *   name: string
  * }} AdminRoleEntity
  */

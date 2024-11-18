@@ -7,7 +7,7 @@ import {
  * AdminRoleAssignment model.
  */
 export default class AdminRoleAssignment extends RenchanModel {
-  /** @inheritdoc */
+  /** @override */
   static createAttributes (DataTypes) {
     const factory = ModelAttributeFactory.create(DataTypes)
 
@@ -25,45 +25,49 @@ export default class AdminRoleAssignment extends RenchanModel {
     }
   }
 
-  /** @inheritdoc */
+  /** @override */
   static createOptions (sequelizeClient) {
     return {
       ...super.createOptions(sequelizeClient),
-      paranoid: true, // deleted_at カラムがあるため
+
+      paranoid: true, // for deleted_at column
     }
   }
 
-  /** @inheritdoc */
-  static associate (models) {
+  /** @override */
+  static associate () {
     super.associate?.()
 
     this.belongsTo(this._.Admin)
     this.belongsTo(this._.AdminRole)
   }
 
-  /** @inheritdoc */
+  /** @override */
   static defineScopes (Op) {
     super.defineScopes?.(Op)
-    // 必要に応じてスコープを定義
+
+    // noop
   }
 
-  /** @inheritdoc */
+  /** @override */
   static setupHooks () {
     super.setupHooks?.()
-    // 必要に応じてフックを設定
+
+    // noop
   }
 
-  /** @inheritdoc */
+  /** @override */
   static defineSubqueries () {
     super.defineSubqueries?.()
-    // 必要に応じてサブクエリを定義
+
+    // noop
   }
 }
 
 /**
  * @typedef {AdminRoleAssignment & {
- *   id: number;
- *   AdminId: number;
- *   AdminRoleId: number;
+ *   id: number
+ *   AdminId: number
+ *   AdminRoleId: number
  * }} AdminRoleAssignmentEntity
  */

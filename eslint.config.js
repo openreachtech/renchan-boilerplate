@@ -47,6 +47,8 @@ export default [
       'jsdoc/check-tag-names': 'off',
       'jsdoc/no-undefined-types': 'off',
       'jsdoc/valid-types': 'off',
+
+      'openreachtech/no-unexpected-multiline': 'off',
     },
   },
 ]

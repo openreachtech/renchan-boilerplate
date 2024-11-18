@@ -2,9 +2,11 @@
 
 const MigrationAttributeFactory = require('@openreachtech/renchan-sequelize/lib/tools/MigrationAttributeFactory.cjs')
 
-const TABLE_NAME = 'customers'
+const TABLE_NAME = 'admin_basics_bk'
 const COLUMN_NAME = {
-  REGISTERED_AT: 'registered_at',
+  ADMIN_ID: 'admin_id',
+  USERNAME: 'username',
+  SAVED_AT: 'saved_at',
 }
 
 module.exports = {
@@ -17,20 +19,33 @@ module.exports = {
     await queryInterface.createTable(TABLE_NAME, {
       ...factory.ID_BIGINT,
 
-      registeredAt: {
-        type: Sequelize.DATE(3),
+      // Foreign key must be start with upper case
+      CustomerId: {
+        type: Sequelize.BIGINT,
+        field: COLUMN_NAME.ADMIN_ID,
         allowNull: false,
-        field: COLUMN_NAME.REGISTERED_AT,
+      },
+      username: {
+        type: Sequelize.STRING(191),
+        field: COLUMN_NAME.USERNAME,
+        allowNull: false,
+      },
+      savedAt: {
+        type: Sequelize.DATE(3),
+        field: COLUMN_NAME.SAVED_AT,
+        allowNull: false,
       },
 
       ...factory.TIMESTAMPS,
     })
 
     await Promise.all([
-      queryInterface.addIndex(TABLE_NAME, [COLUMN_NAME.REGISTERED_AT], {
+      queryInterface.addIndex(TABLE_NAME, [
+        COLUMN_NAME.ADMIN_ID,
+      ], {
         name: [
           TABLE_NAME,
-          COLUMN_NAME.REGISTERED_AT,
+          COLUMN_NAME.ADMIN_ID,
           'index',
         ].join('_'),
       }),

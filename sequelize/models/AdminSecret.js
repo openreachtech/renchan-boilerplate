@@ -8,7 +8,7 @@ import {
  * AdminSecret model.
  */
 export default class AdminSecret extends RenchanModel {
-  /** @inheritdoc */
+  /** @override */
   static createAttributes (DataTypes) {
     const factory = ModelAttributeFactory.create(DataTypes)
 
@@ -23,39 +23,46 @@ export default class AdminSecret extends RenchanModel {
         type: DataTypes.STRING(191),
         allowNull: false,
       },
+      savedAt: {
+        type: DataTypes.DATE(3),
+        allowNull: false,
+      },
     }
   }
 
-  /** @inheritdoc */
+  /** @override */
   static createOptions (sequelizeClient) {
     return {
       ...super.createOptions(sequelizeClient),
     }
   }
 
-  /** @inheritdoc */
-  static associate (models) {
+  /** @override */
+  static associate () {
     super.associate?.()
 
     this.belongsTo(this._.Admin)
   }
 
-  /** @inheritdoc */
+  /** @override */
   static defineScopes (Op) {
     super.defineScopes?.(Op)
-    // 必要に応じてスコープを定義
+
+    // noop
   }
 
-  /** @inheritdoc */
+  /** @override */
   static setupHooks () {
     super.setupHooks?.()
-    // 必要に応じてフックを設定
+
+    // noop
   }
 
-  /** @inheritdoc */
+  /** @override */
   static defineSubqueries () {
     super.defineSubqueries?.()
-    // 必要に応じてサブクエリを定義
+
+    // noop
   }
 
   /** @override */
@@ -68,17 +75,18 @@ export default class AdminSecret extends RenchanModel {
   /**
    * get: Backup model for BackupMixinModel
    *
-   * @returns {typeof import('./AdminSecretBk')} - Backup model declaration
+   * @returns {typeof import('./AdminSecretsBk')} - Backup model declaration
    */
   static get BackupModel () {
-    return this._.AdminSecretBk
+    return this._.AdminSecretsBk
   }
 }
 
 /**
  * @typedef {AdminSecret & {
- *   id: number;
- *   AdminId: number;
- *   email: string;
+ *   id: number
+ *   AdminId: number
+ *   email: string
+ *   savedAt: Date
  * }} AdminSecretEntity
  */

@@ -4,10 +4,14 @@ import {
   ModelAttributeFactory,
 } from '@openreachtech/renchan-sequelize'
 
+import {
+  Encipher,
+} from '@openreachtech/renchan-tools'
+
 /**
- * AdminPasswordHash model.
+ * CustomerPasswordHash model.
  */
-export default class AdminPasswordHash extends RenchanModel {
+export default class CustomerPasswordHash extends RenchanModel {
   /** @override */
   static createAttributes (DataTypes) {
     const factory = ModelAttributeFactory.create(DataTypes)
@@ -15,7 +19,7 @@ export default class AdminPasswordHash extends RenchanModel {
     return {
       ...factory.ID_BIGINT,
 
-      AdminId: {
+      CustomerId: {
         type: DataTypes.BIGINT,
         allowNull: false,
       },
@@ -41,7 +45,7 @@ export default class AdminPasswordHash extends RenchanModel {
   static associate () {
     super.associate?.()
 
-    this.belongsTo(this._.Admin)
+    this.belongsTo(this._.Customer)
   }
 
   /** @override */
@@ -75,18 +79,46 @@ export default class AdminPasswordHash extends RenchanModel {
   /**
    * get: Backup model for BackupMixinModel
    *
-   * @returns {typeof import('./AdminPasswordHashesBk')} - Backup model declaration
+   * @returns {typeof import('./CustomerPasswordHashesBk')} - Backup model declaration
    */
   static get BackupModel () {
-    return this._.AdminPasswordHashesBk
+    return this._.CustomerPasswordHashesBk
+  }
+
+  /**
+   * Verifies password.
+   *
+   * @param {{
+   *   password: string
+   * }} params - Parameters.
+   * @returns {Promise<boolean>}
+   */
+  async verifiesPassword ({
+    password,
+  }) {
+    /** @type {string} */
+    const passwordHash = /** @type {*} */ (
+      this.get('passwordHash')
+    )
+
+    if (!passwordHash) {
+      return false
+    }
+
+    const encipher = Encipher.create()
+
+    return encipher.compare(
+      password,
+      passwordHash
+    )
   }
 }
 
 /**
- * @typedef {AdminPasswordHash & {
+ * @typedef {CustomerPasswordHash & {
  *   id: number
- *   AdminId: number
+ *   CustomerId: number
  *   passwordHash: string
  *   savedAt: Date
- * }} AdminPasswordHashEntity
+ * }} CustomerPasswordHashEntity
  */

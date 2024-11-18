@@ -7,7 +7,7 @@ import {
  * Customer model.
  */
 export default class Customer extends RenchanModel {
-  /** @inheritdoc */
+  /** @override */
   static createAttributes (DataTypes) {
     const factory = ModelAttributeFactory.create(DataTypes)
 
@@ -21,17 +21,38 @@ export default class Customer extends RenchanModel {
     }
   }
 
-  /** @inheritdoc */
+  /** @override */
   static associate () {
     super.associate?.()
 
-    // noop
+    this.hasOne(this._.CustomerPasswordHash)
   }
 
-  /** @inheritdoc */
+  /** @override */
   static defineScopes (Op) {
     super.defineScopes?.(Op)
 
     // noop
   }
+
+  /** @override */
+  static setupHooks () {
+    super.setupHooks?.()
+
+    // noop
+  }
+
+  /** @override */
+  static defineSubqueries () {
+    super.defineSubqueries?.()
+
+    // noop
+  }
 }
+
+/**
+ * @typedef {Customer & {
+ *   id: number
+ *   registeredAt: Date
+ * }} CustomerEntity
+ */
