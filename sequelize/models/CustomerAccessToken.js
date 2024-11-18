@@ -74,6 +74,33 @@ export default class CustomerAccessToken extends RenchanModel {
   }
 
   /**
+   * Build with generated attributes.
+   *
+   * @param {{
+   *   customerId: number
+   *   generatedAt: Date
+   *   expiredAt?: Date
+   *   accessToken?: string
+   * }} params - Parameters.
+   * @returns {CustomerAccessToken}
+   */
+  static buildWithGeneratedAttributes ({
+    customerId,
+    generatedAt,
+    expiredAt = this.createExpiredAt({
+      generatedAt,
+    }),
+    accessToken = this.generateAccessToken(),
+  }) {
+    return this.build({
+      CustomerId: customerId,
+      generatedAt,
+      expiredAt,
+      accessToken,
+    })
+  }
+
+  /**
    * Create expired at.
    *
    * @param {{
