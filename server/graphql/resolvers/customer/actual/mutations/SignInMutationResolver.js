@@ -118,4 +118,24 @@ export default class SignInMutationResolver extends BaseMutationResolver {
       })
     )
   }
+
+  /**
+   * Format response.
+   *
+   * @param {{
+   *   accessTokenEntity: import('../../../../../../sequelize/models/CustomerAccessToken.js').CustomerAccessTokenEntity
+   * }} params - Parameters.
+   * @returns {{
+   *   accessToken: string
+   * }}
+   */
+  formatResponse ({
+    accessTokenEntity: {
+      accessToken,
+    },
+  }) {
+    return {
+      accessToken,
+    }
+  }
 }
