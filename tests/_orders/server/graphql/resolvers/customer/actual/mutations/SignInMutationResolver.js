@@ -1,5 +1,6 @@
-import CustomerAccessToken from '../../../../../../../../sequelize/models/CustomerAccessToken'
 import SignInMutationResolver from '../../../../../../../../server/graphql/resolvers/customer/actual/mutations/SignInMutationResolver'
+
+import CustomerAccessToken from '../../../../../../../../sequelize/models/CustomerAccessToken'
 
 describe('SignInMutationResolver', () => {
   describe('#generateTransactionCallback()', () => {
@@ -105,6 +106,138 @@ describe('SignInMutationResolver', () => {
         expect(savedEntity)
           .toHaveProperty('generatedAt', expected.generatedAt)
         expect(savedEntity)
+          .toHaveProperty('expiredAt', expected.expiredAt)
+      })
+    })
+  })
+})
+
+describe('SignInMutationResolver', () => {
+  describe('#saveAccessToken()', () => {
+    const resolver = SignInMutationResolver.create()
+
+    describe('to call #generateTransactionCallback()', () => {
+      /**
+       * @type {Array<{
+       *   params: {
+       *     context: import('../../../../../../../../server/graphql/contexts/CustomerGraphqlContext.js').default
+       *     customerId: number
+       *   }
+       *   expected: {
+       *     customerId: number
+       *     now: Date
+       *   }
+       * }>}
+       */
+      const cases = /** @type {Array<*>} */ ([
+        {
+          params: {
+            context: {
+              now: new Date('2024-01-01T00:00:01.001Z'),
+            },
+            customerId: 100001,
+          },
+          expected: {
+            customerId: 100001,
+            now: new Date('2024-01-01T00:00:01.001Z'),
+          },
+        },
+        {
+          params: {
+            context: {
+              now: new Date('2024-01-02T00:00:02.002Z'),
+            },
+            customerId: 100002,
+          },
+          expected: {
+            customerId: 100002,
+            now: new Date('2024-01-02T00:00:02.002Z'),
+          },
+        },
+      ])
+
+      test.each(cases)('customerId: $params.CustomerId', async ({ params, expected }) => {
+        const callbackTally = /** @type {*} */ (async () => {})
+        const resultTally = {
+          value: Symbol('tally'),
+        }
+
+        const generateTransactionCallbackSpy = jest.spyOn(resolver, 'generateTransactionCallback')
+          .mockReturnValue(callbackTally)
+        const beginTransactionSpy = jest.spyOn(CustomerAccessToken, 'beginTransaction')
+          .mockImplementation(async () => resultTally)
+
+        const actual = await resolver.saveAccessToken(params)
+
+        expect(actual)
+          .toBe(resultTally)
+
+        expect(generateTransactionCallbackSpy)
+          .toHaveBeenCalledWith(expected)
+        expect(beginTransactionSpy)
+          .toHaveBeenCalledWith(callbackTally)
+      })
+    })
+
+    describe('to be entity', () => {
+      /**
+       * @type {Array<{
+       *   params: {
+       *     context: import('../../../../../../../../server/graphql/contexts/CustomerGraphqlContext.js').default
+       *     customerId: number
+       *   }
+       *   expected: {
+       *     CustomerId: number
+       *     accessToken: RegExp
+       *     generatedAt: Date
+       *     expiredAt: Date
+       *   }
+       * }>}
+       */
+      const cases = /** @type {Array<*>} */ ([
+        {
+          params: {
+            context: {
+              now: new Date('2024-11-01T00:00:01.001Z'),
+            },
+            customerId: 100001,
+          },
+          expected: {
+            CustomerId: 100001,
+            accessToken: expect.stringMatching(/^[a-zA-Z0-9]{10}$/u),
+            generatedAt: new Date('2024-11-01T00:00:01.001Z'),
+            expiredAt: new Date('2024-11-02T00:00:01.001Z'),
+          },
+        },
+        {
+          params: {
+            context: {
+              now: new Date('2024-11-02T00:00:02.002Z'),
+            },
+            customerId: 100002,
+          },
+          expected: {
+            CustomerId: 100002,
+            accessToken: expect.stringMatching(/^[a-zA-Z0-9]{10}$/u),
+            generatedAt: new Date('2024-11-02T00:00:02.002Z'),
+            expiredAt: new Date('2024-11-03T00:00:02.002Z'),
+          },
+        },
+      ])
+
+      test.each(cases)('customerId: $params.CustomerId', async ({ params, expected }) => {
+        const actual = await resolver.saveAccessToken(params)
+
+        expect(actual)
+          .toBeInstanceOf(CustomerAccessToken)
+
+        expect(actual)
+          .toHaveProperty('CustomerId', expected.CustomerId)
+        expect(actual)
+          .toHaveProperty('accessToken', expected.accessToken)
+        expect(actual)
+          .toHaveProperty('generatedAt', expected.generatedAt)
+        expect(actual)
           .toHaveProperty('expiredAt', expected.expiredAt)
       })
     })
