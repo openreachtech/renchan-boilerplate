@@ -1,6 +1,4 @@
 import {
-  UnauthenticatedGraphqlError,
-
   BigNumberScalar,
   DateTimeScalar,
 } from '@openreachtech/renchan'
@@ -74,7 +72,7 @@ export default class CustomerGraphqlServerEngine extends BaseAppGraphqlServerEng
       }
 
       if (!context.hasAuthenticated()) {
-        throw UnauthenticatedGraphqlError.create()
+        throw this.errorHash.Unauthenticated.create()
       }
 
       if (!context.hasAuthorized()) {
