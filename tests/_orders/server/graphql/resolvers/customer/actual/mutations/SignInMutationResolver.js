@@ -3,6 +3,32 @@ import SignInMutationResolver from '../../../../../../../../server/graphql/resol
 import CustomerAccessToken from '../../../../../../../../sequelize/models/CustomerAccessToken'
 
 describe('SignInMutationResolver', () => {
+  describe('.get:schema', () => {
+    test('to be fixed value', () => {
+      const actual = SignInMutationResolver.schema
+
+      expect(actual)
+        .toBe('signIn')
+    })
+  })
+})
+
+describe('SignInMutationResolver', () => {
+  describe('.get:errorCodeHash', () => {
+    test('to be fixed value', () => {
+      const actual = SignInMutationResolver.errorCodeHash
+
+      const expected = {
+        IncorrectSecret: '22.02.01',
+      }
+
+      expect(actual)
+        .toEqual(expected)
+    })
+  })
+})
+
+describe('SignInMutationResolver', () => {
   describe('#generateTransactionCallback()', () => {
     const resolver = SignInMutationResolver.create()
 
@@ -372,7 +398,7 @@ describe('SignInMutationResolver', () => {
           resolver.resolve(params)
         )
           .rejects
-          .toThrow('[22.02.01] Incorrect email or password.')
+          .toThrow('22.02.01')
       })
     })
   })

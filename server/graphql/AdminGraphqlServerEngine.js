@@ -1,8 +1,4 @@
 import {
-  UnauthenticatedGraphqlError,
-  UnauthorizedGraphqlError,
-  DeniedSchemaPermissionGraphqlError,
-
   DateTimeScalar,
 } from '@openreachtech/renchan'
 
@@ -66,20 +62,21 @@ export default class AdminGraphqlServerEngine extends BaseAppGraphqlServerEngine
       }
 
       if (!context.hasAuthenticated()) {
-        throw UnauthenticatedGraphqlError.create()
+        throw this.errorHash.Unauthenticated.create()
       }
 
       if (!context.hasAuthorized()) {
-        throw UnauthorizedGraphqlError.create()
+        throw this.errorHash.Unauthorized.create()
       }
 
       if (!context.hasSchemaPermission({
         schema,
       })) {
-        throw DeniedSchemaPermissionGraphqlError.create()
-          .withValueHash({
+        throw this.errorHash.DeniedSchemaPermission.create({
+          value: {
             schema,
-          })
+          },
+        })
       }
     }
   }
