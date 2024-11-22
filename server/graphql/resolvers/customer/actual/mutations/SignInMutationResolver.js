@@ -16,6 +16,15 @@ export default class SignInMutationResolver extends BaseMutationResolver {
   }
 
   /** @override */
+  static get errorCodeHash () {
+    return {
+      ...super.errorCodeHash,
+
+      IncorrectSecret: '22.02.01',
+    }
+  }
+
+  /** @override */
   async resolve ({
     variables: {
       input: {
