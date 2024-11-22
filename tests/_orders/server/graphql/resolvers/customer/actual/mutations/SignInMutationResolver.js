@@ -3,6 +3,17 @@ import SignInMutationResolver from '../../../../../../../../server/graphql/resol
 import CustomerAccessToken from '../../../../../../../../sequelize/models/CustomerAccessToken'
 
 describe('SignInMutationResolver', () => {
+  describe('.get:schema', () => {
+    test('to be fixed value', () => {
+      const actual = SignInMutationResolver.schema
+
+      expect(actual)
+        .toBe('signIn')
+    })
+  })
+})
+
+describe('SignInMutationResolver', () => {
   describe('#generateTransactionCallback()', () => {
     const resolver = SignInMutationResolver.create()
 
