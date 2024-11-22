@@ -1,6 +1,5 @@
 import {
   UnauthenticatedGraphqlError,
-  UnauthorizedGraphqlError,
 
   DateTimeScalar,
 } from '@openreachtech/renchan'
@@ -69,7 +68,7 @@ export default class AdminGraphqlServerEngine extends BaseAppGraphqlServerEngine
       }
 
       if (!context.hasAuthorized()) {
-        throw UnauthorizedGraphqlError.create()
+        throw this.errorHash.Unauthorized.create()
       }
 
       if (!context.hasSchemaPermission({
