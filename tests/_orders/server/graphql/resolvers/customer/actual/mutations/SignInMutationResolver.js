@@ -14,6 +14,21 @@ describe('SignInMutationResolver', () => {
 })
 
 describe('SignInMutationResolver', () => {
+  describe('.get:errorCodeHash', () => {
+    test('to be fixed value', () => {
+      const actual = SignInMutationResolver.errorCodeHash
+
+      const expected = {
+        IncorrectSecret: '22.02.01',
+      }
+
+      expect(actual)
+        .toEqual(expected)
+    })
+  })
+})
+
+describe('SignInMutationResolver', () => {
   describe('#generateTransactionCallback()', () => {
     const resolver = SignInMutationResolver.create()
 
