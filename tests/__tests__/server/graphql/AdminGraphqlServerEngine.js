@@ -148,7 +148,7 @@ describe('AdminGraphqlServerEngine', () => {
 
           await expect(handler(args))
             .rejects
-            .toThrow('[12.00.01] unauthenticated')
+            .toThrow('12.00.01')
 
           expect(canResolveSpy)
             .toHaveBeenCalledWith(expected)
@@ -183,7 +183,7 @@ describe('AdminGraphqlServerEngine', () => {
 
           await expect(handler(args))
             .rejects
-            .toThrow('[12.00.02] unauthorized')
+            .toThrow('12.00.02')
 
           expect(canResolveSpy)
             .toHaveBeenCalledWith(expected)
@@ -223,7 +223,7 @@ describe('AdminGraphqlServerEngine', () => {
 
             await expect(handler(args))
               .rejects
-              .toThrow(/^\[12.00.03\] denied schema permission \[.+\]/u)
+              .toThrow(/^12.00.03 \{"schema":".+"\}/u)
 
             expect(canResolveSpy)
               .toHaveBeenCalledWith(expected)

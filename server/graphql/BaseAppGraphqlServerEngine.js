@@ -12,6 +12,18 @@ import {
  */
 export default class BaseAppGraphqlServerEngine extends BaseGraphqlServerEngine {
   /** @override */
+  static get standardErrorCodeHash () {
+    return {
+      Unknown: '10.00.01',
+      ConcreteMemberNotFound: '11.00.01',
+      Unauthenticated: '12.00.01',
+      Unauthorized: '12.00.02',
+      DeniedSchemaPermission: '12.00.03',
+      Database: '14.00.01',
+    }
+  }
+
+  /** @override */
   collectMiddleware () {
     return [
       cors({
