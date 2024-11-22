@@ -7,8 +7,6 @@ import CustomerPasswordHash from '../../../../../../sequelize/models/CustomerPas
 import CustomerSecret from '../../../../../../sequelize/models/CustomerSecret.js'
 import CustomerAccessToken from '../../../../../../sequelize/models/CustomerAccessToken.js'
 
-import InvalidInputSignInGraphqlError from '../../../../errors/IncorrectSecretSignInGraphqlError.js'
-
 export default class SignInMutationResolver extends BaseMutationResolver {
   /** @override */
   static get schema () {
@@ -39,7 +37,7 @@ export default class SignInMutationResolver extends BaseMutationResolver {
     })
 
     if (!passwordHashEntity) {
-      throw InvalidInputSignInGraphqlError.create()
+      throw this.errorHash.IncorrectSecret.create()
     }
 
     const isValidPassword = await passwordHashEntity.verifiesPassword({
@@ -47,7 +45,7 @@ export default class SignInMutationResolver extends BaseMutationResolver {
     })
 
     if (!isValidPassword) {
-      throw InvalidInputSignInGraphqlError.create()
+      throw this.errorHash.IncorrectSecret.create()
     }
 
     const accessTokenEntity = await this.saveAccessToken({
