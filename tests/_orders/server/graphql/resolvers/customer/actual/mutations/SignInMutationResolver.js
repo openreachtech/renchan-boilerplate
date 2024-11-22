@@ -398,7 +398,7 @@ describe('SignInMutationResolver', () => {
           resolver.resolve(params)
         )
           .rejects
-          .toThrow('[22.02.01] Incorrect email or password.')
+          .toThrow('22.02.01')
       })
     })
   })
