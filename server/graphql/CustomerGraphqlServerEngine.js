@@ -1,7 +1,6 @@
 import {
   UnauthenticatedGraphqlError,
   UnauthorizedGraphqlError,
-  DeniedSchemaPermissionGraphqlError,
 
   BigNumberScalar,
   DateTimeScalar,
@@ -86,10 +85,11 @@ export default class CustomerGraphqlServerEngine extends BaseAppGraphqlServerEng
       if (!context.hasSchemaPermission({
         schema,
       })) {
-        throw DeniedSchemaPermissionGraphqlError.create()
-          .withValueHash({
+        throw this.errorHash.DeniedSchemaPermission.create({
+          value: {
             schema,
-          })
+          },
+        })
       }
     }
   }
