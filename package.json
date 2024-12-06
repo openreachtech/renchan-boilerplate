@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "db:drop": "npm run db:teardown",
-    "db:seed:master": "sequelize-cli db:seed:all --seeders-path sequelize/seeders/master --debug",
+    "db:seed:master": "sequelize-cli db:seed:all --seeders-path sequelize/seeders/dev-master --debug",
     "db:seed:dev": "sequelize-cli db:seed:all --seeders-path sequelize/seeders/development --debug",
     "db:setup": "sequelize-cli db:migrate;",
     "db:teardown": "rm sequelize/storage/*.sqlite3",
