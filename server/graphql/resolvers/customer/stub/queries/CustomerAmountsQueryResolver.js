@@ -15,6 +15,13 @@ export default class CustomerAmountsQueryResolver extends BaseQueryResolver {
   }
 
   /** @override */
+  static get errorCodeHash () {
+    return {
+      ...super.errorCodeHash,
+    }
+  }
+
+  /** @override */
   async resolve ({
     context,
   }) {
