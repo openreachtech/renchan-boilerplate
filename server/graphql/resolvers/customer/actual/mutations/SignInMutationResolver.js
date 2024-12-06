@@ -18,7 +18,7 @@ export default class SignInMutationResolver extends BaseMutationResolver {
     return {
       ...super.errorCodeHash,
 
-      IncorrectSecret: '22.02.01',
+      IncorrectSecret: '202.M002.001',
     }
   }
 
