@@ -8,6 +8,13 @@ export default class CustomerQueryResolver extends BaseQueryResolver {
     return 'customer'
   }
 
+  /** @override */
+  static get errorCodeHash () {
+    return {
+      ...super.errorCodeHash,
+    }
+  }
+
   /**
    * Resolve the customer query
    *

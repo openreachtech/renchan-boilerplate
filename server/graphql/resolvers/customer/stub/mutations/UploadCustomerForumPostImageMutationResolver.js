@@ -13,6 +13,13 @@ export default class UploadCustomerForumPostImageMutationResolver extends BaseMu
   }
 
   /** @override */
+  static get errorCodeHash () {
+    return {
+      ...super.errorCodeHash,
+    }
+  }
+
+  /** @override */
   async resolve () {
     setTimeout(300)
 

@@ -11,6 +11,13 @@ export default class ChatRoomsQueryResolver extends BaseQueryResolver {
   }
 
   /** @override */
+  static get errorCodeHash () {
+    return {
+      ...super.errorCodeHash,
+    }
+  }
+
+  /** @override */
   async resolve ({
     context,
   }) {
