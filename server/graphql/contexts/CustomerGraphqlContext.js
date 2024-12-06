@@ -12,7 +12,7 @@ export default class CustomerGraphqlContext extends BaseGraphqlContext {
    * Find user.
    *
    * @param {{
-   *   expressRequest: renchan.ExpressRequest
+   *   expressRequest: ExpressType.Request
    *   accessToken: string | null
    * }} params
    * @returns {Promise<renchan.UserEntity | null>} - User entity.
