@@ -20,7 +20,7 @@ export default class AdminsQueryResolver extends BaseQueryResolver {
    * Resolve the admins query
    *
    * @param {{
-   *   context: renchan.GraphqlContext
+   *   context: GraphqlType.Context
    * }} params - Parameters.
    * @returns {Promise<AdminsResult>}
    */
