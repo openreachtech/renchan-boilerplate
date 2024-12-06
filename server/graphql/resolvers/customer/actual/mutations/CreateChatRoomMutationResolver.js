@@ -11,6 +11,13 @@ export default class CreateChatRoomMutationResolver extends BaseMutationResolver
   }
 
   /** @override */
+  static get errorCodeHash () {
+    return {
+      ...super.errorCodeHash,
+    }
+  }
+
+  /** @override */
   async resolve ({
     variables: {
       input: {

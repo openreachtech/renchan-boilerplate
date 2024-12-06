@@ -13,6 +13,13 @@ export default class OnReceiveMessageSubscriptionResolver extends BaseSubscripti
     return 'onReceiveMessage'
   }
 
+  /** @override */
+  static get errorCodeHash () {
+    return {
+      ...super.errorCodeHash,
+    }
+  }
+
   /**
    * Generate channel query.
    *

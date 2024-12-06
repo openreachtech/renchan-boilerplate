@@ -13,6 +13,13 @@ export default class CompanySponsorsQueryResolver extends BaseQueryResolver {
   }
 
   /** @override */
+  static get errorCodeHash () {
+    return {
+      ...super.errorCodeHash,
+    }
+  }
+
+  /** @override */
   async resolve () {
     await setTimeout(750)
 

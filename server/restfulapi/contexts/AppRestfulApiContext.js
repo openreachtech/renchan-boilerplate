@@ -1,13 +1,13 @@
 import {
-  BaseGraphqlContext,
+  BaseRestfulApiContext,
 } from '@openreachtech/renchan'
 
 /**
- * Customer GraphQL context.
+ * App RESTful API context.
  *
- * @extends {BaseGraphqlContext}
+ * @extends {BaseRestfulApiContext}
  */
-export default class CustomerGraphqlContext extends BaseGraphqlContext {
+export default class AppRestfulApiContext extends BaseRestfulApiContext {
   /**
    * Find user.
    *
@@ -48,33 +48,33 @@ export default class CustomerGraphqlContext extends BaseGraphqlContext {
   }
 
   /**
-   * get: Customer entity.
+   * get: Provider entity.
    * Note: This is an alias of #userEntity
    *
-   * @returns {renchan.UserEntity | null} - Customer entity.
+   * @returns {renchan.UserEntity | null} - Provider entity.
    * @example
    * ```js
    * async resolve ({ variables, context }) {
-   *   const customerEntity = context.customer
+   *   const providerEntity = context.provider
    * }
    * ```
    */
-  get customer () {
+  get provider () {
     return this.userEntity
   }
 
   /**
-   * get: Customer id.
+   * get: Provider id.
    *
-   * @returns {number | null} - Customer id.
+   * @returns {number | null} - Provider id.
    * @example
    * ```js
    * async resolve ({ variables, context }) {
-   *   const id = context.customerId
+   *   const id = context.providerId
    * }
    * ```
    */
-  get customerId () {
+  get providerId () {
     return this.userId
   }
 }

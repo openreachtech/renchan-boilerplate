@@ -19,7 +19,7 @@ describe('SignInMutationResolver', () => {
       const actual = SignInMutationResolver.errorCodeHash
 
       const expected = {
-        IncorrectSecret: '22.02.01',
+        IncorrectSecret: '202.M002.001',
       }
 
       expect(actual)
@@ -398,7 +398,7 @@ describe('SignInMutationResolver', () => {
           resolver.resolve(params)
         )
           .rejects
-          .toThrow('22.02.01')
+          .toThrow('202.M002.001')
       })
     })
   })
