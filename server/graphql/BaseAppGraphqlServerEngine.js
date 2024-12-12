@@ -19,7 +19,7 @@ export default class BaseAppGraphqlServerEngine extends BaseGraphqlServerEngine 
       Unauthenticated: '102.X000.001',
       Unauthorized: '102.X000.002',
       DeniedSchemaPermission: '102.X000.003',
-      Database: '14.00.01',
+      Database: '104.X000.001',
     }
   }
 
