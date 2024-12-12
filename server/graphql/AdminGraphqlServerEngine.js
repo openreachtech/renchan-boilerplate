@@ -41,6 +41,18 @@ export default class AdminGraphqlServerEngine extends BaseAppGraphqlServerEngine
   }
 
   /** @override */
+  static get standardErrorCodeHash () {
+    return {
+      Unknown: '100.X000.001',
+      ConcreteMemberNotFound: '101.X000.001',
+      Unauthenticated: '102.X000.001',
+      Unauthorized: '102.X000.002',
+      DeniedSchemaPermission: '102.X000.003',
+      Database: '104.X000.001',
+    }
+  }
+
+  /** @override */
   get schemasToSkipFiltering () {
     return [
       'signUp',
