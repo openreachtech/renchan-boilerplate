@@ -183,7 +183,7 @@ describe('AdminGraphqlServerEngine', () => {
 
           await expect(handler(args))
             .rejects
-            .toThrow('12.00.02')
+            .toThrow('102.X000.002')
 
           expect(canResolveSpy)
             .toHaveBeenCalledWith(expected)
