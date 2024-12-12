@@ -1,4 +1,5 @@
 import {
+  BaseGraphqlServerEngine,
   BigNumberScalar,
   DateTimeScalar,
 } from '@openreachtech/renchan'
@@ -9,7 +10,6 @@ import {
 
 import CustomerGraphqlServerEngine from '../../../../server/graphql/CustomerGraphqlServerEngine.js'
 
-import BaseAppGraphqlServerEngine from '../../../../server/graphql/BaseAppGraphqlServerEngine.js'
 import CustomerGraphqlContext from '../../../../server/graphql/contexts/CustomerGraphqlContext.js'
 import CustomerGraphqlShare from '../../../../server/graphql/contexts/CustomerGraphqlShare.js'
 
@@ -19,7 +19,7 @@ describe('CustomerGraphqlServerEngine', () => {
       const actual = CustomerGraphqlServerEngine.prototype
 
       expect(actual)
-        .toBeInstanceOf(BaseAppGraphqlServerEngine)
+        .toBeInstanceOf(BaseGraphqlServerEngine)
     })
   })
 })
