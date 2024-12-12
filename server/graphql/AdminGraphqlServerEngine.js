@@ -4,6 +4,7 @@ import cors from 'cors'
 import graphqlUploadExpress from 'graphql-upload/graphqlUploadExpress.mjs'
 
 import {
+  BaseGraphqlServerEngine,
   DateTimeScalar,
 } from '@openreachtech/renchan'
 
@@ -11,14 +12,13 @@ import {
   rootPath,
 } from '../../app/globals/_.js'
 
-import BaseAppGraphqlServerEngine from './BaseAppGraphqlServerEngine.js'
 import AdminGraphqlShare from './contexts/AdminGraphqlShare.js'
 import AdminGraphqlContext from './contexts/AdminGraphqlContext.js'
 
 /**
  * Renchan server engine for admin.
  */
-export default class AdminGraphqlServerEngine extends BaseAppGraphqlServerEngine {
+export default class AdminGraphqlServerEngine extends BaseGraphqlServerEngine {
   /** @override */
   static get config () {
     return {
