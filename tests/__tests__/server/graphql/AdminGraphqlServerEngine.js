@@ -1,4 +1,5 @@
 import {
+  BaseGraphqlServerEngine,
   DateTimeScalar,
 } from '@openreachtech/renchan'
 
@@ -8,7 +9,6 @@ import {
 
 import AdminGraphqlServerEngine from '../../../../server/graphql/AdminGraphqlServerEngine.js'
 
-import BaseAppGraphqlServerEngine from '../../../../server/graphql/BaseAppGraphqlServerEngine.js'
 import AdminGraphqlContext from '../../../../server/graphql/contexts/AdminGraphqlContext.js'
 import AdminGraphqlShare from '../../../../server/graphql/contexts/AdminGraphqlShare.js'
 
@@ -18,7 +18,7 @@ describe('AdminGraphqlServerEngine', () => {
       const actual = AdminGraphqlServerEngine.prototype
 
       expect(actual)
-        .toBeInstanceOf(BaseAppGraphqlServerEngine)
+        .toBeInstanceOf(BaseGraphqlServerEngine)
     })
   })
 })
