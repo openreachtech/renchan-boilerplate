@@ -5,6 +5,7 @@
     "graphiql",
     "restfulapi",
     "scandir",
+    "sequelize",
     "terminalize",
 
     "bignumber",
