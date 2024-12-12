@@ -1,5 +1,5 @@
 import {
-  setTimeout,
+  setTimeout as sleep,
 } from 'timers/promises'
 
 import {
@@ -21,7 +21,7 @@ export default class UploadCustomerForumPostImageMutationResolver extends BaseMu
 
   /** @override */
   async resolve () {
-    await setTimeout(300)
+    await sleep(300)
 
     return {
       imageUrl: 'http://openreach.tech/avatar-url/200.png',

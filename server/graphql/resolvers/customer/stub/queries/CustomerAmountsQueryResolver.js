@@ -1,5 +1,5 @@
 import {
-  setTimeout,
+  setTimeout as sleep,
 } from 'timers/promises'
 
 import BigNumber from 'bignumber.js'
@@ -25,7 +25,7 @@ export default class CustomerAmountsQueryResolver extends BaseQueryResolver {
   async resolve ({
     context,
   }) {
-    await setTimeout(200)
+    await sleep(200)
 
     return {
       stakedAmount: new BigNumber('789000000.123456678012345'),
