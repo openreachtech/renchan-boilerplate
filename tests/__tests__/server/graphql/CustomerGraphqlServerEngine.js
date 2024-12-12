@@ -242,6 +242,33 @@ describe('CustomerGraphqlServerEngine', () => {
 })
 
 describe('CustomerGraphqlServerEngine', () => {
+  describe('#collectMiddleware()', () => {
+    test('to be fixed value', () => {
+      const engine = new CustomerGraphqlServerEngine({
+        config: /** @type {*} */ ({
+          staticPath: rootPath.to('public/'),
+        }),
+        share: /** @type {*} */ ({}),
+        errorHash: {},
+      })
+
+      const expected = [
+        expect.any(Function),
+        expect.any(Function),
+        expect.any(Function),
+        expect.any(Function),
+        expect.any(Function),
+      ]
+
+      const actual = engine.collectMiddleware()
+
+      expect(actual)
+        .toEqual(expected)
+    })
+  })
+})
+
+describe('CustomerGraphqlServerEngine', () => {
   describe('.get:Share', () => {
     test('to be bridge class', () => {
       const actual = CustomerGraphqlServerEngine.Share
