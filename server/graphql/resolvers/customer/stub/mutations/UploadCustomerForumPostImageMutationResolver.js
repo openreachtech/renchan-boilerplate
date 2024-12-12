@@ -21,7 +21,7 @@ export default class UploadCustomerForumPostImageMutationResolver extends BaseMu
 
   /** @override */
   async resolve () {
-    setTimeout(300)
+    await setTimeout(300)
 
     return {
       imageUrl: 'http://openreach.tech/avatar-url/200.png',
