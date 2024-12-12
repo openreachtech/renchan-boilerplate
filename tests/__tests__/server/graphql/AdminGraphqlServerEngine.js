@@ -1,4 +1,5 @@
 import {
+  BaseGraphqlServerEngine,
   DateTimeScalar,
 } from '@openreachtech/renchan'
 
@@ -8,7 +9,6 @@ import {
 
 import AdminGraphqlServerEngine from '../../../../server/graphql/AdminGraphqlServerEngine.js'
 
-import BaseAppGraphqlServerEngine from '../../../../server/graphql/BaseAppGraphqlServerEngine.js'
 import AdminGraphqlContext from '../../../../server/graphql/contexts/AdminGraphqlContext.js'
 import AdminGraphqlShare from '../../../../server/graphql/contexts/AdminGraphqlShare.js'
 
@@ -18,7 +18,7 @@ describe('AdminGraphqlServerEngine', () => {
       const actual = AdminGraphqlServerEngine.prototype
 
       expect(actual)
-        .toBeInstanceOf(BaseAppGraphqlServerEngine)
+        .toBeInstanceOf(BaseGraphqlServerEngine)
     })
   })
 })
@@ -36,6 +36,25 @@ describe('AdminGraphqlServerEngine', () => {
       }
 
       const actual = AdminGraphqlServerEngine.config
+
+      expect(actual)
+        .toStrictEqual(expected)
+    })
+  })
+})
+
+describe('AdminGraphqlServerEngine', () => {
+  describe('.get:standardErrorCodeHash', () => {
+    test('to be fixed value', () => {
+      const expected = {
+        Unknown: '100.X000.001',
+        ConcreteMemberNotFound: '101.X000.001',
+        Unauthenticated: '102.X000.001',
+        Unauthorized: '102.X000.002',
+        DeniedSchemaPermission: '102.X000.003',
+        Database: '104.X000.001',
+      }
+      const actual = AdminGraphqlServerEngine.standardErrorCodeHash
 
       expect(actual)
         .toStrictEqual(expected)
@@ -148,7 +167,7 @@ describe('AdminGraphqlServerEngine', () => {
 
           await expect(handler(args))
             .rejects
-            .toThrow('12.00.01')
+            .toThrow('102.X000.001')
 
           expect(canResolveSpy)
             .toHaveBeenCalledWith(expected)
@@ -183,7 +202,7 @@ describe('AdminGraphqlServerEngine', () => {
 
           await expect(handler(args))
             .rejects
-            .toThrow('12.00.02')
+            .toThrow('102.X000.002')
 
           expect(canResolveSpy)
             .toHaveBeenCalledWith(expected)
@@ -223,7 +242,7 @@ describe('AdminGraphqlServerEngine', () => {
 
             await expect(handler(args))
               .rejects
-              .toThrow(/^12.00.03 \{"schema":".+"\}/u)
+              .toThrow(/^102.X000.003 \{"schema":".+"\}/u)
 
             expect(canResolveSpy)
               .toHaveBeenCalledWith(expected)
@@ -236,6 +255,33 @@ describe('AdminGraphqlServerEngine', () => {
           })
         })
       })
+    })
+  })
+})
+
+describe('AdminGraphqlServerEngine', () => {
+  describe('#collectMiddleware()', () => {
+    test('to be fixed value', () => {
+      const engine = new AdminGraphqlServerEngine({
+        config: /** @type {*} */ ({
+          staticPath: rootPath.to('public/'),
+        }),
+        share: /** @type {*} */ ({}),
+        errorHash: {},
+      })
+
+      const expected = [
+        expect.any(Function),
+        expect.any(Function),
+        expect.any(Function),
+        expect.any(Function),
+        expect.any(Function),
+      ]
+
+      const actual = engine.collectMiddleware()
+
+      expect(actual)
+        .toEqual(expected)
     })
   })
 })

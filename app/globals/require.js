@@ -1,5 +1,7 @@
-import module from 'module'
+import {
+  createRequire,
+} from 'module'
 
-const require = module.createRequire(import.meta.url)
+const require = createRequire(import.meta.url)
 
 export default require

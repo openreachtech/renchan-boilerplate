@@ -1,6 +1,6 @@
 export default {
   setupFilesAfterEnv: [
-    '<rootDir>/tests/setupAfterEnv.js',
+    '<rootDir>/tests/setup-after-env.js',
   ],
   moduleNameMapper: {
     '^(@.*)$': '<rootDir>/node_modules/$1',

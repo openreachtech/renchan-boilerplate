@@ -1,5 +1,5 @@
 import {
-  setTimeout,
+  setTimeout as sleep,
 } from 'timers/promises'
 
 import {
@@ -31,7 +31,7 @@ export default class SignUpMutationResolver extends BaseMutationResolver {
       } = {},
     },
   }) {
-    await setTimeout(500)
+    await sleep(500)
 
     return {
       sentTo: email,

@@ -39,7 +39,6 @@ export default [
   {
     rules: {
       camelcase: 'off',
-      'no-shadow': 'off',
       'sort-imports': 'off',
 
       'jest/require-top-level-describe': 'off',
