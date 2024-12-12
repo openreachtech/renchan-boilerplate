@@ -1,4 +1,5 @@
 import {
+  BaseGraphqlServerEngine,
   BigNumberScalar,
   DateTimeScalar,
 } from '@openreachtech/renchan'
@@ -9,7 +10,6 @@ import {
 
 import CustomerGraphqlServerEngine from '../../../../server/graphql/CustomerGraphqlServerEngine.js'
 
-import BaseAppGraphqlServerEngine from '../../../../server/graphql/BaseAppGraphqlServerEngine.js'
 import CustomerGraphqlContext from '../../../../server/graphql/contexts/CustomerGraphqlContext.js'
 import CustomerGraphqlShare from '../../../../server/graphql/contexts/CustomerGraphqlShare.js'
 
@@ -19,7 +19,7 @@ describe('CustomerGraphqlServerEngine', () => {
       const actual = CustomerGraphqlServerEngine.prototype
 
       expect(actual)
-        .toBeInstanceOf(BaseAppGraphqlServerEngine)
+        .toBeInstanceOf(BaseGraphqlServerEngine)
     })
   })
 })
@@ -37,6 +37,25 @@ describe('CustomerGraphqlServerEngine', () => {
       }
 
       const actual = CustomerGraphqlServerEngine.config
+
+      expect(actual)
+        .toStrictEqual(expected)
+    })
+  })
+})
+
+describe('CustomerGraphqlServerEngine', () => {
+  describe('.get:standardErrorCodeHash', () => {
+    test('to be fixed value', () => {
+      const expected = {
+        Unknown: '100.X000.001',
+        ConcreteMemberNotFound: '101.X000.001',
+        Unauthenticated: '102.X000.001',
+        Unauthorized: '102.X000.002',
+        DeniedSchemaPermission: '102.X000.003',
+        Database: '104.X000.001',
+      }
+      const actual = CustomerGraphqlServerEngine.standardErrorCodeHash
 
       expect(actual)
         .toStrictEqual(expected)
@@ -237,6 +256,33 @@ describe('CustomerGraphqlServerEngine', () => {
           })
         })
       })
+    })
+  })
+})
+
+describe('CustomerGraphqlServerEngine', () => {
+  describe('#collectMiddleware()', () => {
+    test('to be fixed value', () => {
+      const engine = new CustomerGraphqlServerEngine({
+        config: /** @type {*} */ ({
+          staticPath: rootPath.to('public/'),
+        }),
+        share: /** @type {*} */ ({}),
+        errorHash: {},
+      })
+
+      const expected = [
+        expect.any(Function),
+        expect.any(Function),
+        expect.any(Function),
+        expect.any(Function),
+        expect.any(Function),
+      ]
+
+      const actual = engine.collectMiddleware()
+
+      expect(actual)
+        .toEqual(expected)
     })
   })
 })
