@@ -26,9 +26,14 @@ const SequelizeWithFFModel = new Proxy(Sequelize, {
 FertileForest.init(SequelizeWithFFModel)
 
 /**
+ * @type {typeof RenchanModel}
+ */
+const FFModel = FertileForest.Model
+
+/**
  * Customer Referral node model.
  */
-export default class CustomerReferralNode extends FertileForest.Model {
+export default class CustomerReferralNode extends FFModel {
   /** @override */
   static createAttributes (DataTypes) {
     const factory = ModelAttributeFactory.create(DataTypes)
