@@ -148,7 +148,7 @@ describe('AdminGraphqlServerEngine', () => {
 
           await expect(handler(args))
             .rejects
-            .toThrow('12.00.01')
+            .toThrow('102.X000.001')
 
           expect(canResolveSpy)
             .toHaveBeenCalledWith(expected)
@@ -183,7 +183,7 @@ describe('AdminGraphqlServerEngine', () => {
 
           await expect(handler(args))
             .rejects
-            .toThrow('12.00.02')
+            .toThrow('102.X000.002')
 
           expect(canResolveSpy)
             .toHaveBeenCalledWith(expected)
@@ -223,7 +223,7 @@ describe('AdminGraphqlServerEngine', () => {
 
             await expect(handler(args))
               .rejects
-              .toThrow(/^12.00.03 \{"schema":".+"\}/u)
+              .toThrow(/^102.X000.003 \{"schema":".+"\}/u)
 
             expect(canResolveSpy)
               .toHaveBeenCalledWith(expected)
