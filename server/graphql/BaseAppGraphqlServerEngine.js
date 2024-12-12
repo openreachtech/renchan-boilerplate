@@ -14,7 +14,7 @@ export default class BaseAppGraphqlServerEngine extends BaseGraphqlServerEngine 
   /** @override */
   static get standardErrorCodeHash () {
     return {
-      Unknown: '10.00.01',
+      Unknown: '100.X000.001',
       ConcreteMemberNotFound: '11.00.01',
       Unauthenticated: '12.00.01',
       Unauthorized: '12.00.02',
