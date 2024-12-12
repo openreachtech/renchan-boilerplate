@@ -1,5 +1,5 @@
 import {
-  setTimeout,
+  setTimeout as sleep,
 } from 'timers/promises'
 
 import {
@@ -35,7 +35,7 @@ export default class CurriculumsQueryResolver extends BaseQueryResolver {
     },
     context,
   }) {
-    await setTimeout(300)
+    await sleep(300)
 
     const haystacks = [
       {

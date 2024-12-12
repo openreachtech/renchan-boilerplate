@@ -11,7 +11,7 @@ import FertileForest from '@steweucen/fertile-forest-sequelize'
 
 const SequelizeWithFFModel = new Proxy(Sequelize, {
   get (
-    Sequelize,
+    target,
     property,
     receiver
   ) {
@@ -19,7 +19,7 @@ const SequelizeWithFFModel = new Proxy(Sequelize, {
       return RenchanModel
     }
 
-    return Reflect.get(Sequelize, property, receiver)
+    return Reflect.get(target, property, receiver)
   },
 })
 

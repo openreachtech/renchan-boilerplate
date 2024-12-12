@@ -1,5 +1,5 @@
 import {
-  setTimeout,
+  setTimeout as sleep,
 } from 'timers/promises'
 
 import {
@@ -21,7 +21,7 @@ export default class CompanySponsorsQueryResolver extends BaseQueryResolver {
 
   /** @override */
   async resolve () {
-    await setTimeout(750)
+    await sleep(750)
 
     const companySponsors = [
       {
