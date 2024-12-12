@@ -1,5 +1,5 @@
 import {
-  jest,
+  jest as jestCore,
 } from '@jest/globals'
 
 import {
@@ -11,7 +11,7 @@ import activate from '../sequelize/_.js'
 /*
  * Set global variables.
  */
-globalThis.jest = jest
+globalThis.jest = jestCore
 globalThis.constructorSpy = ConstructorSpy.create({
   jest,
 })
