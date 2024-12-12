@@ -223,7 +223,7 @@ describe('AdminGraphqlServerEngine', () => {
 
             await expect(handler(args))
               .rejects
-              .toThrow(/^12.00.03 \{"schema":".+"\}/u)
+              .toThrow(/^102.X000.003 \{"schema":".+"\}/u)
 
             expect(canResolveSpy)
               .toHaveBeenCalledWith(expected)

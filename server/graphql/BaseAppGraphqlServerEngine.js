@@ -18,7 +18,7 @@ export default class BaseAppGraphqlServerEngine extends BaseGraphqlServerEngine 
       ConcreteMemberNotFound: '101.X000.001',
       Unauthenticated: '102.X000.001',
       Unauthorized: '102.X000.002',
-      DeniedSchemaPermission: '12.00.03',
+      DeniedSchemaPermission: '102.X000.003',
       Database: '14.00.01',
     }
   }
