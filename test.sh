@@ -3,7 +3,7 @@
 ############################################################## declare functions
 
 function jestCommand () {
-  npx jest --forceExit --detectOpenHandles --passWithNoTests "$@";
+  npx jest --forceExit --passWithNoTests "$@";
 }
 
 function setupStorage () {
@@ -17,8 +17,8 @@ function setupStorage () {
 function testWithEmpty () {
   blockTitle 'test with master seeds only.';
 
-  jestCommand tests/empty/__tests__/
-  jestCommand tests/empty/_orders/
+  jestCommand --maxWorkers=5 tests/empty/__tests__/
+  jestCommand --detectOpenHandles tests/empty/_orders/
 
   return
 }
@@ -27,8 +27,8 @@ function testWithSeeded () {
   blockTitle 'test with master and development seeds.';
 
   npm run db:seed:dev;
-  jestCommand tests/__tests__/
-  jestCommand tests/_orders/
+  jestCommand --maxWorkers=5 tests/__tests__/
+  jestCommand --detectOpenHandles tests/_orders/
 
   return
 }
