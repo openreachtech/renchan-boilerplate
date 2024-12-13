@@ -7,6 +7,8 @@ import {
   RandomTextGenerator,
 } from '@openreachtech/renchan-tools'
 
+const MILLISECONDS_PER_DAY = 60 * 60 * 24 * 1000 // milliseconds in a day
+
 /**
  * CustomerAccessToken model.
  */
@@ -111,11 +113,9 @@ export default class CustomerAccessToken extends RenchanModel {
   static createExpiredAt ({
     generatedAt,
   }) {
-    const oneDayMilliseconds = 60 * 60 * 24 * 1000 // milliseconds in a day
-
     const expiredAt = new Date(
       generatedAt.getTime()
-      + oneDayMilliseconds
+      + MILLISECONDS_PER_DAY
     )
 
     return expiredAt
