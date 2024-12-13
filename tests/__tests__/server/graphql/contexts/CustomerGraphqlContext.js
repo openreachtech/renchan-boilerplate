@@ -44,6 +44,54 @@ describe('CustomerGraphqlContext', () => {
 })
 
 describe('CustomerGraphqlContext', () => {
+  describe('#get:accessToken', () => {
+    describe('to return #accessToken', () => {
+      const cases = [
+        {
+          params: {
+            expressRequest: /** @type {*} */ ({
+              headers: {
+                'x-renchan-access-token': 'access-token$alpha',
+              },
+            }),
+            engine: /** @type {*} */ ({}),
+            userEntity: /** @type {*} */ ({}),
+            visa: /** @type {*} */ ({}),
+            requestedAt: new Date(),
+            uuid: '98765432-abcd-0000-1234-000000000001',
+          },
+          expected: 'access-token$alpha',
+        },
+        {
+          params: {
+            expressRequest: /** @type {*} */ ({
+              headers: {
+                'x-renchan-access-token': 'access-token$beta',
+              },
+            }),
+            engine: /** @type {*} */ ({}),
+            userEntity: /** @type {*} */ ({}),
+            visa: /** @type {*} */ ({}),
+            requestedAt: new Date(),
+            uuid: '98765432-abcd-0000-1234-000000000002',
+          },
+          expected: 'access-token$beta',
+        },
+      ]
+
+      test.each(cases)('headers: $params.expressRequest.headers', async ({ params, expected }) => {
+        const context = new CustomerGraphqlContext(params)
+
+        const actual = context.accessToken
+
+        expect(actual)
+          .toBe(expected)
+      })
+    })
+  })
+})
+
+describe('CustomerGraphqlContext', () => {
   describe('#get:customer', () => {
     describe('to return #userEntity', () => {
       const cases = [
