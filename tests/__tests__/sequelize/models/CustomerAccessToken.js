@@ -248,3 +248,92 @@ describe('CustomerAccessToken', () => {
     })
   })
 })
+
+describe('CustomerAccessToken', () => {
+  describe('#isExpired()', () => {
+    const cases = [
+      {
+        params: {
+          CustomerId: 100001,
+          accessToken: 'access-token-100001',
+          generatedAt: new Date('2024-01-21T00:00:01.101Z'),
+          expiredAt: new Date('2024-01-22T00:00:01.101Z'),
+        },
+        truthyCases: [
+          {
+            now: new Date('2024-01-22T00:00:02.101Z'),
+          },
+          {
+            now: new Date('2024-01-22T00:00:01.101Z'), // = expiredAt
+          },
+        ],
+        falsyCases: [
+          {
+            now: new Date('2024-01-22T00:00:01.100Z'),
+          },
+          {
+            now: new Date('2024-01-21T00:00:01.101Z'), // = generatedAt
+          },
+          {
+            now: new Date('2024-01-21T00:00:00.000Z'),
+          },
+        ],
+      },
+      {
+        params: {
+          CustomerId: 100002,
+          accessToken: 'access-token-100002',
+          generatedAt: new Date('2024-02-22T00:00:02.202Z'),
+          expiredAt: new Date('2024-02-23T00:00:02.202Z'),
+        },
+        truthyCases: [
+          {
+            now: new Date('2024-02-23T00:00:03.202Z'),
+          },
+          {
+            now: new Date('2024-02-23T00:00:02.202Z'), // = expiredAt
+          },
+        ],
+        falsyCases: [
+          {
+            now: new Date('2024-02-23T00:00:02.201Z'),
+          },
+          {
+            now: new Date('2024-02-22T00:00:02.202Z'), // = generatedAt
+          },
+          {
+            now: new Date('2024-02-22T00:00:01.202Z'),
+          },
+        ],
+      },
+    ]
+
+    describe.each(cases)('CustomerId: $params.CustomerId', ({ params, truthyCases, falsyCases }) => {
+      describe('to be truthy', () => {
+        test.each(truthyCases)('now: $now', ({ now }) => {
+          const instance = CustomerAccessToken.build(params)
+
+          const actual = instance.isExpired({
+            now,
+          })
+
+          expect(actual)
+            .toBeTruthy()
+        })
+      })
+
+      describe('to be falsy', () => {
+        test.each(falsyCases)('now: $now', ({ now }) => {
+          const instance = CustomerAccessToken.build(params)
+
+          const actual = instance.isExpired({
+            now,
+          })
+
+          expect(actual)
+            .toBeFalsy()
+        })
+      })
+    })
+  })
+})
