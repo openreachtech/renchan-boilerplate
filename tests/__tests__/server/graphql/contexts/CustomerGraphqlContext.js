@@ -92,6 +92,280 @@ describe('CustomerGraphqlContext', () => {
 })
 
 describe('CustomerGraphqlContext', () => {
+  describe('.findCustomerAccessToken()', () => {
+    describe('to be existing entity', () => {
+      describe('with available access token', () => {
+        const cases = [
+          {
+            params: {
+              accessToken: 'access-token-01-01',
+            },
+            expected: {
+              id: 140101,
+            },
+          },
+          {
+            params: {
+              accessToken: 'access-token-02-01',
+            },
+            expected: {
+              id: 140201,
+            },
+          },
+          {
+            params: {
+              accessToken: 'access-token-02-02',
+            },
+            expected: {
+              id: 140202,
+            },
+          },
+          {
+            params: {
+              accessToken: 'access-token-03-01',
+            },
+            expected: {
+              id: 140301,
+            },
+          },
+          {
+            params: {
+              accessToken: 'access-token-03-02',
+            },
+            expected: {
+              id: 140302,
+            },
+          },
+          {
+            params: {
+              accessToken: 'access-token-04-01',
+            },
+            expected: {
+              id: 140401,
+            },
+          },
+          {
+            params: {
+              accessToken: 'access-token-05-01',
+            },
+            expected: {
+              id: 140501,
+            },
+          },
+          {
+            params: {
+              accessToken: 'access-token-06-01',
+            },
+            expected: {
+              id: 140601,
+            },
+          },
+          {
+            params: {
+              accessToken: 'access-token-07-01',
+            },
+            expected: {
+              id: 140701,
+            },
+          },
+          {
+            params: {
+              accessToken: 'access-token-08-01',
+            },
+            expected: {
+              id: 140801,
+            },
+          },
+          {
+            params: {
+              accessToken: 'access-token-09-01',
+            },
+            expected: {
+              id: 140901,
+            },
+          },
+          {
+            params: {
+              accessToken: 'access-token-10-01',
+            },
+            expected: {
+              id: 141001,
+            },
+          },
+          {
+            params: {
+              accessToken: 'access-token-11-01',
+            },
+            expected: {
+              id: 141101,
+            },
+          },
+          {
+            params: {
+              accessToken: 'access-token-12-01',
+            },
+            expected: {
+              id: 141201,
+            },
+          },
+          {
+            params: {
+              accessToken: 'access-token-13-01',
+            },
+            expected: {
+              id: 141301,
+            },
+          },
+          {
+            params: {
+              accessToken: 'access-token-14-01',
+            },
+            expected: {
+              id: 141401,
+            },
+          },
+          {
+            params: {
+              accessToken: 'access-token-15-01',
+            },
+            expected: {
+              id: 141501,
+            },
+          },
+          {
+            params: {
+              accessToken: 'access-token-16-01',
+            },
+            expected: {
+              id: 141601,
+            },
+          },
+          {
+            params: {
+              accessToken: 'access-token-17-01',
+            },
+            expected: {
+              id: 141701,
+            },
+          },
+          {
+            params: {
+              accessToken: 'access-token-18-01',
+            },
+            expected: {
+              id: 141801,
+            },
+          },
+          {
+            params: {
+              accessToken: 'access-token-19-01',
+            },
+            expected: {
+              id: 141901,
+            },
+          },
+          {
+            params: {
+              accessToken: 'access-token-20-01',
+            },
+            expected: {
+              id: 142001,
+            },
+          },
+          {
+            params: {
+              accessToken: 'access-token-21-01',
+            },
+            expected: {
+              id: 142101,
+            },
+          },
+          {
+            params: {
+              accessToken: 'access-token-22-01',
+            },
+            expected: {
+              id: 142201,
+            },
+          },
+          {
+            params: {
+              accessToken: 'access-token-23-01',
+            },
+            expected: {
+              id: 142301,
+            },
+          },
+          {
+            params: {
+              accessToken: 'access-token-24-01',
+            },
+            expected: {
+              id: 142401,
+            },
+          },
+          {
+            params: {
+              accessToken: 'access-token-25-01',
+            },
+            expected: {
+              id: 142501,
+            },
+          },
+          {
+            params: {
+              accessToken: 'access-token-26-01',
+            },
+            expected: {
+              id: 142601,
+            },
+          },
+          {
+            params: {
+              accessToken: 'access-token-27-01',
+            },
+            expected: {
+              id: 142701,
+            },
+          },
+          {
+            params: {
+              accessToken: 'access-token-28-01',
+            },
+            expected: {
+              id: 142801,
+            },
+          },
+          {
+            params: {
+              accessToken: 'access-token-29-01',
+            },
+            expected: {
+              id: 142901,
+            },
+          },
+          {
+            params: {
+              accessToken: 'access-token-30-01',
+            },
+            expected: {
+              id: 143001,
+            },
+          },
+        ]
+
+        test.each(cases)('accessToken: $params.accessToken', async ({ params, expected }) => {
+          const actual = await CustomerGraphqlContext.findCustomerAccessToken(params)
+
+          expect(actual.dataValues)
+            .toMatchObject(expected)
+        })
+      })
+    })
+  })
+})
+
+describe('CustomerGraphqlContext', () => {
   describe('#get:customer', () => {
     describe('to return #userEntity', () => {
       const cases = [
