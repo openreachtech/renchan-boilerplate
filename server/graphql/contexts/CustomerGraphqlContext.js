@@ -9,6 +9,19 @@ import {
  */
 export default class CustomerGraphqlContext extends BaseGraphqlContext {
   /**
+   * get: access token.
+   *
+   * @returns {string | null} - Access token.
+   */
+  get accessToken () {
+    const Ctor = /** @type {typeof BaseGraphqlContext} */ (this.constructor)
+
+    return Ctor.extractAccessToken({
+      expressRequest: this.expressRequest,
+    })
+  }
+
+  /**
    * Find user.
    *
    * @param {{
