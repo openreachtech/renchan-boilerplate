@@ -7,6 +7,8 @@ import {
   RandomTextGenerator,
 } from '@openreachtech/renchan-tools'
 
+const MILLISECONDS_PER_DAY = 60 * 60 * 24 * 1000 // milliseconds in a day
+
 /**
  * CustomerAccessToken model.
  */
