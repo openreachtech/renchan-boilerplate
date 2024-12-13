@@ -261,21 +261,21 @@ describe('CustomerAccessToken', () => {
         },
         truthyCases: [
           {
-            now: new Date('2024-01-22T00:00:02.101Z'),
+            pointsAt: new Date('2024-01-22T00:00:02.101Z'),
           },
           {
-            now: new Date('2024-01-22T00:00:01.101Z'), // = expiredAt
+            pointsAt: new Date('2024-01-22T00:00:01.101Z'), // = expiredAt
           },
         ],
         falsyCases: [
           {
-            now: new Date('2024-01-22T00:00:01.100Z'),
+            pointsAt: new Date('2024-01-22T00:00:01.100Z'),
           },
           {
-            now: new Date('2024-01-21T00:00:01.101Z'), // = generatedAt
+            pointsAt: new Date('2024-01-21T00:00:01.101Z'), // = generatedAt
           },
           {
-            now: new Date('2024-01-21T00:00:00.000Z'),
+            pointsAt: new Date('2024-01-21T00:00:00.000Z'),
           },
         ],
       },
@@ -288,21 +288,21 @@ describe('CustomerAccessToken', () => {
         },
         truthyCases: [
           {
-            now: new Date('2024-02-23T00:00:03.202Z'),
+            pointsAt: new Date('2024-02-23T00:00:03.202Z'),
           },
           {
-            now: new Date('2024-02-23T00:00:02.202Z'), // = expiredAt
+            pointsAt: new Date('2024-02-23T00:00:02.202Z'), // = expiredAt
           },
         ],
         falsyCases: [
           {
-            now: new Date('2024-02-23T00:00:02.201Z'),
+            pointsAt: new Date('2024-02-23T00:00:02.201Z'),
           },
           {
-            now: new Date('2024-02-22T00:00:02.202Z'), // = generatedAt
+            pointsAt: new Date('2024-02-22T00:00:02.202Z'), // = generatedAt
           },
           {
-            now: new Date('2024-02-22T00:00:01.202Z'),
+            pointsAt: new Date('2024-02-22T00:00:01.202Z'),
           },
         ],
       },
@@ -310,11 +310,11 @@ describe('CustomerAccessToken', () => {
 
     describe.each(cases)('CustomerId: $params.CustomerId', ({ params, truthyCases, falsyCases }) => {
       describe('to be truthy', () => {
-        test.each(truthyCases)('now: $now', ({ now }) => {
+        test.each(truthyCases)('pointsAt: $pointsAt', ({ pointsAt }) => {
           const instance = CustomerAccessToken.build(params)
 
           const actual = instance.isExpired({
-            now,
+            pointsAt,
           })
 
           expect(actual)
@@ -323,11 +323,11 @@ describe('CustomerAccessToken', () => {
       })
 
       describe('to be falsy', () => {
-        test.each(falsyCases)('now: $now', ({ now }) => {
+        test.each(falsyCases)('pointsAt: $pointsAt', ({ pointsAt }) => {
           const instance = CustomerAccessToken.build(params)
 
           const actual = instance.isExpired({
-            now,
+            pointsAt,
           })
 
           expect(actual)
