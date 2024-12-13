@@ -337,3 +337,86 @@ describe('CustomerAccessToken', () => {
     })
   })
 })
+
+describe('CustomerAccessToken', () => {
+  describe('#hasEnoughTimeUntilExpired()', () => {
+    const cases = [
+      {
+        params: {
+          CustomerId: 100001,
+          accessToken: 'access-token-100001',
+          generatedAt: new Date('2024-01-21T00:00:01.101Z'),
+          expiredAt: new Date('2024-01-22T00:00:01.101Z'),
+        },
+        truthyCases: [
+          {
+            now: new Date('2024-01-21T06:00:01.101Z'), // = on quarter of the period
+          },
+          {
+            now: new Date('2024-01-21T12:00:01.100Z'), // = on before half of the period
+          },
+        ],
+        falsyCases: [
+          {
+            now: new Date('2024-01-21T12:00:01.101Z'), // = on half of the period
+          },
+          {
+            now: new Date('2024-01-22T18:00:01.101Z'), // = on three quarters of the period
+          },
+        ],
+      },
+      {
+        params: {
+          CustomerId: 100002,
+          accessToken: 'access-token-100002',
+          generatedAt: new Date('2024-02-22T00:00:02.202Z'),
+          expiredAt: new Date('2024-02-23T00:00:02.202Z'),
+        },
+        truthyCases: [
+          {
+            now: new Date('2024-02-22T06:00:02.202Z'), // = on quarter of the period
+          },
+          {
+            now: new Date('2024-02-22T12:00:02.201Z'), // = on before half of the period
+          },
+        ],
+        falsyCases: [
+          {
+            now: new Date('2024-02-22T12:00:02.202Z'), // = on half of the period
+          },
+          {
+            now: new Date('2024-02-23T18:00:02.202Z'), // = on three quarters of the period
+          },
+        ],
+      },
+    ]
+
+    describe.each(cases)('CustomerId: $params.CustomerId', ({ params, truthyCases, falsyCases }) => {
+      describe('to be truthy', () => {
+        test.each(truthyCases)('now: $now', ({ now }) => {
+          const instance = CustomerAccessToken.build(params)
+
+          const actual = instance.hasEnoughTimeUntilExpired({
+            now,
+          })
+
+          expect(actual)
+            .toBeTruthy()
+        })
+      })
+
+      describe('to be falsy', () => {
+        test.each(falsyCases)('now: $now', ({ now }) => {
+          const instance = CustomerAccessToken.build(params)
+
+          const actual = instance.hasEnoughTimeUntilExpired({
+            now,
+          })
+
+          expect(actual)
+            .toBeFalsy()
+        })
+      })
+    })
+  })
+})
