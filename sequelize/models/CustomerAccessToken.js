@@ -154,6 +154,26 @@ export default class CustomerAccessToken extends RenchanModel {
 
     return expiredAt.getTime() <= now.getTime()
   }
+
+  /**
+   * Has enough time until expired.
+   *
+   * @param {{
+   *   now: Date
+   * }} params - Parameters.
+   * @returns {boolean} - True if has enough time until expired.
+   */
+  hasEnoughTimeUntilExpired ({
+    now,
+  }) {
+    const expiredAt = /** @type {Date} */ (
+      this.get('expiredAt')
+    )
+
+    const MILLISECONDS_PER_HALF_DAY = MILLISECONDS_PER_DAY / 2
+
+    return expiredAt.getTime() - now.getTime() > MILLISECONDS_PER_HALF_DAY
+  }
 }
 
 /**
