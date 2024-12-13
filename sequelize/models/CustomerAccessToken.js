@@ -136,6 +136,24 @@ export default class CustomerAccessToken extends RenchanModel {
 
     return generator.generate(length)
   }
+
+  /**
+   * Check if access token is expired.
+   *
+   * @param {{
+   *   now: Date
+   * }} params - Parameters.
+   * @returns {boolean} - True if expired.
+   */
+  isExpired ({
+    now,
+  }) {
+    const expiredAt = /** @type {Date} */ (
+      this.get('expiredAt')
+    )
+
+    return expiredAt.getTime() <= now.getTime()
+  }
 }
 
 /**
