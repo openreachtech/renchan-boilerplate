@@ -350,18 +350,18 @@ describe('CustomerAccessToken', () => {
         },
         truthyCases: [
           {
-            now: new Date('2024-01-21T06:00:01.101Z'), // = on quarter of the period
+            pointsAt: new Date('2024-01-21T06:00:01.101Z'), // = on quarter of the period
           },
           {
-            now: new Date('2024-01-21T12:00:01.100Z'), // = on before half of the period
+            pointsAt: new Date('2024-01-21T12:00:01.100Z'), // = on before half of the period
           },
         ],
         falsyCases: [
           {
-            now: new Date('2024-01-21T12:00:01.101Z'), // = on half of the period
+            pointsAt: new Date('2024-01-21T12:00:01.101Z'), // = on half of the period
           },
           {
-            now: new Date('2024-01-22T18:00:01.101Z'), // = on three quarters of the period
+            pointsAt: new Date('2024-01-22T18:00:01.101Z'), // = on three quarters of the period
           },
         ],
       },
@@ -374,18 +374,18 @@ describe('CustomerAccessToken', () => {
         },
         truthyCases: [
           {
-            now: new Date('2024-02-22T06:00:02.202Z'), // = on quarter of the period
+            pointsAt: new Date('2024-02-22T06:00:02.202Z'), // = on quarter of the period
           },
           {
-            now: new Date('2024-02-22T12:00:02.201Z'), // = on before half of the period
+            pointsAt: new Date('2024-02-22T12:00:02.201Z'), // = on before half of the period
           },
         ],
         falsyCases: [
           {
-            now: new Date('2024-02-22T12:00:02.202Z'), // = on half of the period
+            pointsAt: new Date('2024-02-22T12:00:02.202Z'), // = on half of the period
           },
           {
-            now: new Date('2024-02-23T18:00:02.202Z'), // = on three quarters of the period
+            pointsAt: new Date('2024-02-23T18:00:02.202Z'), // = on three quarters of the period
           },
         ],
       },
@@ -393,11 +393,11 @@ describe('CustomerAccessToken', () => {
 
     describe.each(cases)('CustomerId: $params.CustomerId', ({ params, truthyCases, falsyCases }) => {
       describe('to be truthy', () => {
-        test.each(truthyCases)('now: $now', ({ now }) => {
+        test.each(truthyCases)('pointsAt: $pointsAt', ({ pointsAt }) => {
           const instance = CustomerAccessToken.build(params)
 
           const actual = instance.hasEnoughTimeUntilExpired({
-            now,
+            pointsAt,
           })
 
           expect(actual)
@@ -406,11 +406,11 @@ describe('CustomerAccessToken', () => {
       })
 
       describe('to be falsy', () => {
-        test.each(falsyCases)('now: $now', ({ now }) => {
+        test.each(falsyCases)('pointsAt: $pointsAt', ({ pointsAt }) => {
           const instance = CustomerAccessToken.build(params)
 
           const actual = instance.hasEnoughTimeUntilExpired({
-            now,
+            pointsAt,
           })
 
           expect(actual)
