@@ -31,6 +31,7 @@ export default class CustomerGraphqlContext extends BaseGraphqlContext {
    * @param {{
    *   expressRequest: ExpressType.Request
    *   accessToken: string | null
+   *   requestedAt?: Date
    * }} params
    * @returns {Promise<renchan.UserEntity | null>} - User entity.
    * @example
@@ -56,12 +57,24 @@ export default class CustomerGraphqlContext extends BaseGraphqlContext {
   static async findUser ({
     expressRequest,
     accessToken,
+    requestedAt = new Date(), // TODO: Retake here after update renchan-core
   }) {
-    // TODO: Must fulfill this method.
-    return super.findUser({
-      expressRequest,
+    const customerAccessTokenEntity = await this.findCustomerAccessToken({
       accessToken,
     })
+
+    if (!customerAccessTokenEntity) {
+      return null
+    }
+
+    if (customerAccessTokenEntity.isExpired({
+      pointsAt: requestedAt,
+    })) {
+      return null
+    }
+
+    return customerAccessTokenEntity.Customer
+      ?? null
   }
 
   /**
