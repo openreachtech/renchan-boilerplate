@@ -224,3 +224,49 @@ describe('RenewAccessTokenMutationResolver', () => {
     })
   })
 })
+
+describe('RenewAccessTokenMutationResolver', () => {
+  describe('#formatResponse()', () => {
+    const resolver = RenewAccessTokenMutationResolver.create()
+
+    /**
+     * @type {Array<{
+     *   params: {
+     *     accessTokenEntity: import('../../../../../../../../sequelize/models/CustomerAccessToken.js').CustomerAccessTokenEntity | null
+     *   }
+     *   expected: {
+     *     accessToken: string
+     *   }
+     * }>}
+     */
+    const cases = /** @type {Array<*>} */ ([
+      {
+        params: {
+          accessTokenEntity: CustomerAccessToken.build({
+            accessToken: 'access-token-001',
+          }),
+        },
+        expected: {
+          accessToken: 'access-token-001',
+        },
+      },
+      {
+        params: {
+          accessTokenEntity: CustomerAccessToken.build({
+            accessToken: 'access-token-002',
+          }),
+        },
+        expected: {
+          accessToken: 'access-token-002',
+        },
+      },
+    ])
+
+    test.each(cases)('accessTokenEntity: $params.accessTokenEntity', ({ params, expected }) => {
+      const actual = resolver.formatResponse(params)
+
+      expect(actual)
+        .toEqual(expected)
+    })
+  })
+})
