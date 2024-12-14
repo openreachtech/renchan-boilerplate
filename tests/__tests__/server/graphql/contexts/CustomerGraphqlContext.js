@@ -17,27 +17,103 @@ describe('CustomerGraphqlContext', () => {
 
 describe('CustomerGraphqlContext', () => {
   describe('.findUser()', () => {
-    describe('to be fixed value', () => {
-      const cases = [
-        {
-          params: {
-            expressRequest: /** @type {*} */ ({}),
-            accessToken: 'access-token$alpha',
-          },
-        },
-        {
-          params: {
-            expressRequest: /** @type {*} */ ({}),
-            accessToken: 'access-token$beta',
-          },
-        },
-      ]
+    /** @type {ExpressType.Request} */
+    const expressRequestMock = /** @type {*} */ ({})
 
-      test.each(cases)('accessToken: $params.accessToken', async ({ params }) => {
-        const actual = await CustomerGraphqlContext.findUser(params)
+    describe('to be user entity', () => {
+      describe('with available access token', () => {
+        const cases = [
+          {
+            params: {
+              expressRequest: expressRequestMock,
+              accessToken: 'access-token-01-01',
+            },
+            expected: {
+              id: 100001,
+            },
+          },
+          {
+            params: {
+              expressRequest: expressRequestMock,
+              accessToken: 'access-token-02-02',
+            },
+            expected: {
+              id: 100002,
+            },
+          },
+          {
+            params: {
+              expressRequest: expressRequestMock,
+              accessToken: 'access-token-04-01',
+            },
+            expected: {
+              id: 100004,
+            },
+          },
+        ]
 
-        expect(actual)
-          .toBeNull()
+        test.each(cases)('accessToken: $params.accessToken', async ({ params, expected }) => {
+          const actual = await CustomerGraphqlContext.findUser(params)
+
+          expect(actual)
+            .toHaveProperty('id', expected.id)
+        })
+      })
+    })
+
+    describe('to be null', () => {
+      describe('with expired access token', () => {
+        const cases = [
+          {
+            params: {
+              expressRequest: expressRequestMock,
+              accessToken: 'access-token-02-01',
+            },
+          },
+          {
+            params: {
+              expressRequest: expressRequestMock,
+              accessToken: 'access-token-03-01',
+            },
+          },
+          {
+            params: {
+              expressRequest: expressRequestMock,
+              accessToken: 'access-token-03-02',
+            },
+          },
+        ]
+
+        test.each(cases)('accessToken: $params.accessToken', async ({ params, expected }) => {
+          const actual = await CustomerGraphqlContext.findUser(params)
+
+          expect(actual)
+            .toBeNull()
+        })
+      })
+
+      describe('with not existing access token', () => {
+        const cases = [
+          {
+            params: {
+              expressRequest: expressRequestMock,
+              accessToken: 'unknown-access-token-01',
+            },
+          },
+          {
+            params: {
+              expressRequest: expressRequestMock,
+              accessToken: 'unknown-access-token-01',
+            },
+          },
+        ]
+
+        test.each(cases)('accessToken: $params.accessToken', async ({ params, expected }) => {
+          const actual = await CustomerGraphqlContext.findUser(params)
+
+          expect(actual)
+            .toBeNull()
+        })
       })
     })
   })
