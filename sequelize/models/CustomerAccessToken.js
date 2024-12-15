@@ -7,6 +7,8 @@ import {
   RandomTextGenerator,
 } from '@openreachtech/renchan-tools'
 
+const MILLISECONDS_PER_DAY = 60 * 60 * 24 * 1000 // milliseconds in a day
+
 /**
  * CustomerAccessToken model.
  */
@@ -111,11 +113,9 @@ export default class CustomerAccessToken extends RenchanModel {
   static createExpiredAt ({
     generatedAt,
   }) {
-    const oneDayMilliseconds = 60 * 60 * 24 * 1000 // milliseconds in a day
-
     const expiredAt = new Date(
       generatedAt.getTime()
-      + oneDayMilliseconds
+      + MILLISECONDS_PER_DAY
     )
 
     return expiredAt
@@ -135,6 +135,44 @@ export default class CustomerAccessToken extends RenchanModel {
     const generator = RandomTextGenerator.create()
 
     return generator.generate(length)
+  }
+
+  /**
+   * Check if access token is expired.
+   *
+   * @param {{
+   *   pointsAt: Date
+   * }} params - Parameters.
+   * @returns {boolean} - True if expired.
+   */
+  isExpired ({
+    pointsAt,
+  }) {
+    const expiredAt = /** @type {Date} */ (
+      this.get('expiredAt')
+    )
+
+    return expiredAt.getTime() <= pointsAt.getTime()
+  }
+
+  /**
+   * Has enough time until expired.
+   *
+   * @param {{
+   *   pointsAt: Date
+   * }} params - Parameters.
+   * @returns {boolean} - True if has enough time until expired.
+   */
+  hasEnoughTimeUntilExpired ({
+    pointsAt,
+  }) {
+    const expiredAt = /** @type {Date} */ (
+      this.get('expiredAt')
+    )
+
+    const MILLISECONDS_PER_HALF_DAY = MILLISECONDS_PER_DAY / 2
+
+    return expiredAt.getTime() - pointsAt.getTime() > MILLISECONDS_PER_HALF_DAY
   }
 }
 
