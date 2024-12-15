@@ -27,6 +27,7 @@ describe('CustomerGraphqlContext', () => {
             params: {
               expressRequest: expressRequestMock,
               accessToken: 'access-token-01-01',
+              requestedAt: new Date('2024-08-01T01:00:01.001Z'),
             },
             expected: {
               id: 100001,
@@ -36,6 +37,7 @@ describe('CustomerGraphqlContext', () => {
             params: {
               expressRequest: expressRequestMock,
               accessToken: 'access-token-02-02',
+              requestedAt: new Date('2024-08-02T02:00:02.002Z'),
             },
             expected: {
               id: 100002,
@@ -45,6 +47,7 @@ describe('CustomerGraphqlContext', () => {
             params: {
               expressRequest: expressRequestMock,
               accessToken: 'access-token-04-01',
+              requestedAt: new Date('2024-08-04T04:00:04.004Z'),
             },
             expected: {
               id: 100004,
@@ -68,23 +71,26 @@ describe('CustomerGraphqlContext', () => {
             params: {
               expressRequest: expressRequestMock,
               accessToken: 'access-token-02-01',
+              requestedAt: new Date('2024-08-02T02:00:02.002Z'),
             },
           },
           {
             params: {
               expressRequest: expressRequestMock,
               accessToken: 'access-token-03-01',
+              requestedAt: new Date('2024-08-03T03:00:03.003Z'),
             },
           },
           {
             params: {
               expressRequest: expressRequestMock,
               accessToken: 'access-token-03-02',
+              requestedAt: new Date('2024-08-03T13:00:03.003Z'),
             },
           },
         ]
 
-        test.each(cases)('accessToken: $params.accessToken', async ({ params, expected }) => {
+        test.each(cases)('accessToken: $params.accessToken', async ({ params }) => {
           const actual = await CustomerGraphqlContext.findUser(params)
 
           expect(actual)
@@ -98,17 +104,19 @@ describe('CustomerGraphqlContext', () => {
             params: {
               expressRequest: expressRequestMock,
               accessToken: 'unknown-access-token-01',
+              requestedAt: new Date('2024-08-01T01:00:01.001Z'),
             },
           },
           {
             params: {
               expressRequest: expressRequestMock,
-              accessToken: 'unknown-access-token-01',
+              accessToken: 'unknown-access-token-02',
+              requestedAt: new Date('2024-08-02T02:00:02.002Z'),
             },
           },
         ]
 
-        test.each(cases)('accessToken: $params.accessToken', async ({ params, expected }) => {
+        test.each(cases)('accessToken: $params.accessToken', async ({ params }) => {
           const actual = await CustomerGraphqlContext.findUser(params)
 
           expect(actual)
