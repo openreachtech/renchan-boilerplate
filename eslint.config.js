@@ -18,6 +18,7 @@ export default [
         crypto: 'readonly',
 
         module: 'readonly',
+        Headers: 'readonly',
 
         sequelize: 'readonly', // namespace
 

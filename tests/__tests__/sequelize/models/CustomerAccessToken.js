@@ -248,3 +248,175 @@ describe('CustomerAccessToken', () => {
     })
   })
 })
+
+describe('CustomerAccessToken', () => {
+  describe('#isExpired()', () => {
+    const cases = [
+      {
+        params: {
+          CustomerId: 100001,
+          accessToken: 'access-token-100001',
+          generatedAt: new Date('2024-01-21T00:00:01.101Z'),
+          expiredAt: new Date('2024-01-22T00:00:01.101Z'),
+        },
+        truthyCases: [
+          {
+            pointsAt: new Date('2024-01-22T00:00:02.101Z'),
+          },
+          {
+            pointsAt: new Date('2024-01-22T00:00:01.101Z'), // = expiredAt
+          },
+        ],
+        falsyCases: [
+          {
+            pointsAt: new Date('2024-01-22T00:00:01.100Z'),
+          },
+          {
+            pointsAt: new Date('2024-01-21T00:00:01.101Z'), // = generatedAt
+          },
+          {
+            pointsAt: new Date('2024-01-21T00:00:00.000Z'),
+          },
+        ],
+      },
+      {
+        params: {
+          CustomerId: 100002,
+          accessToken: 'access-token-100002',
+          generatedAt: new Date('2024-02-22T00:00:02.202Z'),
+          expiredAt: new Date('2024-02-23T00:00:02.202Z'),
+        },
+        truthyCases: [
+          {
+            pointsAt: new Date('2024-02-23T00:00:03.202Z'),
+          },
+          {
+            pointsAt: new Date('2024-02-23T00:00:02.202Z'), // = expiredAt
+          },
+        ],
+        falsyCases: [
+          {
+            pointsAt: new Date('2024-02-23T00:00:02.201Z'),
+          },
+          {
+            pointsAt: new Date('2024-02-22T00:00:02.202Z'), // = generatedAt
+          },
+          {
+            pointsAt: new Date('2024-02-22T00:00:01.202Z'),
+          },
+        ],
+      },
+    ]
+
+    describe.each(cases)('CustomerId: $params.CustomerId', ({ params, truthyCases, falsyCases }) => {
+      describe('to be truthy', () => {
+        test.each(truthyCases)('pointsAt: $pointsAt', ({ pointsAt }) => {
+          const instance = CustomerAccessToken.build(params)
+
+          const actual = instance.isExpired({
+            pointsAt,
+          })
+
+          expect(actual)
+            .toBeTruthy()
+        })
+      })
+
+      describe('to be falsy', () => {
+        test.each(falsyCases)('pointsAt: $pointsAt', ({ pointsAt }) => {
+          const instance = CustomerAccessToken.build(params)
+
+          const actual = instance.isExpired({
+            pointsAt,
+          })
+
+          expect(actual)
+            .toBeFalsy()
+        })
+      })
+    })
+  })
+})
+
+describe('CustomerAccessToken', () => {
+  describe('#hasEnoughTimeUntilExpired()', () => {
+    const cases = [
+      {
+        params: {
+          CustomerId: 100001,
+          accessToken: 'access-token-100001',
+          generatedAt: new Date('2024-01-21T00:00:01.101Z'),
+          expiredAt: new Date('2024-01-22T00:00:01.101Z'),
+        },
+        truthyCases: [
+          {
+            pointsAt: new Date('2024-01-21T06:00:01.101Z'), // = on quarter of the period
+          },
+          {
+            pointsAt: new Date('2024-01-21T12:00:01.100Z'), // = on before half of the period
+          },
+        ],
+        falsyCases: [
+          {
+            pointsAt: new Date('2024-01-21T12:00:01.101Z'), // = on half of the period
+          },
+          {
+            pointsAt: new Date('2024-01-22T18:00:01.101Z'), // = on three quarters of the period
+          },
+        ],
+      },
+      {
+        params: {
+          CustomerId: 100002,
+          accessToken: 'access-token-100002',
+          generatedAt: new Date('2024-02-22T00:00:02.202Z'),
+          expiredAt: new Date('2024-02-23T00:00:02.202Z'),
+        },
+        truthyCases: [
+          {
+            pointsAt: new Date('2024-02-22T06:00:02.202Z'), // = on quarter of the period
+          },
+          {
+            pointsAt: new Date('2024-02-22T12:00:02.201Z'), // = on before half of the period
+          },
+        ],
+        falsyCases: [
+          {
+            pointsAt: new Date('2024-02-22T12:00:02.202Z'), // = on half of the period
+          },
+          {
+            pointsAt: new Date('2024-02-23T18:00:02.202Z'), // = on three quarters of the period
+          },
+        ],
+      },
+    ]
+
+    describe.each(cases)('CustomerId: $params.CustomerId', ({ params, truthyCases, falsyCases }) => {
+      describe('to be truthy', () => {
+        test.each(truthyCases)('pointsAt: $pointsAt', ({ pointsAt }) => {
+          const instance = CustomerAccessToken.build(params)
+
+          const actual = instance.hasEnoughTimeUntilExpired({
+            pointsAt,
+          })
+
+          expect(actual)
+            .toBeTruthy()
+        })
+      })
+
+      describe('to be falsy', () => {
+        test.each(falsyCases)('pointsAt: $pointsAt', ({ pointsAt }) => {
+          const instance = CustomerAccessToken.build(params)
+
+          const actual = instance.hasEnoughTimeUntilExpired({
+            pointsAt,
+          })
+
+          expect(actual)
+            .toBeFalsy()
+        })
+      })
+    })
+  })
+})
