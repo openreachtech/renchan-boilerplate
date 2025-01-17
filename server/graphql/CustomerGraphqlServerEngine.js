@@ -1,12 +1,11 @@
 import express from 'express'
 import cors from 'cors'
 
-import graphqlUploadExpress from 'graphql-upload/graphqlUploadExpress.mjs'
-
 import {
   BaseGraphqlServerEngine,
   BigNumberScalar,
   DateTimeScalar,
+  graphqlUploadExpressWithResolvingContentType,
 } from '@openreachtech/renchan'
 
 import {
@@ -125,7 +124,7 @@ export default class CustomerGraphqlServerEngine extends BaseGraphqlServerEngine
         this.config.staticPath
       ),
 
-      graphqlUploadExpress({
+      graphqlUploadExpressWithResolvingContentType({
         maxFileSize: 10000000, // 10 MB
         maxFiles: 10,
       }),
