@@ -38,6 +38,7 @@ type Mutation {
   uploadCustomerForumPostImage(input: UploadCustomerForumPostImageInput!): UploadCustomerForumPostImageResult!
   uploadImage (input: UploadImageInput!): UploadImageResult!
   uploadArrayImages (input: UploadArrayImagesInput!): [UploadImageResult!]!
+  uploadDeepPropertyImages (input: UploadDeepPropertyImagesInput!): UploadDeepPropertyImagesResult!
 
   # for subscription -----------------------------------------------------------
   createChatRoom (input: CreateChatRoomInput!): CreateChatRoomResult!
@@ -127,6 +128,11 @@ type UploadImageResult {
   encoding: String
 }
 
+type UploadDeepPropertyImagesResult {
+  avatarImage: FileParameters!
+  coverImage: FileParameters!
+}
+
 type Pagination {
   limit: Int!
   offset: Int!
@@ -137,6 +143,12 @@ type Pagination {
 type Sort {
   targetColumn: String!
   orderBy: String!
+}
+
+type FileParameters {
+  filename: String
+  mimetype: String
+  encoding: String
 }
 
 # for subscription -----------------------------------------------------------
@@ -229,6 +241,22 @@ input UploadImageInput {
 
 input UploadArrayImagesInput {
   images: [Upload!]!
+}
+
+input UploadDeepPropertyImagesInput {
+  profile: UploadDeepPropertyImagesProfileInput
+  config: UploadDeepPropertyImagesConfigInput
+}
+
+input UploadDeepPropertyImagesProfileInput {
+  nickname: String!
+  bio: String!
+  avatarImage: Upload
+}
+
+input UploadDeepPropertyImagesConfigInput {
+  themeColor: String!
+  coverImage: Upload
 }
 
 input PaginationInput {
