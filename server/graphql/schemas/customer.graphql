@@ -15,6 +15,7 @@ type Query {
   # for furo boilerplate -------------------------------------------------------
   companySponsors: CompanySponsorsResult!
   curriculums(input: CurriculumsSearchInput!): CurriculumsResult!
+  paginationArticles (input: PaginationArticlesInput!): PaginationArticlesResult!
 
   # for subscription -----------------------------------------------------------
   chatMessages (input: ChatMessagesInput!): ChatMessagesResult!
@@ -111,6 +112,18 @@ type Curriculum {
   description: String!
   thumbnailUrl: String!
   postedAt: String!
+}
+
+type PaginationArticlesResult {
+  articles: [Article!]!
+  pagination: Pagination!
+}
+
+type Article {
+  id: Int!
+  title: String!
+  description: String!
+  postedAt: DateTime!
 }
 
 type SignUpResult {
@@ -223,6 +236,11 @@ input SignUpInput {
 
 # for furo boilerplate ---------------------------------------------------------
 input CurriculumsSearchInput {
+  pagination: PaginationInput!
+}
+
+input PaginationArticlesInput {
+  category: String!
   pagination: PaginationInput!
 }
 
