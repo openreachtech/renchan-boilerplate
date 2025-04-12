@@ -46,7 +46,7 @@ export default class UploadImageMutationResolver extends BaseMutationResolver {
    * Format response.
    *
    * @param {{
-   *   contentReader: import('@openreachtech/renchan/lib/tools/FileContentReader').default
+   *   contentReader: GraphqlType.FileContentReader
    * }} params - Parameters.
    * @returns {{
    *   filename: string
