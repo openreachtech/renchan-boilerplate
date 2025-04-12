@@ -1,3 +1,7 @@
+/*
+ * Bootstrap file to activate Sequelize.
+ */
+
 import {
   SequelizeActivator,
 } from '@openreachtech/renchan-sequelize'
