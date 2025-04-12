@@ -11,7 +11,13 @@ export default class ChatMessage extends RenchanModel {
     return {
       ...factory.ID_BIGINT,
 
-      RoomId: {
+      // ForeignKey must start with upper case.
+      ChatRoomId: {
+        type: DataTypes.BIGINT,
+        allowNull: false,
+      },
+      // ForeignKey must start with upper case.
+      CustomerId: {
         type: DataTypes.BIGINT,
         allowNull: false,
       },
@@ -19,8 +25,8 @@ export default class ChatMessage extends RenchanModel {
         type: DataTypes.STRING(191),
         allowNull: false,
       },
-      sender: {
-        type: DataTypes.STRING(191),
+      postedAt: {
+        type: DataTypes.DATE(3),
         allowNull: false,
       },
     }
@@ -37,7 +43,7 @@ export default class ChatMessage extends RenchanModel {
   static associate () {
     super.associate?.()
 
-    // noop
+    this.belongsTo(this._.Customer)
   }
 
   /** @override */
@@ -65,8 +71,29 @@ export default class ChatMessage extends RenchanModel {
 /**
  * @typedef {{
  *   id: number
- *   RoomId: number
+ *   ChatRoomId: number
+ *   CustomerId: number
  *   content: string
- *   sender: string
+ *   postedAt: Date
  * }} ChatMessageEntity
+ */
+
+/**
+ * @typedef {{
+ *   id: number
+ *   ChatRoomId: number
+ *   CustomerId: number
+ *   content: string
+ *   postedAt: Date
+ *   Customer: {
+ *     id: number
+ *     registeredAt: Date
+ *     CustomerBasic: {
+ *       id: number
+ *       CustomerId: number
+ *       username: string
+ *       savedAt: Date
+ *     }
+ *   }
+ * }} ChatMessageAssociatedEntity
  */
