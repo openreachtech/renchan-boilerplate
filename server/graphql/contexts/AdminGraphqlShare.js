@@ -89,7 +89,7 @@ export default class AdminGraphqlShare extends BaseGraphqlShare {
 }
 
 /**
- * @typedef {import('../../../../lib/server/graphql/contexts/BaseGraphqlShare.js').BaseGraphqlShareParams & {
+ * @typedef {ConstructorParameters<GraphqlType.ShareCtor>[0] & {
  *   extraClient: ExtraClient
  * }} AdminGraphqlShareParams
  */
@@ -99,5 +99,5 @@ export default class AdminGraphqlShare extends BaseGraphqlShare {
  */
 
 /**
- * @typedef {import('../../../../lib/server/graphql/contexts/BaseGraphqlShare.js').BaseGraphqlShareAsyncFactoryParams} AdminGraphqlShareAsyncFactoryParams
+ * @typedef {Parameters<GraphqlType.ShareCtor['createAsync']>[0]} AdminGraphqlShareAsyncFactoryParams
  */
