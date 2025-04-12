@@ -12,6 +12,13 @@ export default class SignUpMutationResolver extends BaseMutationResolver {
   }
 
   /** @override */
+  static get errorCodeHash () {
+    return {
+      ...super.errorCodeHash,
+    }
+  }
+
+  /** @override */
   async resolve () {
     return {
       accessToken: 'actual-access-token-0002',
