@@ -49,7 +49,39 @@ export default class CustomerGraphqlServerEngine extends BaseGraphqlServerEngine
       Unauthorized: '102.X000.002',
       DeniedSchemaPermission: '102.X000.003',
       Database: '104.X000.001',
+
+      CanNotSubscribe: '102.S000.001',
     }
+  }
+
+  /** @override */
+  collectMiddleware () {
+    return [
+      cors({
+        origin: '*',
+      }),
+
+      express.json({
+        limit: '10mb',
+      }),
+
+      express.static(
+        this.config.staticPath
+      ),
+
+      graphqlUploadExpressWithResolvingContentType({
+        maxFileSize: 10000000, // 10 MB
+        maxFiles: 10,
+      }),
+
+      express.urlencoded({
+        extended: true,
+        verify: (req, res, body) => {
+          // eslint-disable-next-line no-param-reassign
+          req['rawBody'] = body.toString()
+        },
+      }),
+    ]
   }
 
   /** @override */
@@ -61,11 +93,15 @@ export default class CustomerGraphqlServerEngine extends BaseGraphqlServerEngine
       'signIn',
 
       'createChatRoom',
+      'postNotification',
       'sendChatMessage',
       'chatMessages',
       'chatRooms',
 
+      'onObserveChatStates',
       'onReceiveMessage',
+      'onUpdateChatRooms',
+      'onBroadcastNotifications',
     ]
   }
 
@@ -108,35 +144,38 @@ export default class CustomerGraphqlServerEngine extends BaseGraphqlServerEngine
   }
 
   /** @override */
-  collectMiddleware () {
-    return [
-      cors({
-        origin: '*',
-      }),
+  get visaIssuers () {
+    return {
+      hasAuthenticated: async ({
+        expressRequest,
+        userEntity,
+        engine,
+      }) => userEntity !== null,
+      hasAuthorized: async ({
+        expressRequest,
+        userEntity,
+        engine,
+      }) => true,
+      generateSchemaPermissionHash: async ({
+        expressRequest,
+        userEntity,
+        engine,
+      }) =>
 
-      express.json({
-        // @ts-expect-error
-        extended: true,
-        limit: '10mb',
-      }),
-
-      express.static(
-        this.config.staticPath
-      ),
-
-      graphqlUploadExpressWithResolvingContentType({
-        maxFileSize: 10000000, // 10 MB
-        maxFiles: 10,
-      }),
-
-      express.urlencoded({
-        extended: true,
-        verify: (req, res, body) => {
-          // eslint-disable-next-line no-param-reassign
-          req['rawBody'] = body.toString()
-        },
-      }),
-    ]
+        /**
+         * @type {Record<string, boolean> | null} - Schema permission hash. (null means that all schemas have permission)
+         * @example
+         * ```js
+         * return {
+         *   customer: true,
+         *   statistics: false,
+         *   ...
+         * }
+         * ```
+         */
+        null
+      ,
+    }
   }
 
   /** @override */
