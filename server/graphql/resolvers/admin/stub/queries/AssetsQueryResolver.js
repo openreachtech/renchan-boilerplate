@@ -9,6 +9,13 @@ export default class AssetsQueryResolver extends BaseQueryResolver {
   }
 
   /** @override */
+  static get errorCodeHash () {
+    return {
+      ...super.errorCodeHash,
+    }
+  }
+
+  /** @override */
   async resolve () {
     return [
       {
