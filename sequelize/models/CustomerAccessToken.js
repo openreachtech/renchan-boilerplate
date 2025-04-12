@@ -114,8 +114,7 @@ export default class CustomerAccessToken extends RenchanModel {
     generatedAt,
   }) {
     const expiredAt = new Date(
-      generatedAt.getTime()
-      + MILLISECONDS_PER_DAY
+      generatedAt.getTime() + MILLISECONDS_PER_DAY
     )
 
     return expiredAt
