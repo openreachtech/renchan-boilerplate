@@ -49,13 +49,16 @@ export default class UploadArrayImagesMutationResolver extends BaseMutationResol
   }) {
     await sleep(300)
 
-    /** @type {Array<import('@openreachtech/renchan/lib/tools/FileContentReader.js').default>} */
+    /** @type {Array<GraphqlType.FileContentReader>} */
     const contentReaders = /** @type {Array<*>} */ (
-      await images.map(
-        async it =>
-          this.Ctor.createAsyncFileContentReader({
-            upload: it,
-          })
+      await Promise.all(
+        images.map(
+          it =>
+            // @ts-expect-error
+            this.Ctor.createAsyncFileContentReader({
+              upload: it,
+            })
+        )
       )
     )
 
@@ -68,7 +71,7 @@ export default class UploadArrayImagesMutationResolver extends BaseMutationResol
    * Format response.
    *
    * @param {{
-   *   contentReaders: Array<import('@openreachtech/renchan/lib/tools/FileContentReader.js').default>
+   *   contentReaders: Array<GraphqlType.FileContentReader>
    * }} params - Parameters.
    * @returns {Array<{
    *   filename: string
@@ -80,10 +83,10 @@ export default class UploadArrayImagesMutationResolver extends BaseMutationResol
     contentReaders,
   }) {
     return contentReaders.map(
-      contentReader => ({
-        filename: contentReader.filename,
-        mimetype: contentReader.mimetype,
-        encoding: contentReader.encoding,
+      it => ({
+        filename: it.filename,
+        mimetype: it.mimetype,
+        encoding: it.encoding,
       })
     )
   }
