@@ -119,10 +119,6 @@ type Article {
   postedAt: DateTime!
 }
 
-type SignUpResult {
-  sentTo: String!
-}
-
 type UploadImageResult {
   filename: String
   mimetype: String
