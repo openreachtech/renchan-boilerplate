@@ -7,6 +7,7 @@ describe('Model', () => {
   test.each(cases)('Model: $Model.name', async ({ Model }) => {
     await expect(Model.findOne())
       .resolves
-      .not.toThrow()
+      .not
+      .toThrow()
   })
 })
