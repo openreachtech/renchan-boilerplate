@@ -82,7 +82,7 @@ type AuthResult {
 
 # for furo boilerplate ---------------------------------------------------------
 type CompanySponsorsResult {
-  companySponsors:  [CompanySponsor!]!
+  companySponsors: [CompanySponsor!]!
 }
 
 type CompanySponsor {
