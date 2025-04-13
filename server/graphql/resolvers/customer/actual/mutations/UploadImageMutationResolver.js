@@ -33,6 +33,7 @@ export default class UploadImageMutationResolver extends BaseMutationResolver {
     await sleep(300)
 
     const contentReader = await this.Ctor
+      // @ts-expect-error
       .createAsyncFileContentReader({
         upload: image,
       })
@@ -46,7 +47,7 @@ export default class UploadImageMutationResolver extends BaseMutationResolver {
    * Format response.
    *
    * @param {{
-   *   contentReader: import('@openreachtech/renchan/lib/tools/FileContentReader').default
+   *   contentReader: GraphqlType.FileContentReader
    * }} params - Parameters.
    * @returns {{
    *   filename: string

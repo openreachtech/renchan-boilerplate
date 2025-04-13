@@ -2,6 +2,8 @@ import {
   BaseMutationResolver,
 } from '@openreachtech/renchan'
 
+import OnUpdateChatRoomsSubscriptionResolver from '../subscriptions/OnUpdateChatRoomsSubscriptionResolver.js'
+
 import ChatRoom from '../../../../../../sequelize/models/ChatRoom.js'
 
 export default class CreateChatRoomMutationResolver extends BaseMutationResolver {
@@ -47,14 +49,44 @@ export default class CreateChatRoomMutationResolver extends BaseMutationResolver
         id,
         name,
       }))
+      .toSorted((alpha, beta) =>
+        alpha.name.localeCompare(beta.name)
+      )
 
-    rooms.sort((alpha, beta) =>
-      alpha.name.localeCompare(beta.name)
-    )
+    await this.broadcastChatRooms({
+      context,
+      rooms,
+    })
 
     return {
       rooms,
     }
+  }
+
+  /**
+   * Broadcast notification.
+   *
+   * @param {{
+   *   context: GraphqlType.Context
+   *   rooms: Array<{
+   *     id: number
+   *     name: string
+   *   }>
+   * }} params - Parameters.
+   * @returns {Promise<void>} - Returns nothing.
+   */
+  broadcastChatRooms ({
+    context,
+    rooms,
+  }) {
+    const payload = {
+      rooms,
+    }
+
+    return OnUpdateChatRoomsSubscriptionResolver.publishTopic({
+      context,
+      payload,
+    })
   }
 
   /**
@@ -81,10 +113,9 @@ export default class CreateChatRoomMutationResolver extends BaseMutationResolver
         id,
         name,
       }))
-
-    rooms.sort((alpha, beta) =>
-      alpha.name.localeCompare(beta.name)
-    )
+      .toSorted((alpha, beta) =>
+        alpha.name.localeCompare(beta.name)
+      )
 
     return {
       rooms,

@@ -8,6 +8,8 @@ import {
 
 /**
  * Upload deep property images mutation resolver.
+ *
+ * @extends {BaseMutationResolver}
  */
 export default class UploadDeepPropertyImagesMutationResolver extends BaseMutationResolver {
   /** @override */
@@ -70,20 +72,27 @@ export default class UploadDeepPropertyImagesMutationResolver extends BaseMutati
   }) {
     await sleep(300)
 
-    const avatarImageReader = await this.Ctor
-      // @ts-expect-error
-      .createAsyncFileContentReader({
-        upload: avatarImage,
-      })
-    const coverImageReader = await this.Ctor
-      // @ts-expect-error
-      .createAsyncFileContentReader({
-        upload: coverImage,
-      })
+    /** @type {GraphqlType.FileContentReader} */
+    const avatarImageContentReader = avatarImage
+      ? await this.Ctor
+        // @ts-expect-error
+        .createAsyncFileContentReader({
+          upload: avatarImage,
+        })
+      : null
+
+    /** @type {GraphqlType.FileContentReader} */
+    const coverImageContentReader = coverImage
+      ? await this.Ctor
+        // @ts-expect-error
+        .createAsyncFileContentReader({
+          upload: coverImage,
+        })
+      : null
 
     return this.formatResponse({
-      avatarImageReader,
-      coverImageReader,
+      avatarImageContentReader,
+      coverImageContentReader,
     })
   }
 
@@ -91,8 +100,8 @@ export default class UploadDeepPropertyImagesMutationResolver extends BaseMutati
    * Format response.
    *
    * @param {{
-   *   avatarImageReader: import('@openreachtech/renchan/lib/tools/FileContentReader').default
-   *   coverImageReader: import('@openreachtech/renchan/lib/tools/FileContentReader').default
+   *   avatarImageContentReader: GraphqlType.FileContentReader | null
+   *   coverImageContentReader: GraphqlType.FileContentReader | null
    * }} params - Parameters.
    * @returns {{
    *   avatarImage: {
@@ -108,19 +117,19 @@ export default class UploadDeepPropertyImagesMutationResolver extends BaseMutati
    * }} - Response.
    */
   formatResponse ({
-    avatarImageReader,
-    coverImageReader,
+    avatarImageContentReader,
+    coverImageContentReader,
   }) {
     return {
       avatarImage: {
-        filename: avatarImageReader.filename,
-        mimetype: avatarImageReader.mimetype,
-        encoding: avatarImageReader.encoding,
+        filename: avatarImageContentReader?.filename,
+        mimetype: avatarImageContentReader?.mimetype,
+        encoding: avatarImageContentReader?.encoding,
       },
       coverImage: {
-        filename: coverImageReader.filename,
-        mimetype: coverImageReader.mimetype,
-        encoding: coverImageReader.encoding,
+        filename: coverImageContentReader?.filename,
+        mimetype: coverImageContentReader?.mimetype,
+        encoding: coverImageContentReader?.encoding,
       },
     }
   }

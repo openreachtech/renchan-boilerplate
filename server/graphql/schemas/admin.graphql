@@ -5,11 +5,7 @@ scalar Upload
 #### QUERY
 ################################################################################
 
-## !!!!!!!! Please add in dictionary order.
-
 type Query {
-  admins: AdminsResult!
-
   customers: [Customer!]!
   assets: [Asset!]!
 }
@@ -27,26 +23,6 @@ type Mutation {
 #### TYPES
 ################################################################################
 
-type Admin {
-    adminId: Int!
-    username: String!
-    email: String!
-    roles: [AdminRole!]!
-}
-
-type AdminsResult {
-    admins: [Admin!]!
-}
-
-type AdminRole {
-    roleId: Int!
-    roleName: String!
-}
-
-type AuthResult {
-    accessToken: String!
-}
-
 type Customer {
   id: Int!
   name: String!
@@ -57,6 +33,10 @@ type Asset {
   customerId: Int!
   stakedAmount: String!
   rewardsAmount: String!
+}
+
+type AuthResult {
+  accessToken: String!
 }
 
 ################################################################################

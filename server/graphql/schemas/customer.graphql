@@ -6,15 +6,14 @@ scalar Upload
 #### QUERY
 ################################################################################
 
-## !!!!!!!! Please add in dictionary order.
-
 type Query {
   customer: Customer!
-  payments: [Payment!]!
+  messages: [Message!]!
 
   # for furo boilerplate -------------------------------------------------------
   companySponsors: CompanySponsorsResult!
-  curriculums(input: CurriculumsSearchInput!): CurriculumsResult!
+  curriculums (input: CurriculumsSearchInput!): CurriculumsResult!
+  paginationArticles (input: PaginationArticlesInput!): PaginationArticlesResult!
 
   # for subscription -----------------------------------------------------------
   chatMessages (input: ChatMessagesInput!): ChatMessagesResult!
@@ -28,11 +27,9 @@ type Query {
 #### MUTATION
 ################################################################################
 
-## !!!!!!!! Please add in dictionary order.
-
 type Mutation {
-  signIn(input: SignInInput!): AuthResult!
-  signUp(input: SignUpInput!): AuthResult!
+  signIn (input: SignInInput!): AuthResult!
+  signUp (input: SignUpInput!): AuthResult!
 
   # for furo boilerplate -------------------------------------------------------
   uploadImage (input: UploadImageInput!): UploadImageResult!
@@ -41,7 +38,9 @@ type Mutation {
 
   # for subscription -----------------------------------------------------------
   createChatRoom (input: CreateChatRoomInput!): CreateChatRoomResult!
-  sendChatMessage (input: SendMessageInput!): SendChatMessageResult!
+  sendChatMessage (input: SendChatMessageInput!): SendChatMessageResult!
+
+  postNotification (input: PostNotificationInput!): PostNotificationResult!
 
   # for scalar sample ----------------------------------------------------------
   postAppointment (input: PostAppointmentInput!): PostAppointmentResult!
@@ -55,40 +54,35 @@ type Mutation {
 ################################################################################
 
 type Subscription {
+  onObserveChatStates (input: OnObserveChatStatesInput!): OnObserveChatStatesResult!
   onReceiveMessage (input: OnReceiveMessageInput!): OnReceiveMessageResult!
+  onUpdateChatRooms: OnUpdateChatRoomsResult!
+
+  onBroadcastNotifications (input: OnBroadcastNotificationsInput!): OnBroadcastNotificationsResult!
 }
 
 ################################################################################
 #### TYPE
 ################################################################################
 
-## !!!!!!!! Please add in dictionary order.
+type Customer {
+  id: Int!
+  name: String!
+  inviteCode: String!
+}
+
+type Message {
+  customerId: Int!
+  message: String!
+}
 
 type AuthResult {
   accessToken: String!
 }
 
-type Customer {
-  id: Int!
-  inviteCode: String!
-  username: String!
-
-  CustomerDetail: CustomerDetail
-}
-
-type CustomerDetail {
-  email: String!
-}
-
-type Payment {
-  amount: String!
-  coinType: String!
-  fixedAt: String!
-}
-
 # for furo boilerplate ---------------------------------------------------------
 type CompanySponsorsResult {
-  companySponsors:  [CompanySponsor!]!
+  companySponsors: [CompanySponsor!]!
 }
 
 type CompanySponsor {
@@ -113,8 +107,16 @@ type Curriculum {
   postedAt: String!
 }
 
-type SignUpResult {
-  sentTo: String!
+type PaginationArticlesResult {
+  articles: [Article!]!
+  pagination: Pagination!
+}
+
+type Article {
+  id: Int!
+  title: String!
+  description: String!
+  postedAt: DateTime!
 }
 
 type UploadImageResult {
@@ -128,6 +130,12 @@ type UploadDeepPropertyImagesResult {
   coverImage: FileParameters!
 }
 
+type FileParameters {
+  filename: String
+  mimetype: String
+  encoding: String
+}
+
 type Pagination {
   limit: Int!
   offset: Int!
@@ -138,12 +146,6 @@ type Pagination {
 type Sort {
   targetColumn: String!
   orderBy: String!
-}
-
-type FileParameters {
-  filename: String
-  mimetype: String
-  encoding: String
 }
 
 # for subscription -----------------------------------------------------------
@@ -164,19 +166,43 @@ type CreateChatRoomResult {
   rooms: [ChatRoom!]!
 }
 
+type PostNotificationResult {
+  notification: Notification!
+}
+
+type OnObserveChatStatesResult {
+  hasUnreadMessages: Boolean!
+  isUpdatedRooms: Boolean!
+  isUpdatedMembers: Boolean!
+}
+
 type OnReceiveMessageResult {
   message: ChatMessage!
 }
 
 type ChatMessage {
   id: Int! # for edit/delete
+  postedAt: DateTime!
   content: String!
   sender: String!
+}
+
+type OnUpdateChatRoomsResult {
+  rooms: [ChatRoom!]!
 }
 
 type ChatRoom {
   id: Int!
   name: String!
+}
+
+type OnBroadcastNotificationsResult {
+  notification: Notification!
+}
+
+type Notification {
+  message: String!
+  segment: String!
 }
 
 # for scalar sample ------------------------------------------------------------
@@ -208,21 +234,26 @@ type RenewAccessTokenResult {
 #### INPUT
 ################################################################################
 
-## !!!!!!!! Please add in dictionary order.
+input SignUpInput {
+  email: String!
+  username: String
+  firstName: String
+  lastName: String
+  password: String!
+}
 
 input SignInInput {
   email: String!
   password: String!
 }
 
-input SignUpInput {
-  email: String!
-  inviteCode: String!
-  password: String!
-}
-
 # for furo boilerplate ---------------------------------------------------------
 input CurriculumsSearchInput {
+  pagination: PaginationInput!
+}
+
+input PaginationArticlesInput {
+  category: String!
   pagination: PaginationInput!
 }
 
@@ -264,21 +295,36 @@ input SortInput {
 # for subscription -------------------------------------------------------------
 
 input ChatMessagesInput {
-  roomId: Int!
+  chatRoomId: Int!
+  offsetDateTime: DateTime
+  fetchDirection: String
+  limit: Int
 }
 
 input CreateChatRoomInput {
   name: String! # room name
 }
 
-input SendMessageInput {
-  roomId: Int!
+input SendChatMessageInput {
+  chatRoomId: Int!
   content: String!
-  sender: String! # username
+}
+
+input PostNotificationInput {
+  message: String!
+  segment: String!
+}
+
+input OnObserveChatStatesInput {
+  chatRoomId: Int!
 }
 
 input OnReceiveMessageInput {
   roomId: Int!
+}
+
+input OnBroadcastNotificationsInput {
+  segment: String!
 }
 
 # for scalar sample ------------------------------------------------------------
