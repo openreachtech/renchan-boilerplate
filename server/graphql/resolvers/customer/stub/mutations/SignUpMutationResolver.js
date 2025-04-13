@@ -30,11 +30,12 @@ export default class SignUpMutationResolver extends BaseMutationResolver {
         password = 'p@ssw0rd',
       } = {},
     },
+    context,
   }) {
     await sleep(500)
 
     return {
-      sentTo: email,
+      accessToken: context.accessToken,
     }
   }
 }
