@@ -1,7 +1,10 @@
+import {
+  RandomTextGenerator,
+} from '@openreachtech/renchan-tools'
+
 import RenewAccessTokenMutationResolver from '../../../../../../../../server/graphql/resolvers/customer/actual/mutations/RenewAccessTokenMutationResolver.js'
 
 import CustomerAccessToken from '../../../../../../../../sequelize/models/CustomerAccessToken'
-import { RandomTextGenerator } from '@openreachtech/renchan-tools'
 
 describe('RenewAccessTokenMutationResolver', () => {
   describe('#generateTransactionCallback', () => {
