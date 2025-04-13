@@ -12,7 +12,7 @@ type Query {
 
   # for furo boilerplate -------------------------------------------------------
   companySponsors: CompanySponsorsResult!
-  curriculums(input: CurriculumsSearchInput!): CurriculumsResult!
+  curriculums (input: CurriculumsSearchInput!): CurriculumsResult!
   paginationArticles (input: PaginationArticlesInput!): PaginationArticlesResult!
 
   # for subscription -----------------------------------------------------------
@@ -28,8 +28,8 @@ type Query {
 ################################################################################
 
 type Mutation {
-  signIn(input: SignInInput!): AuthResult!
-  signUp(input: SignUpInput!): AuthResult!
+  signIn (input: SignInInput!): AuthResult!
+  signUp (input: SignUpInput!): AuthResult!
 
   # for furo boilerplate -------------------------------------------------------
   uploadImage (input: UploadImageInput!): UploadImageResult!
