@@ -1,7 +1,7 @@
 {
   "name": "@openreachtech/renchan-boilerplate",
   "version": "0.0.0",
-  "description": "Based on renchan-boilerplate version 1.4.0",
+  "description": "Based on renchan-boilerplate version 1.4.1",
   "main": "index.js",
   "type": "module",
   "scripts": {
