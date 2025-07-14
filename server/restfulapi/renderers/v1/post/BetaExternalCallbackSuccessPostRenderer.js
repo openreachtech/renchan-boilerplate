@@ -4,24 +4,21 @@ import {
 } from '@openreachtech/renchan'
 
 /**
- * Mailgun success renderer.
+ * BetaExternalCallback success renderer.
  *
- * @extends {BasePostRenderer<MailgunSuccessRendererInputBody,  MailgunSuccessRendererInputQuery>}
+ * @extends {BasePostRenderer<
+ *   BetaExternalCallbackSuccessPostRendererInputBody
+ * >}
  */
-export default class MailgunSuccessRenderer extends BasePostRenderer {
+export default class BetaExternalCallbackSuccessPostRenderer extends BasePostRenderer {
   /** @override */
   get routePath () {
-    return '/mailgun/success'
+    return '/beta-external-callback/success'
   }
 
   /** @override */
   static get errorStructureHash () {
-    return {
-      AlphaRequired: {
-        statusCode: 400,
-        errorMessage: 'first is required',
-      },
-    }
+    return {}
   }
 
   /**
@@ -35,30 +32,29 @@ export default class MailgunSuccessRenderer extends BasePostRenderer {
   }
 
   /**
-   * Render Coinpayments success.
+   * Render BetaExternalCallback success.
    *
    * @override
-   * @param {RestfulApiType.RenderInput<*, *>} input - Input data.
+   * @param {RestfulApiType.RenderInput<BetaExternalCallbackSuccessPostRendererInputBody, *>} input - Input data.
    * @returns {Promise<RestfulApiType.RenderResponse>} - Success response.
    */
   async render ({
-    query: {
-      first,
-      second,
-    },
+    query,
+    body,
     context, // has now, share.env
     request, // has req, res, next
   }) {
     const content = {
       status: 'success',
-      message: 'I am version 1.0.0 of mailgun (^_^)',
+      message: 'I am version 1.0.0 of BetaExternalCallback (^_^)',
       receivedValues: [
-        first,
-        second,
+        body.first,
+        body.second,
       ],
     }
 
     return RestfulApiResponse.create({
+      statusCode: 200,
       content,
     })
   }
@@ -66,16 +62,9 @@ export default class MailgunSuccessRenderer extends BasePostRenderer {
 
 /**
  * @typedef {{
- *   one: string
- *   two: string
- * }} MailgunSuccessRendererInputBody
- */
-
-/**
- * @typedef {{
- *   alpha: string
- *   beta: string
- * }} MailgunSuccessRendererInputQuery
+ *   first: string
+ *   second: string
+ * }} BetaExternalCallbackSuccessPostRendererInputBody
  */
 
 /**
@@ -83,5 +72,5 @@ export default class MailgunSuccessRenderer extends BasePostRenderer {
  *   status: string
  *   message: string
  *   receivedValues: Array<*>
- * }} MailgunSuccessRendererResponse
+ * }} BetaExternalCallbackSuccessPostRendererResponse
  */

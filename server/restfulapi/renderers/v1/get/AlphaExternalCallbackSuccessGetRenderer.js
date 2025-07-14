@@ -1,17 +1,24 @@
 import {
+  setTimeout as sleep,
+} from 'timers/promises'
+
+import {
   BaseGetRenderer,
   RestfulApiResponse,
 } from '@openreachtech/renchan'
 
 /**
- * Coinpayments success renderer.
+ * Alpha external callback success renderer.
  *
- * @extends {BaseGetRenderer<CoinpaymentsSuccessRendererInputQuery, CoinpaymentsSuccessRendererResponse>}
+ * @extends {BaseGetRenderer<
+ *   AlphaExternalCallbackSuccessGetRendererInputQuery,
+ *   AlphaExternalCallbackSuccessGetRendererResponse
+ * >}
  */
-export default class CoinpaymentsSuccessRenderer extends BaseGetRenderer {
+export default class AlphaExternalCallbackSuccessGetRenderer extends BaseGetRenderer {
   /** @override */
   get routePath () {
-    return '/coinpayments/success'
+    return '/alpha-external-callback/success'
   }
 
   /** @override */
@@ -35,7 +42,7 @@ export default class CoinpaymentsSuccessRenderer extends BaseGetRenderer {
   }
 
   /**
-   * Render Coinpayments success.
+   * Render AlphaExternalCallback success.
    *
    * @override
    * @param {RestfulApiType.RenderInput<*, *>} input - Input data.
@@ -49,13 +56,15 @@ export default class CoinpaymentsSuccessRenderer extends BaseGetRenderer {
     context, // has now, share.env
     request, // has req, res, next
   }) {
+    await sleep(500) // Simulate a delay of 500ms
+
     if (!alpha) {
       return this.Error.AlphaRequired.createAsError()
     }
 
     const content = {
       status: 'success',
-      message: 'I am version 1.0.0 of Coinpayments (^_^)',
+      message: 'I am version 1.0.0 of AlphaExternalCallback (^_^)',
       receivedValues: [
         {
           alpha,
@@ -76,7 +85,7 @@ export default class CoinpaymentsSuccessRenderer extends BaseGetRenderer {
  * @typedef {{
  *   alpha: string
  *   beta: string
- * }} CoinpaymentsSuccessRendererInputQuery
+ * }} AlphaExternalCallbackSuccessGetRendererInputQuery
  */
 
 /**
@@ -84,5 +93,5 @@ export default class CoinpaymentsSuccessRenderer extends BaseGetRenderer {
  *   status: string
  *   message: string
  *   receivedValues: Array<*>
- * }} CoinpaymentsSuccessRendererResponse
+ * }} AlphaExternalCallbackSuccessGetRendererResponse
  */

@@ -44,6 +44,7 @@ export default [
 
       'jest/require-top-level-describe': 'off',
 
+      'jsdoc/check-indentation': 'off',
       'jsdoc/check-tag-names': 'off',
       'jsdoc/no-undefined-types': 'off',
       'jsdoc/valid-types': 'off',
