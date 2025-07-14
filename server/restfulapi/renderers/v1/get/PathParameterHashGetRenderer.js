@@ -1,0 +1,103 @@
+import {
+  setTimeout as sleep,
+} from 'timers/promises'
+
+import {
+  BaseGetRenderer,
+  RestfulApiResponse,
+} from '@openreachtech/renchan'
+
+/**
+ * Alpha external callback success renderer.
+ *
+ * @extends {BaseGetRenderer<
+ *   PathParameterHashGetRendererInputQuery,
+ *   PathParameterHashGetRendererResponse
+ * >}
+ */
+export default class PathParameterHashGetRenderer extends BaseGetRenderer {
+  /** @override */
+  get routePath () {
+    return '/path-parameter-hash/:id/:name'
+  }
+
+  /** @override */
+  static get errorStructureHash () {
+    return {}
+  }
+
+  /**
+   * Passes filter.
+   *
+   * @override
+   * @returns {boolean} - false: filter for visa
+   */
+  get passesFilter () {
+    return true
+  }
+
+  /**
+   * Render AlphaExternalCallback success.
+   *
+   * @override
+   * @param {RestfulApiType.RenderInput<*, *>} input - Input data.
+   * @returns {Promise<RestfulApiResponse>} - Success response.
+   */
+  async render ({
+    query,
+    body,
+    context, // has now, share.env
+    request, // has req, res, next
+  }) {
+    await sleep(500) // Simulate a delay of 500ms
+
+    const id = this.resolveId({
+      pathParameterHash: request.pathParameterHash,
+    })
+
+    const content = {
+      status: 'success',
+      pathParams: {
+        id,
+        name: request.pathParameterHash.name,
+      },
+    }
+
+    return RestfulApiResponse.create({
+      statusCode: 200,
+      content,
+    })
+  }
+
+  /**
+   * Resolve ID from request.
+   *
+   * @param {{
+   *   pathParameterHash: ExpressType.Request['params']
+   * }} params - Parameters for resolving ID.
+   * @returns {number | null} - Resolved ID or null if not found.
+   */
+  resolveId ({
+    pathParameterHash,
+  }) {
+    try {
+      return Number.parseInt(pathParameterHash.id)
+    } catch (error) {
+      return null
+    }
+  }
+}
+
+/**
+ * @typedef {{}} PathParameterHashGetRendererInputQuery
+ */
+
+/**
+ * @typedef {{
+ *   status: string
+ *   pathParams: {
+ *     id: number | null
+ *     name: string | null
+ *   }
+ * }} PathParameterHashGetRendererResponse
+ */
