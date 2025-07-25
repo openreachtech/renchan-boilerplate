@@ -35,7 +35,7 @@
   "dependencies": {
     "@graphql-tools/schema": "^10.0.25",
     "@graphql-tools/utils": "^10.9.1",
-    "@openreachtech/mentsu-logger": "^1.1.1",
+    "@openreachtech/mentsu-logger": "^2.0.0",
     "@openreachtech/renchan": "^2.8.0",
     "@openreachtech/renchan-env": "^1.0.2",
     "@openreachtech/renchan-sequelize": "^2.0.2",
