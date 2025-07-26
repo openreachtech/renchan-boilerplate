@@ -1,4 +1,9 @@
-import openreachtechConfig from '@openreachtech/eslint-config'
+import globals from 'globals'
+
+import {
+  default as openreachtechConfig,
+  coreRuleOptionHash,
+} from '@openreachtech/eslint-config'
 
 export default [
   ...openreachtechConfig,
@@ -10,46 +15,32 @@ export default [
   },
 
   {
-    languageOptions: {
-      sourceType: 'module',
-      globals: {
-        __dirname: 'readonly',
-        process: 'readonly',
-        crypto: 'readonly',
-
-        module: 'readonly',
-        Headers: 'readonly',
-
-        sequelize: 'readonly', // namespace
-
-        setTimeout: 'readonly',
-      },
-    },
-  },
-
-  {
-    files: [
-      '**/*.cjs',
-    ],
-    languageOptions: {
-      sourceType: 'commonjs',
-    },
-  },
-
-  // Turn off some rules temporary
-  {
     rules: {
-      camelcase: 'off',
-      'sort-imports': 'off',
+      'no-shadow': [
+        'error',
+        {
+          allow: [
+            ...coreRuleOptionHash['no-shadow'].allow,
+            ...Object.keys(globals.browser),
 
-      'jest/require-top-level-describe': 'off',
+            'Op', // Sequelize.Op
+          ],
+        },
+      ],
+    },
+  },
 
-      'jsdoc/check-indentation': 'off',
-      'jsdoc/check-tag-names': 'off',
-      'jsdoc/no-undefined-types': 'off',
-      'jsdoc/valid-types': 'off',
-
-      'openreachtech/no-unexpected-multiline': 'off',
+  // Turn off some rules for specific files
+  {
+    // 🚨 Never add other files to this files.
+    files: [
+      'server/graphql/AdminGraphqlServerEngine.js',
+      'server/graphql/CustomerGraphqlServerEngine.js',
+      'server/restfulapi/AppRestfulApiServerEngine.js',
+    ],
+    rules: {
+      'eslint-comments/no-use': 'off',
+      'eslint-comments/require-description': 'off',
     },
   },
 ]

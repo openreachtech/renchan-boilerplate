@@ -28,7 +28,7 @@ describe('validate-unique-error-code', () => {
         .flatMap(it =>
           Object.values(it.errorCodeHash)
         )
-        .sort(
+        .toSorted(
           (alpha, beta) =>
             alpha.localeCompare(beta)
         )
