@@ -107,7 +107,14 @@ describe('RenewAccessTokenMutationResolver', () => {
 
     describe('to be null', () => {
       describe('with invalid access token', () => {
-        const cases = [
+        /**
+         * @type {Array<{
+         *   params: {
+         *     accessToken: string | null
+         *   }
+         * }>}
+         */
+        const cases = /** @type {*} */ ([
           {
             params: {
               accessToken: null,
@@ -115,10 +122,10 @@ describe('RenewAccessTokenMutationResolver', () => {
           },
           {
             params: {
-              accessToken: undefined,
+              // accessToken: undefined,
             },
           },
-        ]
+        ])
 
         test.each(cases)('accessToken: $params.accessToken', async ({ params }) => {
           const actual = await resolver.findAccessToken(params)
