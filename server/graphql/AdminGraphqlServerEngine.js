@@ -147,7 +147,6 @@ export default class AdminGraphqlServerEngine extends BaseGraphqlServerEngine {
         userEntity,
         engine,
       }) =>
-
         /**
          * @type {Record<string, boolean> | null} - Schema permission hash. (null means that all schemas have permission)
          * @example
@@ -158,9 +157,9 @@ export default class AdminGraphqlServerEngine extends BaseGraphqlServerEngine {
          *   ...
          * }
          * ```
-         */
-        null
-      ,
+         */ (
+          null
+        ),
     }
   }
 
