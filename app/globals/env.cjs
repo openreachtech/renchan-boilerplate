@@ -22,9 +22,3 @@ module.exports = /** @type {*} */ (
  *   DATABASE_PORT: string
  * }} EnvType
  */
-
-/**
- * FIXME:
- * When remove function parameter type like `isDevelopment: () => boolean`, facade object will show type error.
- * We need to fix the type in @openreachtech/renchan-env.
- */
