@@ -55,7 +55,7 @@
   },
   "devDependencies": {
     "@babel/preset-env": "^7.28.0",
-    "@openreachtech/eslint-config": "^4.1.1",
+    "@openreachtech/eslint-config": "^4.3.0",
     "@openreachtech/jest-constructor-spy": "^1.1.0",
     "@types/jest": "^30.0.0",
     "eslint": "^9.31.0",
