@@ -1,10 +1,6 @@
 name: Node.js CI with SQLite
 
 on:
-  push:
-    branches:
-      - main
-      - dev
   pull_request:
     branches:
       - '**'
