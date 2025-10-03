@@ -32,6 +32,7 @@ describe('AdminGraphqlServerEngine', () => {
         schemaPath: rootPath.to('server/graphql/schemas/admin.graphql'),
         actualResolversPath: rootPath.to('server/graphql/resolvers/admin/actual/'),
         stubResolversPath: rootPath.to('server/graphql/resolvers/admin/stub/'),
+        postWorkersPath: null,
         redisOptions: null,
       }
 
@@ -79,6 +80,7 @@ describe('AdminGraphqlServerEngine', () => {
 
     describe('to call members of context via generated function', () => {
       const expressRequestMock = /** @type {*} */ ({})
+      const requestParamsMock = /** @type {*} */ ({})
       const engineMock = /** @type {*} */ ({})
       const visaMock = /** @type {*} */ ({})
 
@@ -87,6 +89,7 @@ describe('AdminGraphqlServerEngine', () => {
           params: {
             context: AdminGraphqlContext.create({
               expressRequest: expressRequestMock,
+              requestParams: requestParamsMock,
               engine: engineMock,
               userEntity: {
                 id: 10001,
@@ -105,6 +108,7 @@ describe('AdminGraphqlServerEngine', () => {
           params: {
             context: AdminGraphqlContext.create({
               expressRequest: expressRequestMock,
+              requestParams: requestParamsMock,
               engine: engineMock,
               userEntity: {
                 id: 10002,
