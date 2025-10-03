@@ -27,7 +27,7 @@ jobs:
 
     steps:
       - name: 🛎 Checkout repository code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: 📍 Verify MariaDB connection / Create database / Set port
         env:
