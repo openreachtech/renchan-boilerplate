@@ -1,17 +1,13 @@
 name: Node.js CI with MariaDB
 
 on:
-  push:
-    branches:
-      - main
-      - dev
   pull_request:
     branches:
       - '**'
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, light]
 
     strategy:
       matrix:
@@ -31,7 +27,7 @@ jobs:
 
     steps:
       - name: 🛎 Checkout repository code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: 📍 Verify MariaDB connection / Create database / Set port
         env:
