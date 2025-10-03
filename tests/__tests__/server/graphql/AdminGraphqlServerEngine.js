@@ -32,6 +32,7 @@ describe('AdminGraphqlServerEngine', () => {
         schemaPath: rootPath.to('server/graphql/schemas/admin.graphql'),
         actualResolversPath: rootPath.to('server/graphql/resolvers/admin/actual/'),
         stubResolversPath: rootPath.to('server/graphql/resolvers/admin/stub/'),
+        postWorkersPath: null,
         redisOptions: null,
       }
 
