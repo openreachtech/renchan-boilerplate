@@ -1,17 +1,13 @@
-name: Node.js CI with SQLite
+name: Node.js CI for ESLint
 
 on:
-  push:
-    branches:
-      - main
-      - dev
   pull_request:
     branches:
       - '**'
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, light]
 
     strategy:
       matrix:
@@ -19,7 +15,7 @@ jobs:
 
     steps:
       - name: 🛎 Checkout repository code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: 🏗 Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
@@ -36,10 +32,3 @@ jobs:
 
       - name: 🔍 ESLint
         run: npm run lint
-
-      - name: 🧪 Jest
-        run: echo "NODE_ENV=development" >> $GITHUB_ENV
-      - run: npm test --empty tests/empty/__tests__/
-      - run: npm test --empty tests/empty/_orders/
-      - run: npm test --seeded tests/__tests__/
-      - run: npm test --seeded tests/_orders/

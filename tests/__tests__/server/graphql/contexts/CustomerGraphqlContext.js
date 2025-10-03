@@ -138,6 +138,7 @@ describe('CustomerGraphqlContext', () => {
                 'x-renchan-access-token': 'access-token$alpha',
               },
             }),
+            requestParams: /** @type {*} */ ({}),
             engine: /** @type {*} */ ({}),
             userEntity: /** @type {*} */ ({}),
             visa: /** @type {*} */ ({}),
@@ -153,6 +154,7 @@ describe('CustomerGraphqlContext', () => {
                 'x-renchan-access-token': 'access-token$beta',
               },
             }),
+            requestParams: /** @type {*} */ ({}),
             engine: /** @type {*} */ ({}),
             userEntity: /** @type {*} */ ({}),
             visa: /** @type {*} */ ({}),
@@ -476,6 +478,7 @@ describe('CustomerGraphqlContext', () => {
         {
           params: {
             expressRequest: /** @type {*} */ ({}),
+            requestParams: /** @type {*} */ ({}),
             engine: /** @type {*} */ ({}),
             userEntity: /** @type {*} */ ({
               label: 'alphaUser',
@@ -489,6 +492,7 @@ describe('CustomerGraphqlContext', () => {
         {
           params: {
             expressRequest: /** @type {*} */ ({}),
+            requestParams: /** @type {*} */ ({}),
             engine: /** @type {*} */ ({}),
             userEntity: /** @type {*} */ ({
               label: 'betaUser',
@@ -520,6 +524,7 @@ describe('CustomerGraphqlContext', () => {
         {
           params: {
             expressRequest: /** @type {*} */ ({}),
+            requestParams: /** @type {*} */ ({}),
             engine: /** @type {*} */ ({}),
             userEntity: /** @type {*} */ ({
               id: 10001,
@@ -533,6 +538,7 @@ describe('CustomerGraphqlContext', () => {
         {
           params: {
             expressRequest: /** @type {*} */ ({}),
+            requestParams: /** @type {*} */ ({}),
             engine: /** @type {*} */ ({}),
             userEntity: /** @type {*} */ ({
               id: 10002,
