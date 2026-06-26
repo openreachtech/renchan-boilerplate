@@ -63,7 +63,7 @@ if [ $# = 0 ]; then
   testWithEmpty;
   testWithSeeded;
 
-  exit;
+  exit 0
 fi
 
 mode="${1:-all}";
@@ -76,7 +76,7 @@ if [ $mode = '--empty' ]; then
     jestCommand "${@:2}";
   fi
 
-  exit;
+  exit 0
 fi
 
 if [ $mode = '--seeded' ]; then
@@ -87,7 +87,7 @@ if [ $mode = '--seeded' ]; then
     jestCommand "${@:2}";
   fi
 
-  exit;
+  exit 0
 fi
 
 npm run db:seed:dev;
