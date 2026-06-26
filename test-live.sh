@@ -71,8 +71,8 @@ else
 fi
 
 if [ $# = 0 ]; then
-  testWithEmpty
-  testWithSeeded
+  testWithEmpty "$defaultMaxWorkers"
+  testWithSeeded "$defaultMaxWorkers"
 
   exit 0
 fi
@@ -82,7 +82,7 @@ target="$2"
 
 if [ "$mode" = '--empty' ]; then
   if [ -z "$target" ]; then
-    testWithEmpty
+    testWithEmpty "$defaultMaxWorkers"
   else
     jestCommand "${@:2}"
   fi
@@ -92,7 +92,7 @@ fi
 
 if [ "$mode" = '--seeded' ]; then
   if [ -z "$target" ]; then
-    testWithSeeded
+    testWithSeeded "$defaultMaxWorkers"
   else
     jestCommand "${@:2}"
   fi
