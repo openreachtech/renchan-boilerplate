@@ -65,7 +65,7 @@ if [ $# = 0 ]; then
 fi
 
 mode="${1:-all}"
-target=$2
+target="$2"
 
 if [ $mode = '--empty' ]; then
   if [ "$target" = '' ]; then
