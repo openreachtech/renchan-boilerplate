@@ -3,6 +3,8 @@
 ############################################################## declare functions
 
 function jestCommand () {
+  echo "🔥 npx jest --passWithNoTests $@"
+
   npx jest --passWithNoTests "$@"
 }
 
