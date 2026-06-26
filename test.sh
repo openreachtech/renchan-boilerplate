@@ -3,19 +3,19 @@
 ############################################################## declare functions
 
 function jestCommand () {
-  npx jest --passWithNoTests "$@";
+  npx jest --passWithNoTests "$@"
 }
 
 function setupStorage () {
-  blockTitle 'setup db with master seeds.';
+  blockTitle 'setup db with master seeds.'
 
-  npm run db:teardown;
-  npm run db:setup;
-  npm run db:seed:master;
+  npm run db:teardown
+  npm run db:setup
+  npm run db:seed:master
 }
 
 function testWithEmpty () {
-  blockTitle 'test with master seeds only.';
+  blockTitle 'test with master seeds only.'
 
   jestCommand --maxWorkers=5 tests/empty/__tests__/
   jestCommand --detectOpenHandles tests/empty/_orders/
@@ -24,9 +24,9 @@ function testWithEmpty () {
 }
 
 function testWithSeeded () {
-  blockTitle 'test with master and development seeds.';
+  blockTitle 'test with master and development seeds.'
 
-  npm run db:seed:dev;
+  npm run db:seed:dev
   jestCommand --maxWorkers=5 tests/__tests__/
   jestCommand --detectOpenHandles tests/_orders/
 
@@ -34,46 +34,46 @@ function testWithSeeded () {
 }
 
 function blockTitle () {
-  echo '';
-  echo '//////////////////////////////////////////////////';
-  echo '//';
-  echo "//    $1";
-  echo '//';
-  echo '//////////////////////////////////////////////////';
-  echo '';
+  echo ''
+  echo '//////////////////////////////////////////////////'
+  echo '//'
+  echo "//    $1"
+  echo '//'
+  echo '//////////////////////////////////////////////////'
+  echo ''
 }
 
 function initialize () {
-  blockTitle 'Start to test 🎉';
-  date;
+  blockTitle 'Start to test 🎉'
+  date
 }
 
 function terminalize () {
-  blockTitle 'Finish to test 🍵';
-  date;
+  blockTitle 'Finish to test 🍵'
+  date
 }
 
 ################################################################### execute main
 
-initialize;
+initialize
 
-setupStorage; # teardown > setup > seed:master
+setupStorage # teardown > setup > seed:master
 
 if [ $# = 0 ]; then
-  testWithEmpty;
-  testWithSeeded;
+  testWithEmpty
+  testWithSeeded
 
   exit 0
 fi
 
-mode="${1:-all}";
-target=$2;
+mode="${1:-all}"
+target=$2
 
 if [ $mode = '--empty' ]; then
   if [ "$target" = '' ]; then
-    testWithEmpty;
+    testWithEmpty
   else
-    jestCommand "${@:2}";
+    jestCommand "${@:2}"
   fi
 
   exit 0
@@ -81,14 +81,14 @@ fi
 
 if [ $mode = '--seeded' ]; then
   if [ "$target" = '' ]; then
-    testWithSeeded;
+    testWithSeeded
   else
-    npm run db:seed:dev;
-    jestCommand "${@:2}";
+    npm run db:seed:dev
+    jestCommand "${@:2}"
   fi
 
   exit 0
 fi
 
-npm run db:seed:dev;
-jestCommand "$@";
+npm run db:seed:dev
+jestCommand "$@"
