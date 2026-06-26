@@ -11,8 +11,6 @@ function testWithEmpty () {
 
   jestCommand --maxWorkers=5 tests/empty/__tests__/
   jestCommand --detectOpenHandles tests/empty/_orders/
-
-  return
 }
 
 function testWithSeeded () {
@@ -20,8 +18,6 @@ function testWithSeeded () {
 
   jestCommand --maxWorkers=5 tests/__tests__/
   jestCommand --detectOpenHandles tests/_orders/
-
-  return
 }
 
 function blockTitle () {
