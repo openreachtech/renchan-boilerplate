@@ -62,7 +62,7 @@ if [ $mode = '--empty' ]; then
   if [ "$target" = '' ]; then
     testWithEmpty;
   else
-    jestCommand ${@:2};
+    jestCommand "${@:2}";
   fi
 
   exit;
@@ -72,7 +72,7 @@ if [ $mode = '--seeded' ]; then
   if [ "$target" = '' ]; then
     testWithSeeded;
   else
-    jestCommand ${@:2};
+    jestCommand "${@:2}";
   fi
 
   exit;
