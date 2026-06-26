@@ -64,6 +64,12 @@ function terminalize () {
 
 initialize
 
+if includes --maxWorkers "$@"; then
+  defaultMaxWorkers=''
+else
+  defaultMaxWorkers='--maxWorkers=5'
+fi
+
 if [ $# = 0 ]; then
   testWithEmpty
   testWithSeeded

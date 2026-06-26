@@ -75,6 +75,12 @@ initialize
 
 setupStorage # teardown > setup > seed:master
 
+if includes --maxWorkers "$@"; then
+  defaultMaxWorkers=''
+else
+  defaultMaxWorkers='--maxWorkers=5'
+fi
+
 if [ $# = 0 ]; then
   testWithEmpty
   testWithSeeded
