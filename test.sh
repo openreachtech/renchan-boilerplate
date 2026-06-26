@@ -13,7 +13,7 @@ function jestCommand () {
 function setupStorage () {
   blockTitle 'setup db with master seeds.'
 
-  npm run db:teardown
+  npm run db:teardown || echo 'skip error on teardown'
   npm run db:setup
   npm run db:seed:master
 }
