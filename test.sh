@@ -4,6 +4,22 @@ set -e
 
 ############################################################## declare functions
 
+function includes () {
+  local target="$1"
+  shift
+
+  local it
+  for it in "$@"; do
+    case "$it" in
+      "$target" | "$target="* )
+        return 0
+        ;;
+    esac
+  done
+
+  return 1
+}
+
 function jestCommand () {
   echo "🔥 npx jest --passWithNoTests $@"
 
@@ -21,7 +37,7 @@ function setupStorage () {
 function testWithEmpty () {
   blockTitle 'test with master seeds only.'
 
-  jestCommand --maxWorkers=5 tests/empty/__tests__/
+  jestCommand "$@" tests/empty/__tests__/
   jestCommand --detectOpenHandles tests/empty/_orders/
 }
 
@@ -29,7 +45,7 @@ function testWithSeeded () {
   blockTitle 'test with master and development seeds.'
 
   npm run db:seed:dev
-  jestCommand --maxWorkers=5 tests/__tests__/
+  jestCommand "$@" tests/__tests__/
   jestCommand --detectOpenHandles tests/_orders/
 }
 
@@ -59,9 +75,15 @@ initialize
 
 setupStorage # teardown > setup > seed:master
 
+if includes --maxWorkers "$@"; then
+  defaultMaxWorkers=''
+else
+  defaultMaxWorkers='--maxWorkers=5'
+fi
+
 if [ $# = 0 ]; then
-  testWithEmpty
-  testWithSeeded
+  testWithEmpty "$defaultMaxWorkers"
+  testWithSeeded "$defaultMaxWorkers"
 
   exit 0
 fi
@@ -71,7 +93,7 @@ target="$2"
 
 if [ "$mode" = '--empty' ]; then
   if [ -z "$target" ]; then
-    testWithEmpty
+    testWithEmpty "$defaultMaxWorkers"
   else
     jestCommand "${@:2}"
   fi
@@ -81,7 +103,7 @@ fi
 
 if [ "$mode" = '--seeded' ]; then
   if [ -z "$target" ]; then
-    testWithSeeded
+    testWithSeeded "$defaultMaxWorkers"
   else
     npm run db:seed:dev
     jestCommand "${@:2}"
