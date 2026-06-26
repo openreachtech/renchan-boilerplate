@@ -56,7 +56,7 @@ fi
 mode="${1:-all}"
 target="$2"
 
-if [ $mode = '--empty' ]; then
+if [ "$mode" = '--empty' ]; then
   if [ "$target" = '' ]; then
     testWithEmpty
   else
@@ -66,7 +66,7 @@ if [ $mode = '--empty' ]; then
   exit 0
 fi
 
-if [ $mode = '--seeded' ]; then
+if [ "$mode" = '--seeded' ]; then
   if [ "$target" = '' ]; then
     testWithSeeded
   else
