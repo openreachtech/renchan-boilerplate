@@ -4,6 +4,22 @@ set -e
 
 ############################################################## declare functions
 
+function includes () {
+  local target="$1"
+  shift
+
+  local it
+  for it in "$@"; do
+    case "$it" in
+      "$target" | "$target="* )
+        return 0
+        ;;
+    esac
+  done
+
+  return 1
+}
+
 function jestCommand () {
   echo "🔥 npx jest --passWithNoTests $@"
 
