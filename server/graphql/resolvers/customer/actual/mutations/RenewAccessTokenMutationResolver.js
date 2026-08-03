@@ -59,11 +59,11 @@ export default class RenewAccessTokenMutationResolver extends BaseMutationResolv
     }
 
     // save renew access token
-    const callback = this.generateTransactionCallback({
+    const transactionCallback = this.generateTransactionCallback({
       customerId: accessTokenEntity.CustomerId,
       now: context.now,
     })
-    const renewedAccessTokenEntity = await CustomerAccessToken.beginTransaction(callback)
+    const renewedAccessTokenEntity = await CustomerAccessToken.beginTransaction(transactionCallback)
 
     return this.formatResponse({
       accessTokenEntity: renewedAccessTokenEntity,

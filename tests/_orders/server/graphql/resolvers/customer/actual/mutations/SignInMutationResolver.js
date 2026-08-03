@@ -119,9 +119,9 @@ describe('SignInMutationResolver', () => {
       ]
 
       test.each(cases)('customerId: $params.CustomerId', async ({ params, expected }) => {
-        const callback = resolver.generateTransactionCallback(params)
+        const transactionCallback = resolver.generateTransactionCallback(params)
 
-        const entity = await CustomerAccessToken.beginTransaction(callback)
+        const entity = await CustomerAccessToken.beginTransaction(transactionCallback)
 
         const savedEntity = await CustomerAccessToken.findByPk(entity.id)
 
