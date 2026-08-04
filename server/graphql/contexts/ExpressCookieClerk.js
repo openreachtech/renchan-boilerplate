@@ -40,21 +40,12 @@ export default class ExpressCookieClerk {
   }
 
   /**
-   * Parse a `Cookie` request header.
+   * get: Cookie library.
    *
-   * @param {{
-   *   cookieHeader: string | null
-   * }} params - Parameters.
-   * @returns {Record<string, string> | null} - Parsed cookies, or null when the header is absent.
+   * @returns {import('cookie')} - The `cookie` library.
    */
-  static parseCookieHeader ({
-    cookieHeader,
-  }) {
-    if (!cookieHeader) {
-      return null
-    }
-
-    return cookie.parse(cookieHeader)
+  static get cookieClient () {
+    return cookie
   }
 
   /**
@@ -115,12 +106,26 @@ export default class ExpressCookieClerk {
    * @returns {string | null} - Refresh token, or null when the cookie is absent.
    */
   extractRefreshToken () {
-    return this.Ctor
-      .parseCookieHeader({
-        cookieHeader: this.context.cookieHeader,
-      })
+    return this.parseCookieHeader()
       ?.[this.refreshTokenCookieName]
       ?? null
+  }
+
+  /**
+   * Parse the `Cookie` header of this request into a map.
+   *
+   * @returns {Record<string, string> | null} - Parsed cookies, or null when the header is absent.
+   */
+  parseCookieHeader () {
+    const {
+      cookieHeader,
+    } = this.context
+
+    if (!cookieHeader) {
+      return null
+    }
+
+    return this.Ctor.cookieClient.parse(cookieHeader)
   }
 
   /**

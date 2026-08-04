@@ -1,3 +1,5 @@
+import cookie from 'cookie'
+
 import ExpressCookieClerk from '../../../../../server/graphql/contexts/ExpressCookieClerk.js'
 
 describe('ExpressCookieClerk', () => {
@@ -79,8 +81,19 @@ describe('ExpressCookieClerk', () => {
 })
 
 describe('ExpressCookieClerk', () => {
-  describe('.parseCookieHeader()', () => {
-    describe('should parse the header into a map', () => {
+  describe('.get:cookieClient', () => {
+    test('should be the cookie library', () => {
+      const actual = ExpressCookieClerk.cookieClient
+
+      expect(actual)
+        .toBe(cookie) // same reference
+    })
+  })
+})
+
+describe('ExpressCookieClerk', () => {
+  describe('#parseCookieHeader()', () => {
+    describe('should parse the Cookie header into a map', () => {
       const cases = [
         {
           params: {
@@ -102,7 +115,13 @@ describe('ExpressCookieClerk', () => {
       ]
 
       test.each(cases)('cookieHeader: $params.cookieHeader', ({ params, expected }) => {
-        const actual = ExpressCookieClerk.parseCookieHeader(params)
+        const clerk = ExpressCookieClerk.create({
+          context: /** @type {*} */ ({
+            cookieHeader: params.cookieHeader,
+          }),
+        })
+
+        const actual = clerk.parseCookieHeader()
 
         expect(actual)
           .toEqual(expected)
@@ -111,9 +130,13 @@ describe('ExpressCookieClerk', () => {
 
     describe('should answer null when the header is absent', () => {
       test('to be null for a missing header', () => {
-        const actual = ExpressCookieClerk.parseCookieHeader({
-          cookieHeader: null,
+        const clerk = ExpressCookieClerk.create({
+          context: /** @type {*} */ ({
+            cookieHeader: null,
+          }),
         })
+
+        const actual = clerk.parseCookieHeader()
 
         expect(actual)
           .toBeNull()
