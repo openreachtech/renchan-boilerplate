@@ -1,7 +1,6 @@
 import cookie from 'cookie'
 
-const SECONDS_PER_DAY = 24 * 60 * 60
-const MILLISECONDS_PER_SECOND = 1000
+const MILLISECONDS_PER_DAY = 24 * 60 * 60 * 1000
 
 /**
  * Handles the refresh-token cookie for a GraphQL request.
@@ -93,8 +92,7 @@ export default class ExpressCookieClerk {
    */
   get refreshTokenMaxAgeMilliseconds () {
     return this.refreshTokenCookieConfig.lifetimeDays
-      * SECONDS_PER_DAY
-      * MILLISECONDS_PER_SECOND
+      * MILLISECONDS_PER_DAY
   }
 
   /**
