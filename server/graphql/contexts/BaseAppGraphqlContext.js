@@ -22,10 +22,10 @@ export default class BaseAppGraphqlContext extends BaseGraphqlContext {
   /**
    * get: Engine config.
    *
-   * @returns {*} - Engine config, including this app's `refreshTokenCookie`.
+   * @returns {AppGraphqlConfig} - Engine config, including this app's `refreshTokenCookie`.
    */
   get config () {
-    return this.engine.config
+    return /** @type {AppGraphqlConfig} */ (this.engine.config)
   }
 
   /**
@@ -54,3 +54,9 @@ export default class BaseAppGraphqlContext extends BaseGraphqlContext {
       ?? null
   }
 }
+
+/**
+ * @typedef {GraphqlType.Config & {
+ *   refreshTokenCookie: import('./ExpressCookieClerk.js').RefreshTokenCookieConfig
+ * }} AppGraphqlConfig
+ */
