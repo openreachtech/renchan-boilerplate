@@ -17,6 +17,10 @@ type Query {
 type Mutation {
   signIn(input: SignInInput): AuthResult!
   signUp(input: SignUpInput): AuthResult!
+
+  # for sign-in sample ---------------------------------------------------------
+  renewAccessToken: RenewAccessTokenResult!
+  signOut: SignOutResult!
 }
 
 ################################################################################
@@ -37,6 +41,14 @@ type Asset {
 
 type AuthResult {
   accessToken: String!
+}
+
+type RenewAccessTokenResult {
+  accessToken: String! # rotated on every use; the resolver throws instead of returning null
+}
+
+type SignOutResult {
+  signedOut: Boolean!
 }
 
 ################################################################################
