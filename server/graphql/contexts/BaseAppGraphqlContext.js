@@ -86,12 +86,21 @@ export default class BaseAppGraphqlContext extends BaseGraphqlContext {
   }
 
   /**
+   * get: Engine config.
+   *
+   * @returns {*} - Engine config, including this app's `refreshTokenCookie`.
+   */
+  get config () {
+    return this.engine.config
+  }
+
+  /**
    * get: Refresh-token cookie config, from the engine.
    *
    * @returns {RefreshTokenCookieConfig} - Cookie config.
    */
   get refreshTokenCookieConfig () {
-    return this.engine.config['refreshTokenCookie']
+    return this.config.refreshTokenCookie
   }
 
   /**
@@ -111,7 +120,7 @@ export default class BaseAppGraphqlContext extends BaseGraphqlContext {
    * @returns {string} - Cookie path.
    */
   get refreshTokenCookiePath () {
-    return this.engine.config.graphqlEndpoint
+    return this.config.graphqlEndpoint
   }
 
   /**
@@ -120,7 +129,7 @@ export default class BaseAppGraphqlContext extends BaseGraphqlContext {
    * @returns {number} - Milliseconds.
    */
   get refreshTokenMaxAgeMilliseconds () {
-    return this.refreshTokenCookieConfig.ttlDays
+    return this.refreshTokenCookieConfig.lifetimeDays
       * SECONDS_PER_DAY
       * MILLISECONDS_PER_SECOND
   }
@@ -204,7 +213,7 @@ export default class BaseAppGraphqlContext extends BaseGraphqlContext {
 /**
  * @typedef {{
  *   name: string
- *   ttlDays: number
+ *   lifetimeDays: number
  *   secure: boolean
  *   sameSite: 'lax'
  *   httpOnly: boolean

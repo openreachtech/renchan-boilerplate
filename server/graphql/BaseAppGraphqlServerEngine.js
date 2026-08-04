@@ -6,7 +6,7 @@ import {
   env,
 } from '../../app/globals/_.js'
 
-const DEFAULT_REFRESH_TOKEN_TTL_DAYS = 14
+const DEFAULT_REFRESH_TOKEN_LIFETIME_DAYS = 14
 
 /**
  * Base GraphQL server engine of this app.
@@ -26,7 +26,7 @@ export default class BaseAppGraphqlServerEngine extends BaseGraphqlServerEngine 
    */
   static get refreshTokenCookieConfig () {
     return {
-      ttlDays: this.refreshTokenCookieTtlDays,
+      lifetimeDays: this.refreshTokenCookieLifetimeDays,
       secure: this.usesSecureRefreshTokenCookie,
       sameSite: 'lax',
       httpOnly: true,
@@ -38,11 +38,11 @@ export default class BaseAppGraphqlServerEngine extends BaseGraphqlServerEngine 
    *
    * @returns {number} - Days.
    */
-  static get refreshTokenCookieTtlDays () {
+  static get refreshTokenCookieLifetimeDays () {
     const normalizedDays = Number(env.AUTH_REFRESH_TOKEN_TTL_DAYS)
 
     if (!normalizedDays) {
-      return DEFAULT_REFRESH_TOKEN_TTL_DAYS
+      return DEFAULT_REFRESH_TOKEN_LIFETIME_DAYS
     }
 
     return normalizedDays
@@ -63,7 +63,7 @@ export default class BaseAppGraphqlServerEngine extends BaseGraphqlServerEngine 
 
 /**
  * @typedef {{
- *   ttlDays: number
+ *   lifetimeDays: number
  *   secure: boolean
  *   sameSite: 'lax'
  *   httpOnly: boolean
