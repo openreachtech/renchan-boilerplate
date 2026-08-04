@@ -1,4 +1,19 @@
+import {
+  BaseGraphqlContext,
+} from '@openreachtech/renchan'
+
 import BaseAppGraphqlContext from '../../../../../server/graphql/contexts/BaseAppGraphqlContext.js'
+
+describe('BaseAppGraphqlContext', () => {
+  describe('super class', () => {
+    test('to be instance of BaseGraphqlContext', () => {
+      const actual = BaseAppGraphqlContext.prototype
+
+      expect(actual)
+        .toBeInstanceOf(BaseGraphqlContext)
+    })
+  })
+})
 
 describe('BaseAppGraphqlContext', () => {
   describe('#get:config', () => {
