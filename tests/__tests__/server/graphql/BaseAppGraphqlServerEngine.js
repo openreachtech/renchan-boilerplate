@@ -1,4 +1,19 @@
+import {
+  BaseGraphqlServerEngine,
+} from '@openreachtech/renchan'
+
 import BaseAppGraphqlServerEngine from '../../../../server/graphql/BaseAppGraphqlServerEngine.js'
+
+describe('BaseAppGraphqlServerEngine', () => {
+  describe('super class', () => {
+    test('to be instance of base class', () => {
+      const actual = BaseAppGraphqlServerEngine.prototype
+
+      expect(actual)
+        .toBeInstanceOf(BaseGraphqlServerEngine)
+    })
+  })
+})
 
 describe('BaseAppGraphqlServerEngine', () => {
   describe('.get:refreshTokenCookieLifetimeDays', () => {
