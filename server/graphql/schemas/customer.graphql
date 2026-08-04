@@ -56,6 +56,7 @@ type Mutation {
 
   # for sign-in sample ---------------------------------------------------------
   renewAccessToken: RenewAccessTokenResult!
+  signOut: SignOutResult!
 }
 
 ################################################################################
@@ -234,9 +235,13 @@ type CustomerAmountsResult {
 # for sign-in sample -----------------------------------------------------------
 
 type RenewAccessTokenResult {
-  accessToken: String # null: expired or not found
+  accessToken: String! # rotated on every use; the resolver throws instead of returning null
 
   # TODO: add here customer information (e.g. username, avatar, etc.)
+}
+
+type SignOutResult {
+  signedOut: Boolean!
 }
 
 ################################################################################
