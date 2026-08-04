@@ -1,0 +1,327 @@
+import SessionCredentialClerk from '../../../../app/auth/SessionCredentialClerk.js'
+import AdminAccessToken from '../../../../sequelize/models/AdminAccessToken.js'
+
+/**
+ * An access token is 32 bytes of CSPRNG output rendered as hex.
+ */
+const ACCESS_TOKEN_PATTERN = /^[0-9a-f]{64}$/u
+
+describe('AdminAccessToken', () => {
+  describe('.get:ttlMinutes', () => {
+    test('to be the configured fifteen minutes', () => {
+      const actual = AdminAccessToken.ttlMinutes
+
+      expect(actual)
+        .toBe(15)
+    })
+  })
+})
+
+describe('AdminAccessToken', () => {
+  describe('.createExpiredAt()', () => {
+    // Fifteen minutes. Short on purpose — this is the half of the pair that a leak would expose,
+    // and its whole defence is not being worth much for long.
+    const now = new Date()
+    const expiredAt = new Date(
+      now.getTime()
+      + (15 * 60 * 1000)
+    )
+
+    const cases = [
+      {
+        params: {
+          generatedAt: new Date('2024-01-21T00:00:01.000Z'),
+        },
+        expected: new Date('2024-01-21T00:15:01.000Z'),
+      },
+      {
+        params: {
+          generatedAt: new Date('2024-01-22T00:00:02.000Z'),
+        },
+        expected: new Date('2024-01-22T00:15:02.000Z'),
+      },
+      {
+        params: {
+          generatedAt: new Date('2024-01-23T23:50:03.000Z'),
+        },
+        expected: new Date('2024-01-24T00:05:03.000Z'),
+      },
+      {
+        params: {
+          generatedAt: now,
+        },
+        expected: expiredAt,
+      },
+    ]
+
+    describe('to be created Date', () => {
+      test.each(cases)('generatedAt: $params.generatedAt', ({ params, expected }) => {
+        const actual = AdminAccessToken.createExpiredAt(params)
+
+        expect(actual)
+          .toEqual(expected)
+      })
+    })
+  })
+})
+
+describe('AdminAccessToken', () => {
+  describe('.generateAccessToken()', () => {
+    describe('to be 32 bytes of hex', () => {
+      // The implementation used to be a fixed-length string over ten random characters, which is
+      // neither cryptographic nor long enough to be worth guessing at.
+      test('to be a 64-character hex string', () => {
+        const actual = AdminAccessToken.generateAccessToken()
+
+        expect(actual)
+          .toMatch(ACCESS_TOKEN_PATTERN)
+        expect(actual)
+          .toHaveLength(64)
+      })
+    })
+
+    describe('to not repeat itself', () => {
+      test('across many calls', () => {
+        const tokens = Array.from(
+          { length: 100 },
+          () => AdminAccessToken.generateAccessToken()
+        )
+
+        expect(new Set(tokens).size)
+          .toBe(tokens.length)
+      })
+    })
+
+    describe('to delegate to the credential clerk', () => {
+      test('to call factory method of SessionCredentialClerk', () => {
+        const createSpy = jest.spyOn(SessionCredentialClerk, 'create')
+
+        AdminAccessToken.generateAccessToken()
+
+        expect(createSpy)
+          .toHaveBeenCalledWith()
+      })
+    })
+  })
+})
+
+describe('AdminAccessToken', () => {
+  describe('.buildWithGeneratedAttributes()', () => {
+    describe('to be instance of own Model', () => {
+      const cases = [
+        {
+          params: {
+            customerId: 100001,
+            sessionKey: 'session-key-01',
+            generatedAt: new Date('2024-01-21T00:00:01.000Z'),
+            expiredAt: new Date('2024-01-21T00:15:01.000Z'),
+            accessToken: 'accessTOKEN$01',
+          },
+        },
+        {
+          params: {
+            customerId: 100002,
+            sessionKey: 'session-key-02',
+            generatedAt: new Date('2024-01-22T00:00:02.000Z'),
+            expiredAt: new Date('2024-01-22T00:15:02.000Z'),
+            // accessToken: 'accessTOKEN$02',
+          },
+        },
+        {
+          params: {
+            customerId: 100003,
+            sessionKey: 'session-key-03',
+            generatedAt: new Date('2024-01-23T00:00:03.000Z'),
+            // expiredAt: defaults to generatedAt + fifteen minutes
+            accessToken: 'accessTOKEN$03',
+          },
+        },
+        {
+          params: {
+            customerId: 100004,
+            sessionKey: 'session-key-04',
+            generatedAt: new Date('2024-01-24T00:00:04.000Z'),
+            // expiredAt: defaults to generatedAt + fifteen minutes
+            // accessToken: 'accessTOKEN$04',
+          },
+        },
+      ]
+
+      test.each(cases)('customerId: $params.customerId', ({ params }) => {
+        const actual = AdminAccessToken.buildWithGeneratedAttributes(params)
+
+        expect(actual)
+          .toBeInstanceOf(AdminAccessToken)
+      })
+    })
+
+    describe('to call .build()', () => {
+      // The session clerk names the principal `customerId` for both audiences; here it is the id
+      // of the admin, stored in `AdminId`.
+      const cases = [
+        {
+          params: {
+            customerId: 100001,
+            sessionKey: 'session-key-01',
+            generatedAt: new Date('2024-01-21T00:00:01.000Z'),
+            expiredAt: new Date('2024-01-21T00:15:01.000Z'),
+            accessToken: 'accessTOKEN$01',
+          },
+          expected: {
+            AdminId: 100001,
+            sessionKey: 'session-key-01',
+            generatedAt: new Date('2024-01-21T00:00:01.000Z'),
+            expiredAt: new Date('2024-01-21T00:15:01.000Z'),
+            accessToken: 'accessTOKEN$01',
+          },
+        },
+        {
+          params: {
+            customerId: 100002,
+            sessionKey: 'session-key-02',
+            generatedAt: new Date('2024-01-22T00:00:02.000Z'),
+            expiredAt: new Date('2024-01-22T00:15:02.000Z'),
+            // accessToken: defaults to a generated 32-byte hex token
+          },
+          expected: {
+            AdminId: 100002,
+            sessionKey: 'session-key-02',
+            generatedAt: new Date('2024-01-22T00:00:02.000Z'),
+            expiredAt: new Date('2024-01-22T00:15:02.000Z'),
+            accessToken: expect.stringMatching(ACCESS_TOKEN_PATTERN),
+          },
+        },
+        {
+          params: {
+            customerId: 100003,
+            sessionKey: 'session-key-03',
+            generatedAt: new Date('2024-01-23T00:00:03.000Z'),
+            // expiredAt: defaults to generatedAt + fifteen minutes
+            accessToken: 'accessTOKEN$03',
+          },
+          expected: {
+            AdminId: 100003,
+            sessionKey: 'session-key-03',
+            generatedAt: new Date('2024-01-23T00:00:03.000Z'),
+            expiredAt: new Date('2024-01-23T00:15:03.000Z'),
+            accessToken: 'accessTOKEN$03',
+          },
+        },
+        {
+          params: {
+            customerId: 100004,
+            sessionKey: 'session-key-04',
+            generatedAt: new Date('2024-01-24T00:00:04.000Z'),
+            // expiredAt: defaults to generatedAt + fifteen minutes
+            // accessToken: defaults to a generated 32-byte hex token
+          },
+          expected: {
+            AdminId: 100004,
+            sessionKey: 'session-key-04',
+            generatedAt: new Date('2024-01-24T00:00:04.000Z'),
+            expiredAt: new Date('2024-01-24T00:15:04.000Z'),
+            accessToken: expect.stringMatching(ACCESS_TOKEN_PATTERN),
+          },
+        },
+      ]
+
+      test.each(cases)('customerId: $params.customerId', ({ params, expected }) => {
+        const buildSpy = jest.spyOn(AdminAccessToken, 'build')
+
+        AdminAccessToken.buildWithGeneratedAttributes(params)
+
+        expect(buildSpy)
+          .toHaveBeenCalledWith(expected)
+      })
+    })
+  })
+})
+
+describe('AdminAccessToken', () => {
+  describe('#isExpired()', () => {
+    const cases = [
+      {
+        params: {
+          AdminId: 100001,
+          accessToken: 'access-token-100001',
+          generatedAt: new Date('2024-01-21T00:00:01.101Z'),
+          expiredAt: new Date('2024-01-22T00:00:01.101Z'),
+        },
+        truthyCases: [
+          {
+            pointsAt: new Date('2024-01-22T00:00:02.101Z'),
+          },
+          {
+            pointsAt: new Date('2024-01-22T00:00:01.101Z'), // = expiredAt
+          },
+        ],
+        falsyCases: [
+          {
+            pointsAt: new Date('2024-01-22T00:00:01.100Z'),
+          },
+          {
+            pointsAt: new Date('2024-01-21T00:00:01.101Z'), // = generatedAt
+          },
+          {
+            pointsAt: new Date('2024-01-21T00:00:00.000Z'),
+          },
+        ],
+      },
+      {
+        params: {
+          AdminId: 100002,
+          accessToken: 'access-token-100002',
+          generatedAt: new Date('2024-02-22T00:00:02.202Z'),
+          expiredAt: new Date('2024-02-23T00:00:02.202Z'),
+        },
+        truthyCases: [
+          {
+            pointsAt: new Date('2024-02-23T00:00:03.202Z'),
+          },
+          {
+            pointsAt: new Date('2024-02-23T00:00:02.202Z'), // = expiredAt
+          },
+        ],
+        falsyCases: [
+          {
+            pointsAt: new Date('2024-02-23T00:00:02.201Z'),
+          },
+          {
+            pointsAt: new Date('2024-02-22T00:00:02.202Z'), // = generatedAt
+          },
+          {
+            pointsAt: new Date('2024-02-22T00:00:01.202Z'),
+          },
+        ],
+      },
+    ]
+
+    describe.each(cases)('AdminId: $params.AdminId', ({ params, truthyCases, falsyCases }) => {
+      describe('to be truthy', () => {
+        test.each(truthyCases)('pointsAt: $pointsAt', ({ pointsAt }) => {
+          const instance = AdminAccessToken.build(params)
+
+          const actual = instance.isExpired({
+            pointsAt,
+          })
+
+          expect(actual)
+            .toBeTruthy()
+        })
+      })
+
+      describe('to be falsy', () => {
+        test.each(falsyCases)('pointsAt: $pointsAt', ({ pointsAt }) => {
+          const instance = AdminAccessToken.build(params)
+
+          const actual = instance.isExpired({
+            pointsAt,
+          })
+
+          expect(actual)
+            .toBeFalsy()
+        })
+      })
+    })
+  })
+})
