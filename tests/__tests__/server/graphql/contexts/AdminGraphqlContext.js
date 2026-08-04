@@ -1,16 +1,35 @@
-import {
-  BaseGraphqlContext,
-} from '@openreachtech/renchan'
-
+import BaseAppGraphqlContext from '../../../../../server/graphql/contexts/BaseAppGraphqlContext.js'
 import AdminGraphqlContext from '../../../../../server/graphql/contexts/AdminGraphqlContext.js'
 
 describe('AdminGraphqlContext', () => {
   describe('super class', () => {
-    test('to be BaseGraphqlContext', () => {
+    test('to be BaseAppGraphqlContext', () => {
       const actual = AdminGraphqlContext.prototype
 
       expect(actual)
-        .toBeInstanceOf(BaseGraphqlContext)
+        .toBeInstanceOf(BaseAppGraphqlContext)
+    })
+  })
+})
+
+describe('AdminGraphqlContext', () => {
+  describe('.get:REFRESH_TOKEN_COOKIE_NAME', () => {
+    test('to be the admin refresh-token cookie name', () => {
+      const actual = AdminGraphqlContext.REFRESH_TOKEN_COOKIE_NAME
+
+      expect(actual)
+        .toBe('admin_refresh_token')
+    })
+  })
+})
+
+describe('AdminGraphqlContext', () => {
+  describe('.get:REFRESH_TOKEN_COOKIE_PATH', () => {
+    test('to be the admin graphql endpoint path', () => {
+      const actual = AdminGraphqlContext.REFRESH_TOKEN_COOKIE_PATH
+
+      expect(actual)
+        .toBe('/graphql-admin')
     })
   })
 })
