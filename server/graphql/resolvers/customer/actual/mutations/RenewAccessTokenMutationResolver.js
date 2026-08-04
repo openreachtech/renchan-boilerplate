@@ -2,170 +2,276 @@ import {
   BaseMutationResolver,
 } from '@openreachtech/renchan'
 
-import CustomerAccessToken from '../../../../../../sequelize/models/CustomerAccessToken.js'
+import SessionClerk from '../../../../../../app/auth/SessionClerk.js'
 
+import CustomerAccessToken from '../../../../../../sequelize/models/CustomerAccessToken.js'
+import CustomerRefreshToken from '../../../../../../sequelize/models/CustomerRefreshToken.js'
+
+/**
+ * Resolve the renewAccessToken mutation.
+ *
+ * **Authenticates from the refresh cookie, not from the header.** By the time this is called the
+ * access token has usually expired — that is the whole reason it is called — so requiring one
+ * would make the operation unreachable exactly when it is needed. It is therefore listed in
+ * `schemasToSkipFiltering`, and the cookie is the credential.
+ *
+ * **The token rotates on every use.** The presented row is marked spent and a new pair is issued
+ * into the same series. That is what makes a leak detectable: a stolen cookie and the real client
+ * cannot both keep renewing, because whichever presents the spent value second reveals that two
+ * parties hold it. There is no way to tell which of the two is the thief, so the series is revoked
+ * whole and both are sent back to the sign-in screen.
+ *
+ * @extends {BaseMutationResolver}
+ */
 export default class RenewAccessTokenMutationResolver extends BaseMutationResolver {
   /** @override */
   static get schema () {
     return 'renewAccessToken'
   }
 
-  /** @override */
+  /**
+   * .get:errorCodeHash
+   *
+   * @override
+   * @returns {Record<string, string>} - Error code hash.
+   */
   static get errorCodeHash () {
     return {
       ...super.errorCodeHash,
+
+      // Raised here rather than by the engine's filter: this operation skips filtering, so
+      // nothing upstream is left to answer for a missing credential. The `102` category is what
+      // tells the client to sign in again.
+      Unauthenticated: '102.M003.001',
+
+      RefreshTokenReused: '205.M003.001',
     }
   }
 
   /**
-   * Resolves the renewAccessToken mutation.
+   * Constructor.
    *
    * @param {{
-   *   variables: {}
-   *   context: import('../../../../contexts/CustomerGraphqlContext').default
+   *   sessionClerk: SessionClerk
+   *   errorHash: *
+   * }} params - Parameters.
+   */
+  constructor ({
+    sessionClerk,
+    ...restParams
+  }) {
+    super(restParams)
+
+    this.sessionClerk = sessionClerk
+  }
+
+  /**
+   * Factory method.
+   *
+   * @param {{
+   *   sessionClerk?: SessionClerk
+   *   errorCodeHash?: Record<string, string>
+   * }} [params] - Parameters.
+   * @returns {RenewAccessTokenMutationResolver} - Instance of this class.
+   */
+  static create ({
+    sessionClerk = this.createSessionClerk(),
+    errorCodeHash = this.errorCodeHash,
+  } = {}) {
+    return /** @type {*} */ (
+      new this({
+        sessionClerk,
+        errorHash: this.buildErrorHash({
+          errorCodeHash,
+        }),
+      })
+    )
+  }
+
+  /**
+   * Create session clerk bound to the customer tables.
+   *
+   * @returns {SessionClerk} - Session clerk.
+   */
+  static createSessionClerk () {
+    return SessionClerk.create({
+      AccessTokenModel: CustomerAccessToken,
+      RefreshTokenModel: CustomerRefreshToken,
+    })
+  }
+
+  /**
+   * Resolve the renewAccessToken mutation.
+   *
+   * @override
+   * @param {{
+   *   context: import('../../../../contexts/CustomerGraphqlContext.js').default
    * }} params - Parameters.
    * @returns {Promise<{
-   *   accessToken: string | null
-   * }>} - Access token.
+   *   accessToken: string
+   * }>} - The renewed access token.
+   * @throws {Error} - Unauthenticated, or the refresh token was reused.
    */
   async resolve ({
     context,
   }) {
-    const currentAccessToken = context.accessToken
-
-    const accessTokenEntity = await this.findAccessToken({
-      accessToken: currentAccessToken,
+    const refreshTokenEntity = await this.sessionClerk.findRefreshTokenEntity({
+      presentedRefreshToken: context.extractRefreshToken(),
     })
 
-    const isAvailableAccessToken = this.isAvailableAccessToken({
-      accessTokenEntity,
-      pointsAt: context.now,
-    })
+    if (!refreshTokenEntity) {
+      context.clearRefreshTokenCookie()
 
-    if (!isAvailableAccessToken) {
-      return {
-        accessToken: null,
-      }
+      throw this.errorHash.Unauthenticated.create()
     }
 
-    const hasEnoughTime = accessTokenEntity.hasEnoughTimeUntilExpired({
-      pointsAt: context.now,
-    })
-
-    if (hasEnoughTime) {
-      return {
-        accessToken: currentAccessToken,
-      }
+    if (refreshTokenEntity.isUsed()) {
+      return this.handleReusedToken({
+        context,
+        refreshTokenEntity,
+      })
     }
 
-    // save renew access token
-    const transactionCallback = this.generateTransactionCallback({
-      customerId: accessTokenEntity.CustomerId,
-      now: context.now,
+    if (!refreshTokenEntity.isAvailable({
+      pointsAt: context.now,
+    })) {
+      context.clearRefreshTokenCookie()
+
+      throw this.errorHash.Unauthenticated.create()
+    }
+
+    const credentialPair = await this.rotateSession({
+      context,
+      refreshTokenEntity,
     })
-    const renewedAccessTokenEntity = await CustomerAccessToken.beginTransaction(transactionCallback)
+
+    context.saveRefreshTokenCookie({
+      refreshToken: credentialPair.refreshToken,
+    })
 
     return this.formatResponse({
-      accessTokenEntity: renewedAccessTokenEntity,
+      credentialPair,
     })
   }
 
   /**
-   * Find access token entity.
+   * Handle a reused refresh token: revoke its whole series, clear the cookie, and report the
+   * reuse. Kept out of the `if` body so no `await` sits inside the branch.
    *
    * @param {{
-   *   accessToken: string
+   *   context: import('../../../../contexts/CustomerGraphqlContext.js').default
+   *   refreshTokenEntity: *
    * }} params - Parameters.
-   * @returns {Promise<import('../../../../../../sequelize/models/CustomerAccessToken').CustomerAccessTokenEntity | null>} - Access token entity.
+   * @returns {Promise<never>}
+   * @throws {Error} - Always, after the reused series has been revoked.
    */
-  async findAccessToken ({
-    accessToken,
+  async handleReusedToken ({
+    context,
+    refreshTokenEntity,
   }) {
-    if (!accessToken) {
-      return null
-    }
+    await this.revokeReusedSeries({
+      context,
+      refreshTokenEntity,
+    })
 
-    /** @type {import('../../../../../../sequelize/models/CustomerAccessToken').CustomerAccessTokenEntity} */
-    const accessTokenEntity = /** @type {*} */ (
-      await CustomerAccessToken.findOne({
-        where: {
-          accessToken,
-        },
-      })
-    )
+    context.clearRefreshTokenCookie()
 
-    return accessTokenEntity
-      ?? null
+    throw this.errorHash.RefreshTokenReused.create()
   }
 
   /**
-   * Is available access token.
+   * Revoke the series a reused token belongs to.
    *
    * @param {{
-   *   accessTokenEntity: import('../../../../../../sequelize/models/CustomerAccessToken').CustomerAccessTokenEntity | null
-   *   pointsAt: Date
+   *   context: import('../../../../contexts/CustomerGraphqlContext.js').default
+   *   refreshTokenEntity: *
    * }} params - Parameters.
-   * @returns {boolean} - Is expired access token.
+   * @returns {Promise<void>}
    */
-  isAvailableAccessToken ({
-    accessTokenEntity,
-    pointsAt,
+  async revokeReusedSeries ({
+    context,
+    refreshTokenEntity,
   }) {
-    if (!accessTokenEntity) {
-      return false
-    }
-
-    return !accessTokenEntity.isExpired({
-      pointsAt,
-    })
-  }
-
-  /**
-   * Generate transaction callback.
-   *
-   * @param {{
-   *   customerId: number
-   *   now,
-   * }} params
-   * @returns {function(): Promise<import('../../../../../../sequelize/models/CustomerAccessToken.js').CustomerAccessTokenEntity>}
-   */
-  generateTransactionCallback ({
-    customerId,
-    now,
-  }) {
-    const accessTokenEntity = CustomerAccessToken.buildWithGeneratedAttributes({
-      generatedAt: now,
-      customerId,
-    })
-
-    return async transaction => /** @type {*} */ (
-      accessTokenEntity.save({
+    await CustomerAccessToken.beginTransaction(async transaction =>
+      this.sessionClerk.revokeSeries({
+        sessionKey: refreshTokenEntity.sessionKey,
+        now: context.now,
         transaction,
       })
     )
   }
 
   /**
+   * Spend the presented token and issue the next pair of the series.
+   *
+   * @param {{
+   *   context: import('../../../../contexts/CustomerGraphqlContext.js').default
+   *   refreshTokenEntity: *
+   * }} params - Parameters.
+   * @returns {Promise<import('../../../../../../app/auth/SessionClerk.js').SessionCredentialPair>}
+   * @throws {Error} - Throws error if transaction fails.
+   */
+  async rotateSession ({
+    context,
+    refreshTokenEntity,
+  }) {
+    const transactionCallback = this.generateTransactionCallback({
+      refreshTokenEntity,
+      now: context.now,
+    })
+
+    return CustomerAccessToken.beginTransaction(transactionCallback)
+  }
+
+  /**
+   * Generate transaction callback.
+   *
+   * Marking the old row spent and writing the new pair belong to one transaction: half of this
+   * would leave the client holding a refresh token the server does not honour.
+   *
+   * @param {{
+   *   refreshTokenEntity: *
+   *   now: Date
+   * }} params - Parameters.
+   * @returns {function(*): Promise<import('../../../../../../app/auth/SessionClerk.js').SessionCredentialPair>}
+   */
+  generateTransactionCallback ({
+    refreshTokenEntity,
+    now,
+  }) {
+    return async transaction => {
+      await this.sessionClerk.consumeRefreshToken({
+        refreshTokenEntity,
+        now,
+        transaction,
+      })
+
+      return this.sessionClerk.issueTokens({
+        customerId: refreshTokenEntity.CustomerId,
+        sessionKey: refreshTokenEntity.sessionKey,
+        now,
+        transaction,
+      })
+    }
+  }
+
+  /**
    * Format response.
    *
    * @param {{
-   *   accessTokenEntity: import('../../../../../../sequelize/models/CustomerAccessToken.js').CustomerAccessTokenEntity
+   *   credentialPair: import('../../../../../../app/auth/SessionClerk.js').SessionCredentialPair
    * }} params - Parameters.
    * @returns {{
    *   accessToken: string
    * }}
    */
   formatResponse ({
-    accessTokenEntity,
+    credentialPair: {
+      accessToken,
+    },
   }) {
-    if (!accessTokenEntity) {
-      return {
-        accessToken: null,
-      }
-    }
-
     return {
-      accessToken: accessTokenEntity.accessToken,
+      accessToken,
     }
   }
 }

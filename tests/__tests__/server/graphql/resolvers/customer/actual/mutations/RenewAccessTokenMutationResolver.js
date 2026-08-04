@@ -1,232 +1,138 @@
-import CustomerAccessToken from '../../../../../../../../sequelize/models/CustomerAccessToken.js'
+import {
+  BaseMutationResolver,
+} from '@openreachtech/renchan'
+
+import SessionClerk from '../../../../../../../../app/auth/SessionClerk.js'
 import RenewAccessTokenMutationResolver from '../../../../../../../../server/graphql/resolvers/customer/actual/mutations/RenewAccessTokenMutationResolver.js'
+import CustomerAccessToken from '../../../../../../../../sequelize/models/CustomerAccessToken.js'
+import CustomerRefreshToken from '../../../../../../../../sequelize/models/CustomerRefreshToken.js'
+
+/**
+ * Build a context double that records what the resolver did to the cookie.
+ *
+ * @param {{
+ *   refreshToken: string | null
+ * }} params - Parameters.
+ * @returns {*} - Context double.
+ */
+function createContext ({
+  refreshToken,
+}) {
+  return {
+    now: new Date('2026-08-01T00:00:00.000Z'),
+    extractRefreshToken: () => refreshToken,
+    saveRefreshTokenCookie: jest.fn(),
+    clearRefreshTokenCookie: jest.fn(),
+  }
+}
 
 describe('RenewAccessTokenMutationResolver', () => {
-  describe('.schema', () => {
-    test('to be fixed value', () => {
-      const expected = 'renewAccessToken'
+  describe('inheritance', () => {
+    test('should be a mutation resolver', () => {
+      const actual = RenewAccessTokenMutationResolver.prototype
 
+      expect(actual)
+        .toBeInstanceOf(BaseMutationResolver)
+    })
+  })
+})
+
+describe('RenewAccessTokenMutationResolver', () => {
+  describe('.get:schema', () => {
+    test('to be fixed value', () => {
       const actual = RenewAccessTokenMutationResolver.schema
 
       expect(actual)
-        .toBe(expected)
+        .toBe('renewAccessToken')
     })
   })
 })
 
 describe('RenewAccessTokenMutationResolver', () => {
-  describe('.errorCodeHash', () => {
-    test('to be fixed value', () => {
-      const expected = {}
-
+  describe('.get:errorCodeHash', () => {
+    test('should declare its own Unauthenticated code', () => {
+      // The engine's filter does not run for this operation, so nothing upstream is left to answer
+      // for a missing credential and the resolver has to raise it itself.
       const actual = RenewAccessTokenMutationResolver.errorCodeHash
 
       expect(actual)
-        .toEqual(expected)
+        .toHaveProperty('Unauthenticated', '102.M003.001')
+    })
+
+    test('should keep Unauthenticated in the 102 category', () => {
+      // What sends the client back to the sign-in screen is the category, not the whole code.
+      const [category] = RenewAccessTokenMutationResolver.errorCodeHash
+        .Unauthenticated
+        .split('.')
+
+      expect(category)
+        .toBe('102')
+    })
+
+    test('should declare RefreshTokenReused', () => {
+      const actual = RenewAccessTokenMutationResolver.errorCodeHash
+
+      expect(actual)
+        .toHaveProperty('RefreshTokenReused', '205.M003.001')
     })
   })
 })
 
 describe('RenewAccessTokenMutationResolver', () => {
-  describe('#findAccessToken()', () => {
-    const resolver = RenewAccessTokenMutationResolver.create()
+  describe('.create()', () => {
+    describe('when called as is', () => {
+      test('should be an instance of own class', () => {
+        const actual = RenewAccessTokenMutationResolver.create()
 
-    describe('to be entity', () => {
-      describe('with available access token', () => {
-        const cases = [
-          {
-            params: {
-              accessToken: 'access-token-01-01',
-            },
-            expected: {
-              id: 140101,
-            },
-          },
-          {
-            params: {
-              accessToken: 'access-token-02-02',
-            },
-            expected: {
-              id: 140202,
-            },
-          },
-          {
-            params: {
-              accessToken: 'access-token-04-01',
-            },
-            expected: {
-              id: 140401,
-            },
-          },
-        ]
-
-        test.each(cases)('accessToken: $params.accessToken', async ({ params, expected }) => {
-          const actual = await resolver.findAccessToken(params)
-
-          expect(actual)
-            .toHaveProperty('id', expected.id)
-        })
+        expect(actual)
+          .toBeInstanceOf(RenewAccessTokenMutationResolver)
       })
 
-      describe('with expired access token', () => {
-        const cases = [
-          {
-            params: {
-              accessToken: 'access-token-02-01',
-            },
-            expected: {
-              id: 140201,
-            },
-          },
-          {
-            params: {
-              accessToken: 'access-token-03-01',
-            },
-            expected: {
-              id: 140301,
-            },
-          },
-          {
-            params: {
-              accessToken: 'access-token-03-02',
-            },
-            expected: {
-              id: 140302,
-            },
-          },
-        ]
+      test('should hold a session clerk', () => {
+        const actual = RenewAccessTokenMutationResolver.create()
 
-        test.each(cases)('accessToken: $params.accessToken', async ({ params, expected }) => {
-          const actual = await resolver.findAccessToken(params)
+        expect(actual.sessionClerk)
+          .toBeInstanceOf(SessionClerk)
+      })
 
-          expect(actual)
-            .toHaveProperty('id', expected.id)
-        })
+      test('should bind the clerk to the customer tables', () => {
+        // Binding the wrong pair here would let one audience's cookie renew the other's session.
+        const actual = RenewAccessTokenMutationResolver.create()
+
+        expect(actual.sessionClerk.AccessTokenModel)
+          .toBe(CustomerAccessToken) // same reference
+        expect(actual.sessionClerk.RefreshTokenModel)
+          .toBe(CustomerRefreshToken) // same reference
       })
     })
 
-    describe('to be null', () => {
-      describe('with invalid access token', () => {
-        /**
-         * @type {Array<{
-         *   params: {
-         *     accessToken: string | null
-         *   }
-         * }>}
-         */
-        const cases = /** @type {*} */ ([
-          {
-            params: {
-              accessToken: null,
-            },
+    describe('with a session clerk handed in', () => {
+      const cases = [
+        {
+          factoryParams: {
+            sessionClerk: /** @type {*} */ ({
+              AccessTokenModel: {
+                tableName: 'fake_customer_access_tokens_0001',
+              },
+            }),
           },
-          {
-            params: {
-              // accessToken: undefined,
-            },
+        },
+        {
+          factoryParams: {
+            sessionClerk: /** @type {*} */ ({
+              AccessTokenModel: {
+                tableName: 'fake_customer_access_tokens_0002',
+              },
+            }),
           },
-        ])
-
-        test.each(cases)('accessToken: $params.accessToken', async ({ params }) => {
-          const actual = await resolver.findAccessToken(params)
-
-          expect(actual)
-            .toBeNull()
-        })
-      })
-    })
-  })
-})
-
-describe('RenewAccessTokenMutationResolver', () => {
-  describe('#isAvailableAccessToken()', () => {
-    /**
-     * @type {Array<{
-     *   params: {
-     *     expiredAt: Date
-     *   }
-     *   truthyCases: Array<{
-     *     pointsAt: Date
-     *   }>
-     *   falsyCases: Array<{
-     *     pointsAt: Date
-     *   }>
-     * }>}
-     */
-    const cases = [
-      {
-        params: {
-          expiredAt: new Date('2022-08-01T01:00:01.000Z'),
         },
-        truthyCases: [
-          { pointsAt: new Date('2022-07-01T01:00:01.000Z') },
-          { pointsAt: new Date('2022-08-01T01:00:00.999Z') },
-        ],
-        falsyCases: [
-          { pointsAt: new Date('2022-08-01T01:00:01.000Z') }, // on expired at
-          { pointsAt: new Date('2022-08-02T01:00:01.000Z') },
-        ],
-      },
-      {
-        params: {
-          expiredAt: new Date('2022-08-02T02:00:02.000Z'),
-        },
-        truthyCases: [
-          { pointsAt: new Date('2022-08-01T01:00:01.000Z') },
-          { pointsAt: new Date('2022-08-02T02:00:01.999Z') },
-        ],
-        falsyCases: [
-          { pointsAt: new Date('2022-08-02T02:00:02.000Z') }, // on expired at
-          { pointsAt: new Date('2022-08-03T02:00:02.000Z') },
-        ],
-      },
-      {
-        params: {
-          expiredAt: new Date('2022-08-03T03:00:03.000Z'),
-        },
-        truthyCases: [
-          { pointsAt: new Date('2022-08-02T02:00:02.000Z') },
-          { pointsAt: new Date('2022-08-03T03:00:02.999Z') },
-        ],
-        falsyCases: [
-          { pointsAt: new Date('2022-08-03T03:00:03.000Z') }, // on expired at
-          { pointsAt: new Date('2022-08-04T03:00:03.000Z') },
-        ],
-      },
-    ]
+      ]
 
-    describe.each(cases)('expiredAt: $params.expiredAt', ({ params, truthyCases, falsyCases }) => {
-      const resolver = RenewAccessTokenMutationResolver.create()
+      test.each(cases)('sessionClerk: $factoryParams.sessionClerk.AccessTokenModel.tableName', ({ factoryParams }) => {
+        const actual = RenewAccessTokenMutationResolver.create(factoryParams)
 
-      /** @type {import('../../../../../../../../sequelize/models/CustomerAccessToken.js').CustomerAccessTokenEntity} */
-      const entity = /** @type {*} */ (
-        CustomerAccessToken.build({
-          expiredAt: params.expiredAt,
-        })
-      )
-
-      describe('to be truthy', () => {
-        test.each(truthyCases)('pointsAt: $pointsAt', ({ pointsAt }) => {
-          const actual = resolver.isAvailableAccessToken({
-            accessTokenEntity: entity,
-            pointsAt,
-          })
-
-          expect(actual)
-            .toBeTruthy()
-        })
-      })
-
-      describe('to be falsy', () => {
-        test.each(falsyCases)('pointsAt: $pointsAt', ({ pointsAt }) => {
-          const actual = resolver.isAvailableAccessToken({
-            accessTokenEntity: entity,
-            pointsAt,
-          })
-
-          expect(actual)
-            .toBeFalsy()
-        })
+        expect(actual)
+          .toHaveProperty('sessionClerk', factoryParams.sessionClerk)
       })
     })
   })
@@ -234,46 +140,276 @@ describe('RenewAccessTokenMutationResolver', () => {
 
 describe('RenewAccessTokenMutationResolver', () => {
   describe('#formatResponse()', () => {
-    const resolver = RenewAccessTokenMutationResolver.create()
+    describe('from the credential pair', () => {
+      const cases = [
+        {
+          params: {
+            credentialPair: {
+              accessToken: 'accessToken.100001',
+              refreshToken: 'refreshToken.100001',
+              sessionKey: 'sessionKey.100001',
+            },
+          },
+          expected: {
+            accessToken: 'accessToken.100001',
+          },
+        },
+        {
+          params: {
+            credentialPair: {
+              accessToken: 'accessToken.100002',
+              refreshToken: 'refreshToken.100002',
+              sessionKey: 'sessionKey.100002',
+            },
+          },
+          expected: {
+            accessToken: 'accessToken.100002',
+          },
+        },
+      ]
 
-    /**
-     * @type {Array<{
-     *   params: {
-     *     accessTokenEntity: import('../../../../../../../../sequelize/models/CustomerAccessToken.js').CustomerAccessTokenEntity | null
-     *   }
-     *   expected: {
-     *     accessToken: string
-     *   }
-     * }>}
-     */
-    const cases = /** @type {Array<*>} */ ([
-      {
-        params: {
-          accessTokenEntity: CustomerAccessToken.build({
-            accessToken: 'access-token-001',
+      test.each(cases)('accessToken: $params.credentialPair.accessToken', ({ params, expected }) => {
+        const resolver = RenewAccessTokenMutationResolver.create()
+
+        const actual = resolver.formatResponse(params)
+
+        expect(actual)
+          .toEqual(expected)
+      })
+    })
+
+    describe('should keep the rotated refresh token out of the body', () => {
+      const cases = [
+        {
+          params: {
+            credentialPair: {
+              accessToken: 'accessToken.100001',
+              refreshToken: 'refreshToken.100001',
+              sessionKey: 'sessionKey.100001',
+            },
+          },
+        },
+        {
+          params: {
+            credentialPair: {
+              accessToken: 'accessToken.100002',
+              refreshToken: 'refreshToken.100002',
+              sessionKey: 'sessionKey.100002',
+            },
+          },
+        },
+      ]
+
+      test.each(cases)('refreshToken: $params.credentialPair.refreshToken', ({ params }) => {
+        const resolver = RenewAccessTokenMutationResolver.create()
+
+        const actual = resolver.formatResponse(params)
+
+        expect(JSON.stringify(actual))
+          .not
+          .toContain(params.credentialPair.refreshToken)
+      })
+    })
+  })
+})
+
+describe('RenewAccessTokenMutationResolver', () => {
+  describe('#resolve()', () => {
+    describe('with a cookie that matches nothing', () => {
+      const cases = [
+        {
+          params: {
+            refreshToken: null,
+          },
+        },
+        {
+          params: {
+            refreshToken: 'unknown-refresh-token',
+          },
+        },
+      ]
+
+      test.each(cases)('refreshToken: $params.refreshToken', async ({ params }) => {
+        const resolver = RenewAccessTokenMutationResolver.create({
+          sessionClerk: /** @type {*} */ ({
+            findRefreshTokenEntity: async () => null,
           }),
+        })
+        const context = createContext(params)
+
+        const actual = () => resolver.resolve({ context })
+
+        await expect(actual)
+          .rejects
+          .toThrow('102.M003.001')
+
+        // The cookie goes even when it matched nothing: leaving it behind would keep the browser
+        // presenting a value that can only ever fail.
+        expect(context.clearRefreshTokenCookie)
+          .toHaveBeenCalledWith()
+        expect(context.saveRefreshTokenCookie)
+          .not
+          .toHaveBeenCalled()
+      })
+    })
+
+    describe('with a spent refresh token', () => {
+      const cases = [
+        {
+          params: {
+            refreshToken: 'spent-refresh-token-0001',
+            sessionKey: 'session-key-0001',
+          },
         },
-        expected: {
-          accessToken: 'access-token-001',
+        {
+          params: {
+            refreshToken: 'spent-refresh-token-0002',
+            sessionKey: 'session-key-0002',
+          },
         },
-      },
-      {
-        params: {
-          accessTokenEntity: CustomerAccessToken.build({
-            accessToken: 'access-token-002',
+      ]
+
+      test.each(cases)('refreshToken: $params.refreshToken', async ({ params }) => {
+        const resolver = RenewAccessTokenMutationResolver.create({
+          sessionClerk: /** @type {*} */ ({
+            findRefreshTokenEntity: async () => ({
+              sessionKey: params.sessionKey,
+              CustomerId: 100001,
+              isUsed: () => true,
+              isAvailable: () => false,
+            }),
           }),
-        },
-        expected: {
-          accessToken: 'access-token-002',
-        },
-      },
-    ])
+        })
+        const context = createContext(params)
 
-    test.each(cases)('accessTokenEntity: $params.accessTokenEntity', ({ params, expected }) => {
-      const actual = resolver.formatResponse(params)
+        const revokeSpy = jest.spyOn(resolver, 'revokeReusedSeries')
+          .mockResolvedValue(null)
 
-      expect(actual)
-        .toEqual(expected)
+        // A value that was already exchanged coming back means two parties hold tokens from one
+        // series, so the series is revoked whole rather than merely refused.
+        const actual = () => resolver.resolve({ context })
+
+        await expect(actual)
+          .rejects
+          .toThrow('205.M003.001')
+
+        expect(revokeSpy)
+          .toHaveBeenCalledWith({
+            context,
+            refreshTokenEntity: expect.objectContaining({
+              sessionKey: params.sessionKey,
+            }),
+          })
+        expect(context.clearRefreshTokenCookie)
+          .toHaveBeenCalledWith()
+      })
+    })
+
+    describe('with an expired refresh token', () => {
+      const cases = [
+        {
+          params: {
+            refreshToken: 'expired-refresh-token-0001',
+          },
+        },
+        {
+          params: {
+            refreshToken: 'expired-refresh-token-0002',
+          },
+        },
+      ]
+
+      test.each(cases)('refreshToken: $params.refreshToken', async ({ params }) => {
+        const resolver = RenewAccessTokenMutationResolver.create({
+          sessionClerk: /** @type {*} */ ({
+            findRefreshTokenEntity: async () => ({
+              sessionKey: 'session-key-0001',
+              CustomerId: 100001,
+              isUsed: () => false,
+              isAvailable: () => false,
+            }),
+          }),
+        })
+        const context = createContext(params)
+
+        const revokeSpy = jest.spyOn(resolver, 'revokeReusedSeries')
+          .mockResolvedValue(null)
+
+        const actual = () => resolver.resolve({ context })
+
+        await expect(actual)
+          .rejects
+          .toThrow('102.M003.001')
+
+        // Expiry is not reuse. Revoking the series here would punish someone who simply came back
+        // after a fortnight.
+        expect(revokeSpy)
+          .not
+          .toHaveBeenCalled()
+        expect(context.clearRefreshTokenCookie)
+          .toHaveBeenCalledWith()
+      })
+    })
+
+    describe('with a usable refresh token', () => {
+      const cases = [
+        {
+          params: {
+            refreshToken: 'usable-refresh-token-0001',
+          },
+          expected: {
+            accessToken: 'renewed-access-token-0001',
+            refreshToken: 'rotated-refresh-token-0001',
+          },
+        },
+        {
+          params: {
+            refreshToken: 'usable-refresh-token-0002',
+          },
+          expected: {
+            accessToken: 'renewed-access-token-0002',
+            refreshToken: 'rotated-refresh-token-0002',
+          },
+        },
+      ]
+
+      test.each(cases)('refreshToken: $params.refreshToken', async ({ params, expected }) => {
+        const resolver = RenewAccessTokenMutationResolver.create({
+          sessionClerk: /** @type {*} */ ({
+            findRefreshTokenEntity: async () => ({
+              sessionKey: 'session-key-0001',
+              CustomerId: 100001,
+              isUsed: () => false,
+              isAvailable: () => true,
+            }),
+          }),
+        })
+        const context = createContext(params)
+
+        jest.spyOn(resolver, 'rotateSession')
+          .mockResolvedValue(/** @type {*} */ ({
+            accessToken: expected.accessToken,
+            refreshToken: expected.refreshToken,
+            sessionKey: 'session-key-0001',
+          }))
+
+        const actual = await resolver.resolve({ context })
+
+        expect(actual)
+          .toEqual({
+            accessToken: expected.accessToken,
+          })
+
+        // The rotated value replaces the cookie, or the browser would keep presenting the one just
+        // spent and trip reuse detection on the very next renewal.
+        expect(context.saveRefreshTokenCookie)
+          .toHaveBeenCalledWith({
+            refreshToken: expected.refreshToken,
+          })
+        expect(context.clearRefreshTokenCookie)
+          .not
+          .toHaveBeenCalled()
+      })
     })
   })
 })

@@ -1,215 +1,361 @@
-import {
-  RandomTextGenerator,
-} from '@openreachtech/renchan-tools'
-
 import RenewAccessTokenMutationResolver from '../../../../../../../../server/graphql/resolvers/customer/actual/mutations/RenewAccessTokenMutationResolver.js'
+import SignInMutationResolver from '../../../../../../../../server/graphql/resolvers/customer/actual/mutations/SignInMutationResolver.js'
 
-import CustomerAccessToken from '../../../../../../../../sequelize/models/CustomerAccessToken'
+import CustomerAccessToken from '../../../../../../../../sequelize/models/CustomerAccessToken.js'
+import CustomerRefreshToken from '../../../../../../../../sequelize/models/CustomerRefreshToken.js'
+
+/**
+ * A token is 32 bytes of CSPRNG output rendered as hex.
+ */
+const TOKEN_PATTERN = /^[0-9a-f]{64}$/u
+
+/**
+ * Build a context double that carries a refresh cookie in and records what happened to it.
+ *
+ * @param {{
+ *   refreshToken?: string | null
+ *   now?: Date
+ * }} [params] - Parameters.
+ * @returns {*} - Context double.
+ */
+function createContext ({
+  refreshToken = null,
+  now = new Date('2026-08-01T00:00:00.000Z'),
+} = {}) {
+  return {
+    now,
+    extractRefreshToken: () => refreshToken,
+    saveRefreshTokenCookie: jest.fn(),
+    clearRefreshTokenCookie: jest.fn(),
+  }
+}
+
+/**
+ * Sign an account in, so there is a real series to rotate.
+ *
+ * @param {{
+ *   customerId: number
+ * }} params - Parameters.
+ * @returns {Promise<*>} - The credential pair that was issued.
+ */
+async function issueSession ({
+  customerId,
+}) {
+  return SignInMutationResolver.create()
+    .saveSession({
+      context: createContext(),
+      customerId,
+    })
+}
 
 describe('RenewAccessTokenMutationResolver', () => {
-  describe('#generateTransactionCallback', () => {
-    const resolver = RenewAccessTokenMutationResolver.create()
-
-    describe('to be instance of Function', () => {
+  describe('#resolve()', () => {
+    describe('should rotate the refresh token', () => {
       const cases = [
         {
           params: {
-            customerId: 1000001,
-            now: new Date('2024-08-01T01:00:01.001Z'),
+            customerId: 910001,
           },
         },
         {
           params: {
-            customerId: 1000002,
-            now: new Date('2024-08-02T02:00:02.002Z'),
-          },
-        },
-      ]
-
-      test.each(cases)('customerId: $params.customerId', ({ params }) => {
-        const actual = resolver.generateTransactionCallback(params)
-
-        expect(actual)
-          .toBeInstanceOf(Function)
-      })
-    })
-
-    describe('generated handler', () => {
-      const cases = [
-        {
-          params: {
-            customerId: 1000001,
-            now: new Date('2024-08-01T01:00:01.001Z'),
-          },
-        },
-        {
-          params: {
-            customerId: 1000002,
-            now: new Date('2024-08-02T02:00:02.002Z'),
+            customerId: 910002,
           },
         },
       ]
 
       test.each(cases)('customerId: $params.customerId', async ({ params }) => {
-        const handler = resolver.generateTransactionCallback(params)
+        const issued = await issueSession(params)
 
-        const actual = await CustomerAccessToken.beginTransaction(handler)
-
-        expect(actual)
-          .toHaveProperty('CustomerId', params.customerId)
-        expect(actual)
-          .toHaveProperty('generatedAt', params.now)
-      })
-    })
-  })
-})
-
-describe('RenewAccessTokenMutationResolver', () => {
-  describe('#resolve', () => {
-    const resolver = RenewAccessTokenMutationResolver.create()
-
-    describe('to be access token null', () => {
-      /** @type {import('../../../../../../../../server/graphql/contexts/CustomerGraphqlContext').default} */
-      const context = /** @type {*} */ ({
-        accessToken: null,
-      })
-
-      test('accessToken: null', async () => {
-        const expected = {
-          accessToken: null,
-        }
-
-        const actual = await resolver.resolve({
-          variables: {},
-          context,
+        const context = createContext({
+          refreshToken: issued.refreshToken,
         })
 
-        expect(actual)
-          .toEqual(expected)
-      })
-    })
+        const actual = await RenewAccessTokenMutationResolver.create()
+          .resolve({ context })
 
-    describe('to be access token as is', () => {
-      /**
-       * @type {Array<{
-       *   params: {
-       *     context: import('../../../../../../../../server/graphql/contexts/CustomerGraphqlContext').default
-       *   }
-       *   expected: {
-       *     accessToken: string
-       *   }
-       * }>}
-       */
-      const cases = /** @type {Array<*>} */ ([
-        {
-          params: {
-            context: {
-              accessToken: 'access-token-02-01',
-              now: new Date('2024-03-02T10:00:02.002Z'),
-            },
-          },
-          expected: {
-            accessToken: 'access-token-02-01',
-          },
-        },
-        {
-          params: {
-            context: {
-              accessToken: 'access-token-03-01',
-              now: new Date('2024-03-03T10:00:03.003Z'),
-            },
-          },
-          expected: {
-            accessToken: 'access-token-03-01',
-          },
-        },
-      ])
-
-      test.each(cases)('accessToken: $params.context.accessToken', async ({ params, expected }) => {
-        const args = {
-          variables: {},
-          context: params.context,
-        }
-
-        const actual = await resolver.resolve(args)
-
-        expect(actual)
-          .toEqual(expected)
-      })
-    })
-
-    describe('to be access token renew', () => {
-      /**
-       * @type {Array<{
-       *   params: {
-       *     context: import('../../../../../../../../server/graphql/contexts/CustomerGraphqlContext').default
-       *   }
-       *   tally: string
-       *   expected: {
-       *     accessToken: string
-       *   }
-       * }>}
-       */
-      const cases = /** @type {Array<*>} */ ([
-        {
-          params: {
-            context: {
-              accessToken: 'access-token-02-01', // expiredAt: 2024-03-03T02:02:02.002Z
-              now: new Date('2024-03-02T14:02:02.002Z'),
-            },
-          },
-          tally: 'renewed-access-token-02-01',
-          expected: {
-            accessToken: 'renewed-access-token-02-01',
-          },
-        },
-        {
-          params: {
-            context: {
-              accessToken: 'access-token-03-01', // expiredAt: 2024-03-04T03:03:03.003Z
-              now: new Date('2024-03-03T15:03:03.003Z'),
-            },
-          },
-          tally: 'renewed-access-token-03-01',
-          expected: {
-            accessToken: 'renewed-access-token-03-01',
-          },
-        },
-        {
-          params: {
-            context: {
-              accessToken: 'access-token-03-02', // expiredAt: 2024-05-04T03:03:03.003Z
-              now: new Date('2024-05-03T15:03:03.003Z'),
-            },
-          },
-          tally: 'renewed-access-token-03-02',
-          expected: {
-            accessToken: 'renewed-access-token-03-02',
-          },
-        },
-      ])
-
-      test.each(cases)('accessToken: $params.context.accessToken', async ({ params, tally, expected }) => {
-        jest.spyOn(RandomTextGenerator.prototype, 'generate')
-          .mockReturnValue(tally)
-
-        const notExpected = {
-          accessToken: params.context.accessToken,
-        }
-
-        const args = {
-          variables: {},
-          context: params.context,
-        }
-
-        const actual = await resolver.resolve(args)
-
-        expect(actual)
-          .toEqual(expected)
-
-        expect(actual)
+        // A fresh access token, and a fresh refresh token to go with it. Handing the same refresh
+        // token back would leave nothing to detect a leak by.
+        expect(actual.accessToken)
+          .toMatch(TOKEN_PATTERN)
+        expect(actual.accessToken)
           .not
-          .toEqual(notExpected)
+          .toBe(issued.accessToken)
+
+        expect(context.saveRefreshTokenCookie)
+          .toHaveBeenCalledWith({
+            refreshToken: expect.stringMatching(TOKEN_PATTERN),
+          })
+
+        const [[{ refreshToken: rotatedRefreshToken }]] = context.saveRefreshTokenCookie.mock.calls
+
+        expect(rotatedRefreshToken)
+          .not
+          .toBe(issued.refreshToken)
+      })
+    })
+
+    describe('should mark the presented token spent', () => {
+      const cases = [
+        {
+          params: {
+            customerId: 910003,
+          },
+        },
+        {
+          params: {
+            customerId: 910004,
+          },
+        },
+      ]
+
+      test.each(cases)('customerId: $params.customerId', async ({ params }) => {
+        const issued = await issueSession(params)
+
+        await RenewAccessTokenMutationResolver.create()
+          .resolve({
+            context: createContext({
+              refreshToken: issued.refreshToken,
+            }),
+          })
+
+        const spentRow = await CustomerRefreshToken.findOne({
+          where: {
+            tokenHash: CustomerRefreshToken.hashToken({
+              token: issued.refreshToken,
+            }),
+          },
+        })
+
+        expect(spentRow.usedAt)
+          .not
+          .toBeNull()
+      })
+    })
+
+    describe('should keep the new pair in the same series', () => {
+      const cases = [
+        {
+          params: {
+            customerId: 910005,
+          },
+        },
+        {
+          params: {
+            customerId: 910006,
+          },
+        },
+      ]
+
+      test.each(cases)('customerId: $params.customerId', async ({ params }) => {
+        const issued = await issueSession(params)
+
+        const actual = await RenewAccessTokenMutationResolver.create()
+          .resolve({
+            context: createContext({
+              refreshToken: issued.refreshToken,
+            }),
+          })
+
+        const renewedAccessToken = await CustomerAccessToken.findOne({
+          where: {
+            accessToken: actual.accessToken,
+          },
+        })
+
+        // Rotation continues a series rather than starting one, so signing out still revokes
+        // everything that descends from the original sign-in.
+        expect(renewedAccessToken)
+          .toHaveProperty('sessionKey', issued.sessionKey)
+      })
+    })
+
+    describe('should refuse a refresh token that was already exchanged', () => {
+      const cases = [
+        {
+          params: {
+            customerId: 910007,
+          },
+        },
+        {
+          params: {
+            customerId: 910008,
+          },
+        },
+      ]
+
+      test.each(cases)('customerId: $params.customerId', async ({ params }) => {
+        const issued = await issueSession(params)
+
+        await RenewAccessTokenMutationResolver.create()
+          .resolve({
+            context: createContext({
+              refreshToken: issued.refreshToken,
+            }),
+          })
+
+        // Presenting it a second time means two parties hold it — the legitimate client and
+        // whoever copied it. There is no telling which is which, so the whole series is refused.
+        const actual = () => RenewAccessTokenMutationResolver.create()
+          .resolve({
+            context: createContext({
+              refreshToken: issued.refreshToken,
+            }),
+          })
+
+        await expect(actual)
+          .rejects
+          .toThrow('205.M003.001')
+      })
+    })
+
+    describe('should revoke the whole series when a token is reused', () => {
+      const cases = [
+        {
+          params: {
+            customerId: 910009,
+          },
+        },
+        {
+          params: {
+            customerId: 910010,
+          },
+        },
+      ]
+
+      test.each(cases)('customerId: $params.customerId', async ({ params }) => {
+        const issued = await issueSession(params)
+
+        const renewed = await RenewAccessTokenMutationResolver.create()
+          .resolve({
+            context: createContext({
+              refreshToken: issued.refreshToken,
+            }),
+          })
+
+        const reuse = () => RenewAccessTokenMutationResolver.create()
+          .resolve({
+            context: createContext({
+              refreshToken: issued.refreshToken,
+            }),
+          })
+
+        await expect(reuse)
+          .rejects
+          .toThrow('205.M003.001')
+
+        // The access token the legitimate client is holding right now goes too. Revoking only the
+        // replayed row would leave the freshly minted one working for whoever holds it.
+        const survivingAccessToken = await CustomerAccessToken.findOne({
+          where: {
+            accessToken: renewed.accessToken,
+          },
+        })
+
+        expect(survivingAccessToken)
+          .toBeNull()
+
+        const seriesRows = await CustomerRefreshToken.findAll({
+          where: {
+            sessionKey: issued.sessionKey,
+          },
+        })
+
+        expect(seriesRows)
+          .toHaveLength(2)
+
+        const areAllRowsRevoked = seriesRows.every(row =>
+          row.revokedAt !== null
+        )
+
+        expect(areAllRowsRevoked)
+          .toBeTruthy()
+      })
+    })
+
+    describe('should refuse a cookie that matches nothing', () => {
+      const cases = [
+        {
+          params: {
+            refreshToken: null,
+          },
+        },
+        {
+          params: {
+            refreshToken: 'a'.repeat(64),
+          },
+        },
+      ]
+
+      test.each(cases)('refreshToken: $params.refreshToken', async ({ params }) => {
+        const context = createContext(params)
+
+        const actual = () => RenewAccessTokenMutationResolver.create()
+          .resolve({ context })
+
+        await expect(actual)
+          .rejects
+          .toThrow('102.M003.001')
+
+        expect(context.clearRefreshTokenCookie)
+          .toHaveBeenCalledWith()
+      })
+    })
+
+    describe('should refuse a refresh token past its expiry', () => {
+      const cases = [
+        {
+          params: {
+            customerId: 910011,
+          },
+        },
+        {
+          params: {
+            customerId: 910012,
+          },
+        },
+      ]
+
+      test.each(cases)('customerId: $params.customerId', async ({ params }) => {
+        const issued = await issueSession(params)
+
+        const row = await CustomerRefreshToken.findOne({
+          where: {
+            tokenHash: CustomerRefreshToken.hashToken({
+              token: issued.refreshToken,
+            }),
+          },
+        })
+
+        await row.update({
+          expiredAt: new Date('2020-01-01T00:00:00.000Z'),
+        })
+
+        const actual = () => RenewAccessTokenMutationResolver.create()
+          .resolve({
+            context: createContext({
+              refreshToken: issued.refreshToken,
+            }),
+          })
+
+        await expect(actual)
+          .rejects
+          .toThrow('102.M003.001')
+
+        // Expiry is not a leak, so the series is left alone. Revoking here would make an ordinary
+        // lapse indistinguishable from an attack.
+        const seriesRows = await CustomerRefreshToken.findAll({
+          where: {
+            sessionKey: issued.sessionKey,
+          },
+        })
+
+        const areAllRowsIntact = seriesRows.every(seriesRow =>
+          seriesRow.revokedAt === null
+        )
+
+        expect(areAllRowsIntact)
+          .toBeTruthy()
       })
     })
   })
