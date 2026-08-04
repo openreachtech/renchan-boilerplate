@@ -1,17 +1,15 @@
-import {
-  BaseGraphqlContext,
-} from '@openreachtech/renchan'
-
 import Customer from '../../../sequelize/models/Customer.js'
 import CustomerBasic from '../../../sequelize/models/CustomerBasic.js'
 import CustomerAccessToken from '../../../sequelize/models/CustomerAccessToken.js'
 
+import BaseAppGraphqlContext from './BaseAppGraphqlContext.js'
+
 /**
  * Customer GraphQL context.
  *
- * @extends {BaseGraphqlContext}
+ * @extends {BaseAppGraphqlContext}
  */
-export default class CustomerGraphqlContext extends BaseGraphqlContext {
+export default class CustomerGraphqlContext extends BaseAppGraphqlContext {
   /**
    * Find user.
    *
