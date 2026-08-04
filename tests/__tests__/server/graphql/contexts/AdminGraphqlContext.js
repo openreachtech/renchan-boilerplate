@@ -1,16 +1,13 @@
-import {
-  BaseGraphqlContext,
-} from '@openreachtech/renchan'
-
+import BaseAppGraphqlContext from '../../../../../server/graphql/contexts/BaseAppGraphqlContext.js'
 import AdminGraphqlContext from '../../../../../server/graphql/contexts/AdminGraphqlContext.js'
 
 describe('AdminGraphqlContext', () => {
   describe('super class', () => {
-    test('to be BaseGraphqlContext', () => {
+    test('to be BaseAppGraphqlContext', () => {
       const actual = AdminGraphqlContext.prototype
 
       expect(actual)
-        .toBeInstanceOf(BaseGraphqlContext)
+        .toBeInstanceOf(BaseAppGraphqlContext)
     })
   })
 })
