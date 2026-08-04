@@ -1,37 +1,33 @@
-import SignInMutationResolver from '../../../../../../../../server/graphql/resolvers/customer/actual/mutations/SignInMutationResolver'
+import SignInMutationResolver from '../../../../../../../../server/graphql/resolvers/customer/actual/mutations/SignInMutationResolver.js'
 
-import CustomerAccessToken from '../../../../../../../../sequelize/models/CustomerAccessToken'
+import CustomerAccessToken from '../../../../../../../../sequelize/models/CustomerAccessToken.js'
+import CustomerRefreshToken from '../../../../../../../../sequelize/models/CustomerRefreshToken.js'
 
-describe('SignInMutationResolver', () => {
-  describe('.get:schema', () => {
-    test('to be fixed value', () => {
-      const actual = SignInMutationResolver.schema
+/**
+ * A token is 32 bytes of CSPRNG output rendered as hex.
+ */
+const ACCESS_TOKEN_PATTERN = /^[0-9a-f]{64}$/u
 
-      expect(actual)
-        .toBe('signIn')
-    })
-  })
-})
-
-describe('SignInMutationResolver', () => {
-  describe('.get:errorCodeHash', () => {
-    test('to be fixed value', () => {
-      const actual = SignInMutationResolver.errorCodeHash
-
-      const expected = {
-        IncorrectSecret: '202.M002.001',
-      }
-
-      expect(actual)
-        .toEqual(expected)
-    })
-  })
-})
+/**
+ * Build a context double carrying the cookie methods the resolver calls.
+ *
+ * @param {{
+ *   now: Date
+ * }} params - Parameters.
+ * @returns {*} - Context double.
+ */
+function createContext ({
+  now,
+}) {
+  return {
+    now,
+    saveRefreshTokenCookie: jest.fn(),
+    clearRefreshTokenCookie: jest.fn(),
+  }
+}
 
 describe('SignInMutationResolver', () => {
   describe('#generateTransactionCallback()', () => {
-    const resolver = SignInMutationResolver.create()
-
     describe('to be instance of Function', () => {
       const cases = [
         {
@@ -48,7 +44,9 @@ describe('SignInMutationResolver', () => {
         },
       ]
 
-      test.each(cases)('customerId: $params.CustomerId', ({ params }) => {
+      test.each(cases)('customerId: $params.customerId', ({ params }) => {
+        const resolver = SignInMutationResolver.create()
+
         const actual = resolver.generateTransactionCallback(params)
 
         expect(actual)
@@ -56,41 +54,7 @@ describe('SignInMutationResolver', () => {
       })
     })
 
-    describe('to call CustomerAccessToken.buildWithGeneratedAttributes()', () => {
-      const cases = [
-        {
-          params: {
-            customerId: 100001,
-            now: new Date('2024-01-01T00:00:01.001Z'),
-          },
-          expected: {
-            generatedAt: new Date('2024-01-01T00:00:01.001Z'),
-            customerId: 100001,
-          },
-        },
-        {
-          params: {
-            customerId: 100002,
-            now: new Date('2024-01-02T00:00:02.002Z'),
-          },
-          expected: {
-            generatedAt: new Date('2024-01-02T00:00:02.002Z'),
-            customerId: 100002,
-          },
-        },
-      ]
-
-      test.each(cases)('customerId: $params.CustomerId', ({ params, expected }) => {
-        const buildWithGeneratedAttributesSpy = jest.spyOn(CustomerAccessToken, 'buildWithGeneratedAttributes')
-
-        resolver.generateTransactionCallback(params)
-
-        expect(buildWithGeneratedAttributesSpy)
-          .toHaveBeenCalledWith(expected)
-      })
-    })
-
-    describe('callback works to save', () => {
+    describe('callback works to save both halves of the pair', () => {
       const cases = [
         {
           params: {
@@ -99,9 +63,9 @@ describe('SignInMutationResolver', () => {
           },
           expected: {
             CustomerId: 900001,
-            accessToken: expect.stringMatching(/^[a-zA-Z0-9]{10}$/u),
             generatedAt: new Date('2024-11-01T00:00:01.001Z'),
-            expiredAt: new Date('2024-11-02T00:00:01.001Z'),
+            accessExpiredAt: new Date('2024-11-01T00:15:01.001Z'),
+            refreshExpiredAt: new Date('2024-11-15T00:00:01.001Z'),
           },
         },
         {
@@ -111,56 +75,108 @@ describe('SignInMutationResolver', () => {
           },
           expected: {
             CustomerId: 900002,
-            accessToken: expect.stringMatching(/^[a-zA-Z0-9]{10}$/u),
             generatedAt: new Date('2024-11-02T00:00:02.002Z'),
-            expiredAt: new Date('2024-11-03T00:00:02.002Z'),
+            accessExpiredAt: new Date('2024-11-02T00:15:02.002Z'),
+            refreshExpiredAt: new Date('2024-11-16T00:00:02.002Z'),
           },
         },
       ]
 
-      test.each(cases)('customerId: $params.CustomerId', async ({ params, expected }) => {
-        const transactionCallback = resolver.generateTransactionCallback(params)
+      test.each(cases)('customerId: $params.customerId', async ({ params, expected }) => {
+        const resolver = SignInMutationResolver.create()
 
-        const entity = await CustomerAccessToken.beginTransaction(transactionCallback)
+        const credentialPair = await CustomerAccessToken.beginTransaction(
+          resolver.generateTransactionCallback(params)
+        )
 
-        const savedEntity = await CustomerAccessToken.findByPk(entity.id)
+        expect(credentialPair.accessToken)
+          .toMatch(ACCESS_TOKEN_PATTERN)
+        expect(credentialPair.refreshToken)
+          .toMatch(ACCESS_TOKEN_PATTERN)
 
-        expect(savedEntity)
+        const savedAccessToken = await CustomerAccessToken.findOne({
+          where: {
+            accessToken: credentialPair.accessToken,
+          },
+        })
+
+        expect(savedAccessToken)
           .toHaveProperty('CustomerId', expected.CustomerId)
-        expect(savedEntity)
-          .toHaveProperty('accessToken', expected.accessToken)
-        expect(savedEntity)
+        expect(savedAccessToken)
           .toHaveProperty('generatedAt', expected.generatedAt)
-        expect(savedEntity)
-          .toHaveProperty('expiredAt', expected.expiredAt)
+        expect(savedAccessToken)
+          .toHaveProperty('expiredAt', expected.accessExpiredAt)
+
+        // Both rows carry the same series key, which is what lets signing out — and reuse
+        // detection — revoke the access tokens a series already handed out.
+        expect(savedAccessToken)
+          .toHaveProperty('sessionKey', credentialPair.sessionKey)
+
+        const savedRefreshToken = await CustomerRefreshToken.findOne({
+          where: {
+            tokenHash: CustomerRefreshToken.hashToken({
+              token: credentialPair.refreshToken,
+            }),
+          },
+        })
+
+        expect(savedRefreshToken)
+          .toHaveProperty('CustomerId', expected.CustomerId)
+        expect(savedRefreshToken)
+          .toHaveProperty('sessionKey', credentialPair.sessionKey)
+        expect(savedRefreshToken)
+          .toHaveProperty('expiredAt', expected.refreshExpiredAt)
+        expect(savedRefreshToken)
+          .toHaveProperty('usedAt', null)
+      })
+    })
+
+    describe('should store the refresh token only as a digest', () => {
+      // A dump of this table must not be a set of working sessions.
+      const cases = [
+        {
+          params: {
+            customerId: 900003,
+            now: new Date('2024-11-03T00:00:03.003Z'),
+          },
+        },
+        {
+          params: {
+            customerId: 900004,
+            now: new Date('2024-11-04T00:00:04.004Z'),
+          },
+        },
+      ]
+
+      test.each(cases)('customerId: $params.customerId', async ({ params }) => {
+        const resolver = SignInMutationResolver.create()
+
+        const credentialPair = await CustomerAccessToken.beginTransaction(
+          resolver.generateTransactionCallback(params)
+        )
+
+        const plainTextRow = await CustomerRefreshToken.findOne({
+          where: {
+            tokenHash: credentialPair.refreshToken,
+          },
+        })
+
+        expect(plainTextRow)
+          .toBeNull()
       })
     })
   })
 })
 
 describe('SignInMutationResolver', () => {
-  describe('#saveAccessToken()', () => {
-    const resolver = SignInMutationResolver.create()
-
+  describe('#saveSession()', () => {
     describe('to call #generateTransactionCallback()', () => {
-      /**
-       * @type {Array<{
-       *   params: {
-       *     context: import('../../../../../../../../server/graphql/contexts/CustomerGraphqlContext.js').default
-       *     customerId: number
-       *   }
-       *   expected: {
-       *     customerId: number
-       *     now: Date
-       *   }
-       * }>}
-       */
-      const cases = /** @type {Array<*>} */ ([
+      const cases = [
         {
           params: {
-            context: {
+            context: createContext({
               now: new Date('2024-01-01T00:00:01.001Z'),
-            },
+            }),
             customerId: 100001,
           },
           expected: {
@@ -170,9 +186,9 @@ describe('SignInMutationResolver', () => {
         },
         {
           params: {
-            context: {
+            context: createContext({
               now: new Date('2024-01-02T00:00:02.002Z'),
-            },
+            }),
             customerId: 100002,
           },
           expected: {
@@ -180,9 +196,11 @@ describe('SignInMutationResolver', () => {
             now: new Date('2024-01-02T00:00:02.002Z'),
           },
         },
-      ])
+      ]
 
-      test.each(cases)('customerId: $params.CustomerId', async ({ params, expected }) => {
+      test.each(cases)('customerId: $params.customerId', async ({ params, expected }) => {
+        const resolver = SignInMutationResolver.create()
+
         const callbackTally = /** @type {*} */ (async () => {})
         const resultTally = {
           value: Symbol('tally'),
@@ -193,10 +211,10 @@ describe('SignInMutationResolver', () => {
         const beginTransactionSpy = jest.spyOn(CustomerAccessToken, 'beginTransaction')
           .mockImplementation(async () => resultTally)
 
-        const actual = await resolver.saveAccessToken(params)
+        const actual = await resolver.saveSession(params)
 
         expect(actual)
-          .toBe(resultTally)
+          .toBe(resultTally) // same reference
 
         expect(generateTransactionCallbackSpy)
           .toHaveBeenCalledWith(expected)
@@ -205,65 +223,62 @@ describe('SignInMutationResolver', () => {
       })
     })
 
-    describe('to be entity', () => {
-      /**
-       * @type {Array<{
-       *   params: {
-       *     context: import('../../../../../../../../server/graphql/contexts/CustomerGraphqlContext.js').default
-       *     customerId: number
-       *   }
-       *   expected: {
-       *     CustomerId: number
-       *     accessToken: RegExp
-       *     generatedAt: Date
-       *     expiredAt: Date
-       *   }
-       * }>}
-       */
-      const cases = /** @type {Array<*>} */ ([
+    describe('to be the credential pair', () => {
+      const cases = [
         {
           params: {
-            context: {
+            context: createContext({
               now: new Date('2024-11-01T00:00:01.001Z'),
-            },
+            }),
             customerId: 100001,
           },
           expected: {
             CustomerId: 100001,
-            accessToken: expect.stringMatching(/^[a-zA-Z0-9]{10}$/u),
             generatedAt: new Date('2024-11-01T00:00:01.001Z'),
-            expiredAt: new Date('2024-11-02T00:00:01.001Z'),
+            expiredAt: new Date('2024-11-01T00:15:01.001Z'),
           },
         },
         {
           params: {
-            context: {
+            context: createContext({
               now: new Date('2024-11-02T00:00:02.002Z'),
-            },
+            }),
             customerId: 100002,
           },
           expected: {
             CustomerId: 100002,
-            accessToken: expect.stringMatching(/^[a-zA-Z0-9]{10}$/u),
             generatedAt: new Date('2024-11-02T00:00:02.002Z'),
-            expiredAt: new Date('2024-11-03T00:00:02.002Z'),
+            expiredAt: new Date('2024-11-02T00:15:02.002Z'),
           },
         },
-      ])
+      ]
 
-      test.each(cases)('customerId: $params.CustomerId', async ({ params, expected }) => {
-        const actual = await resolver.saveAccessToken(params)
+      test.each(cases)('customerId: $params.customerId', async ({ params, expected }) => {
+        const resolver = SignInMutationResolver.create()
 
-        expect(actual)
-          .toBeInstanceOf(CustomerAccessToken)
+        const actual = await resolver.saveSession(params)
 
-        expect(actual)
+        // A session is a pair, and the refresh half never becomes a response field, so the caller
+        // is handed the values rather than a row.
+        expect(actual.accessToken)
+          .toMatch(ACCESS_TOKEN_PATTERN)
+        expect(actual.refreshToken)
+          .toMatch(ACCESS_TOKEN_PATTERN)
+        expect(actual.accessToken)
+          .not
+          .toBe(actual.refreshToken)
+
+        const savedAccessToken = await CustomerAccessToken.findOne({
+          where: {
+            accessToken: actual.accessToken,
+          },
+        })
+
+        expect(savedAccessToken)
           .toHaveProperty('CustomerId', expected.CustomerId)
-        expect(actual)
-          .toHaveProperty('accessToken', expected.accessToken)
-        expect(actual)
+        expect(savedAccessToken)
           .toHaveProperty('generatedAt', expected.generatedAt)
-        expect(actual)
+        expect(savedAccessToken)
           .toHaveProperty('expiredAt', expected.expiredAt)
       })
     })
@@ -272,26 +287,8 @@ describe('SignInMutationResolver', () => {
 
 describe('SignInMutationResolver', () => {
   describe('#resolve()', () => {
-    const resolver = SignInMutationResolver.create()
-
     describe('with existing email and correct password', () => {
-      /**
-       * @type {Array<{
-       *   params: {
-       *     variables: {
-       *       input: {
-       *         email: string
-       *         password: string
-       *       }
-       *     }
-       *     context: import('../../../../../../../../server/graphql/contexts/CustomerGraphqlContext.js').default
-       *   }
-       *   expected: {
-       *     accessToken: RegExp
-       *   }
-       * }>}
-       */
-      const cases = /** @type {Array<*>} */ ([
+      const cases = [
         {
           params: {
             variables: {
@@ -300,12 +297,12 @@ describe('SignInMutationResolver', () => {
                 password: 'pAsswOrd$01',
               },
             },
-            context: {
+            context: createContext({
               now: new Date('2024-01-01T00:00:01.001Z'),
-            },
+            }),
           },
           expected: {
-            accessToken: expect.stringMatching(/^[a-zA-Z0-9]{10}$/u),
+            accessToken: expect.stringMatching(ACCESS_TOKEN_PATTERN),
           },
         },
         {
@@ -316,17 +313,19 @@ describe('SignInMutationResolver', () => {
                 password: 'pAsswOrd$02',
               },
             },
-            context: {
+            context: createContext({
               now: new Date('2024-01-02T00:00:02.002Z'),
-            },
+            }),
           },
           expected: {
-            accessToken: expect.stringMatching(/^[a-zA-Z0-9]{10}$/u),
+            accessToken: expect.stringMatching(ACCESS_TOKEN_PATTERN),
           },
         },
-      ])
+      ]
 
       test.each(cases)('email: $params.variables.input.email', async ({ params, expected }) => {
+        const resolver = SignInMutationResolver.create()
+
         const actual = await resolver.resolve(params)
 
         expect(actual)
@@ -334,69 +333,97 @@ describe('SignInMutationResolver', () => {
       })
     })
 
-    describe('with incorrect email or password', () => {
-      /**
-       * @type {Array<{
-       *   params: {
-       *     variables: {
-       *       input: {
-       *         email: string
-       *         password: string
-       *       }
-       *     }
-       *     context: import('../../../../../../../../server/graphql/contexts/CustomerGraphqlContext.js').default
-       *   }
-       *   expected: {
-       *     accessToken: RegExp
-       *   }
-       * }>}
-       */
-      const cases = /** @type {Array<*>} */ ([
+    describe('should hand the refresh token to the browser as a cookie', () => {
+      const cases = [
         {
           params: {
             variables: {
               input: {
                 email: 'customer.100001@example.com',
-                password: 'incorrectPassword', // ❌️
+                password: 'pAsswOrd$01',
               },
             },
-            context: {
+            context: createContext({
               now: new Date('2024-01-01T00:00:01.001Z'),
-            },
+            }),
           },
         },
         {
           params: {
             variables: {
               input: {
-                email: 'incorrect.email@example.com', // ❌️
+                email: 'customer.100002@example.com',
                 password: 'pAsswOrd$02',
               },
             },
-            context: {
+            context: createContext({
               now: new Date('2024-01-02T00:00:02.002Z'),
+            }),
+          },
+        },
+      ]
+
+      test.each(cases)('email: $params.variables.input.email', async ({ params }) => {
+        const resolver = SignInMutationResolver.create()
+
+        await resolver.resolve(params)
+
+        expect(params.context.saveRefreshTokenCookie)
+          .toHaveBeenCalledWith({
+            refreshToken: expect.stringMatching(ACCESS_TOKEN_PATTERN),
+          })
+      })
+    })
+
+    describe('with incorrect email or password', () => {
+      const cases = [
+        {
+          params: {
+            variables: {
+              input: {
+                email: 'customer.100001@example.com',
+                password: 'incorrectPassword',
+              },
             },
+            context: createContext({
+              now: new Date('2024-01-01T00:00:01.001Z'),
+            }),
           },
         },
         {
           params: {
             variables: {
               input: {
-                email: 'incorrect.both@example.com', // ❌️
-                password: 'incorrectBoth', // ❌️
+                email: 'incorrect.email@example.com',
+                password: 'pAsswOrd$02',
               },
             },
-            context: {
-              now: new Date('2024-01-03T00:00:03.003Z'),
-            },
+            context: createContext({
+              now: new Date('2024-01-02T00:00:02.002Z'),
+            }),
           },
         },
-      ])
+        {
+          params: {
+            variables: {
+              input: {
+                email: 'incorrect.both@example.com',
+                password: 'incorrectBoth',
+              },
+            },
+            context: createContext({
+              now: new Date('2024-01-03T00:00:03.003Z'),
+            }),
+          },
+        },
+      ]
 
-      test.each(cases)('email: $params.variables.input.email, password: $params.variables.input.password', async ({ params, expected }) => {
-        await expect(
-          resolver.resolve(params)
-        )
+      test.each(cases)('email: $params.variables.input.email', async ({ params }) => {
+        const resolver = SignInMutationResolver.create()
+
+        const actual = () => resolver.resolve(params)
+
+        await expect(actual)
           .rejects
           .toThrow('202.M002.001')
       })

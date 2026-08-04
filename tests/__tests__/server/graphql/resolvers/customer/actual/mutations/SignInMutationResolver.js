@@ -1,7 +1,5 @@
 import SignInMutationResolver from '../../../../../../../../server/graphql/resolvers/customer/actual/mutations/SignInMutationResolver.js'
 
-import CustomerAccessToken from '../../../../../../../../sequelize/models/CustomerAccessToken.js'
-
 describe('SignInMutationResolver', () => {
   describe('.get:schema', () => {
     test('to be fixed value', () => {
@@ -9,6 +7,21 @@ describe('SignInMutationResolver', () => {
 
       expect(actual)
         .toBe('signIn')
+    })
+  })
+})
+
+describe('SignInMutationResolver', () => {
+  describe('.get:errorCodeHash', () => {
+    test('to be fixed value', () => {
+      const expected = {
+        IncorrectSecret: '202.M002.001',
+      }
+
+      const actual = SignInMutationResolver.errorCodeHash
+
+      expect(actual)
+        .toEqual(expected)
     })
   })
 })
@@ -51,11 +64,6 @@ describe('SignInMutationResolver', () => {
             'dataValues',
             expect.objectContaining(expected)
           )
-
-        // NOTE: Below matcher will throw error:
-        // RangeError: Maximum call stack size exceeded
-        // expect(actual)
-        //   .toMatchObject(expected)
       })
     })
 
@@ -87,28 +95,15 @@ describe('SignInMutationResolver', () => {
 
 describe('SignInMutationResolver', () => {
   describe('#formatResponse()', () => {
-    const resolver = SignInMutationResolver.create()
-
-    describe('from access token entity', () => {
-      /**
-       * @type {Array<{
-       *   params: {
-       *     accessTokenEntity: import('../../../../../../../../sequelize/models/CustomerAccessToken.js').CustomerAccessTokenEntity
-       *   }
-       *   expected: {
-       *     accessToken: string
-       *   }
-       * }>}
-       */
-      const cases = /** @type {Array<*>} */ ([
+    describe('from the credential pair', () => {
+      const cases = [
         {
           params: {
-            accessTokenEntity: CustomerAccessToken.build({
-              CustomerId: 100001,
+            credentialPair: {
               accessToken: 'accessToken.100001',
-              generatedAt: new Date('2024-11-01T00:00:01.001Z'),
-              expiredAt: new Date('2024-11-02T00:00:01.001Z'),
-            }),
+              refreshToken: 'refreshToken.100001',
+              sessionKey: 'sessionKey.100001',
+            },
           },
           expected: {
             accessToken: 'accessToken.100001',
@@ -116,24 +111,63 @@ describe('SignInMutationResolver', () => {
         },
         {
           params: {
-            accessTokenEntity: CustomerAccessToken.build({
-              CustomerId: 100002,
+            credentialPair: {
               accessToken: 'accessToken.100002',
-              generatedAt: new Date('2024-11-02T00:00:02.002Z'),
-              expiredAt: new Date('2024-11-03T00:00:02.002Z'),
-            }),
+              refreshToken: 'refreshToken.100002',
+              sessionKey: 'sessionKey.100002',
+            },
           },
           expected: {
             accessToken: 'accessToken.100002',
           },
         },
-      ])
+      ]
 
-      test.each(cases)('CustomerId: $params.accessTokenEntity.CustomerId', async ({ params, expected }) => {
+      test.each(cases)('accessToken: $params.credentialPair.accessToken', ({ params, expected }) => {
+        const resolver = SignInMutationResolver.create()
+
         const actual = resolver.formatResponse(params)
 
         expect(actual)
           .toEqual(expected)
+      })
+    })
+
+    describe('should keep the refresh token out of the body', () => {
+      // The refresh token leaves only as an HttpOnly cookie. Returning it here would hand it to any
+      // script on the page, which is the exposure the cookie exists to close.
+      const cases = [
+        {
+          params: {
+            credentialPair: {
+              accessToken: 'accessToken.100001',
+              refreshToken: 'refreshToken.100001',
+              sessionKey: 'sessionKey.100001',
+            },
+          },
+        },
+        {
+          params: {
+            credentialPair: {
+              accessToken: 'accessToken.100002',
+              refreshToken: 'refreshToken.100002',
+              sessionKey: 'sessionKey.100002',
+            },
+          },
+        },
+      ]
+
+      test.each(cases)('refreshToken: $params.credentialPair.refreshToken', ({ params }) => {
+        const resolver = SignInMutationResolver.create()
+
+        const actual = resolver.formatResponse(params)
+
+        expect(JSON.stringify(actual))
+          .not
+          .toContain(params.credentialPair.refreshToken)
+        expect(JSON.stringify(actual))
+          .not
+          .toContain(params.credentialPair.sessionKey)
       })
     })
   })
