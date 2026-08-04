@@ -1,16 +1,35 @@
-import {
-  BaseGraphqlContext,
-} from '@openreachtech/renchan'
-
+import BaseAppGraphqlContext from '../../../../../server/graphql/contexts/BaseAppGraphqlContext.js'
 import CustomerGraphqlContext from '../../../../../server/graphql/contexts/CustomerGraphqlContext.js'
 
 describe('CustomerGraphqlContext', () => {
   describe('super class', () => {
-    test('to be BaseGraphqlContext', () => {
+    test('to be BaseAppGraphqlContext', () => {
       const actual = CustomerGraphqlContext.prototype
 
       expect(actual)
-        .toBeInstanceOf(BaseGraphqlContext)
+        .toBeInstanceOf(BaseAppGraphqlContext)
+    })
+  })
+})
+
+describe('CustomerGraphqlContext', () => {
+  describe('.get:REFRESH_TOKEN_COOKIE_NAME', () => {
+    test('to be the customer refresh-token cookie name', () => {
+      const actual = CustomerGraphqlContext.REFRESH_TOKEN_COOKIE_NAME
+
+      expect(actual)
+        .toBe('customer_refresh_token')
+    })
+  })
+})
+
+describe('CustomerGraphqlContext', () => {
+  describe('.get:REFRESH_TOKEN_COOKIE_PATH', () => {
+    test('to be the customer graphql endpoint path', () => {
+      const actual = CustomerGraphqlContext.REFRESH_TOKEN_COOKIE_PATH
+
+      expect(actual)
+        .toBe('/graphql-customer')
     })
   })
 })

@@ -1,17 +1,41 @@
-import {
-  BaseGraphqlContext,
-} from '@openreachtech/renchan'
+import AUTH_CONSTANT_HASH from '../../../app/constants/authConstants.js'
 
 import Customer from '../../../sequelize/models/Customer.js'
 import CustomerBasic from '../../../sequelize/models/CustomerBasic.js'
 import CustomerAccessToken from '../../../sequelize/models/CustomerAccessToken.js'
 
+import BaseAppGraphqlContext from './BaseAppGraphqlContext.js'
+
+const {
+  REFRESH_TOKEN_COOKIE,
+} = AUTH_CONSTANT_HASH
+
 /**
  * Customer GraphQL context.
  *
- * @extends {BaseGraphqlContext}
+ * @extends {BaseAppGraphqlContext}
  */
-export default class CustomerGraphqlContext extends BaseGraphqlContext {
+export default class CustomerGraphqlContext extends BaseAppGraphqlContext {
+  /**
+   * get: Name of the cookie that carries the refresh token.
+   *
+   * @override
+   * @returns {string} - Cookie name.
+   */
+  static get REFRESH_TOKEN_COOKIE_NAME () {
+    return REFRESH_TOKEN_COOKIE.CUSTOMER.NAME
+  }
+
+  /**
+   * get: Path the refresh token cookie is scoped to.
+   *
+   * @override
+   * @returns {string} - Cookie path.
+   */
+  static get REFRESH_TOKEN_COOKIE_PATH () {
+    return REFRESH_TOKEN_COOKIE.CUSTOMER.PATH
+  }
+
   /**
    * Find user.
    *
