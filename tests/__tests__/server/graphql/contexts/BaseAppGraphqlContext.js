@@ -33,134 +33,20 @@ describe('BaseAppGraphqlContext', () => {
 })
 
 describe('BaseAppGraphqlContext', () => {
-  describe('#get:refreshTokenCookiePath', () => {
-    test('should be the engine graphql endpoint', () => {
-      const context = BaseAppGraphqlContext.create(/** @type {*} */ ({
-        expressRequest: {},
-        requestParams: {},
-        engine: {
-          config: {
-            graphqlEndpoint: '/graphql-test',
-            refreshTokenCookie: {
-              name: 'test_refresh_token',
-              lifetimeDays: 14,
-              secure: true,
-              sameSite: 'lax',
-              httpOnly: true,
-            },
-          },
-        },
-        userEntity: null,
-        visa: {},
-      }))
-
-      const actual = context.refreshTokenCookiePath
-
-      expect(actual)
-        .toBe('/graphql-test')
-    })
-  })
-})
-
-describe('BaseAppGraphqlContext', () => {
-  describe('#get:refreshTokenMaxAgeMilliseconds', () => {
-    const cases = [
-      {
-        params: {
-          lifetimeDays: 14,
-        },
-        expected: 1209600000, // 14 * 24 * 60 * 60 * 1000
-      },
-      {
-        params: {
-          lifetimeDays: 7,
-        },
-        expected: 604800000, // 7 * 24 * 60 * 60 * 1000
-      },
-    ]
-
-    test.each(cases)('lifetimeDays: $params.lifetimeDays', ({ params, expected }) => {
-      const context = BaseAppGraphqlContext.create(/** @type {*} */ ({
-        expressRequest: {},
-        requestParams: {},
-        engine: {
-          config: {
-            graphqlEndpoint: '/graphql-test',
-            refreshTokenCookie: {
-              name: 'test_refresh_token',
-              lifetimeDays: params.lifetimeDays,
-              secure: true,
-              sameSite: 'lax',
-              httpOnly: true,
-            },
-          },
-        },
-        userEntity: null,
-        visa: {},
-      }))
-
-      const actual = context.refreshTokenMaxAgeMilliseconds
-
-      expect(actual)
-        .toBe(expected)
-    })
-  })
-})
-
-describe('BaseAppGraphqlContext', () => {
-  describe('#generateRefreshTokenCookieOptions()', () => {
-    test('should read the options from the engine config and name no Domain', () => {
-      // Naming a Domain widens the cookie to every subdomain; every attribute comes from the
-      // engine config, so a strict comparison is enough and also proves no Domain is set.
-      const context = BaseAppGraphqlContext.create(/** @type {*} */ ({
-        expressRequest: {},
-        requestParams: {},
-        engine: {
-          config: {
-            graphqlEndpoint: '/graphql-test',
-            refreshTokenCookie: {
-              name: 'test_refresh_token',
-              lifetimeDays: 14,
-              secure: true,
-              sameSite: 'lax',
-              httpOnly: true,
-            },
-          },
-        },
-        userEntity: null,
-        visa: {},
-      }))
-
-      const expected = {
-        httpOnly: true,
-        secure: true,
-        sameSite: 'lax',
-        path: '/graphql-test',
-      }
-
-      const actual = context.generateRefreshTokenCookieOptions()
-
-      expect(actual)
-        .toEqual(expected)
-    })
-  })
-})
-
-describe('BaseAppGraphqlContext', () => {
-  describe('#extractRefreshToken()', () => {
-    describe('should read its own cookie out of the header', () => {
+  describe('#get:cookieHeader', () => {
+    describe('should read the Cookie header of the request', () => {
       const cases = [
         {
           params: {
             cookieHeader: 'test_refresh_token=token-0001',
           },
-          expected: 'token-0001',
+          expected: 'test_refresh_token=token-0001',
         },
         {
           params: {
-            cookieHeader: 'other=1; test_refresh_token=token-0002; another=2',
+            cookieHeader: 'other=1; another=2',
           },
-          expected: 'token-0002',
+          expected: 'other=1; another=2',
         },
       ]
 
@@ -173,73 +59,34 @@ describe('BaseAppGraphqlContext', () => {
           },
           requestParams: {},
           engine: {
-            config: {
-              graphqlEndpoint: '/graphql-test',
-              refreshTokenCookie: {
-                name: 'test_refresh_token',
-                lifetimeDays: 14,
-                secure: true,
-                sameSite: 'lax',
-                httpOnly: true,
-              },
-            },
+            config: {},
           },
           userEntity: null,
           visa: {},
         }))
 
-        const actual = context.extractRefreshToken()
+        const actual = context.cookieHeader
 
         expect(actual)
           .toBe(expected)
       })
     })
 
-    describe('should answer null when its own cookie is absent', () => {
-      const cases = [
-        {
-          params: {
-            cookieHeader: null,
-          },
-        },
-        {
-          params: {
-            cookieHeader: 'other=1; another=2',
-          },
-        },
-        {
-          params: {
-            // A different audience's cookie is not this one.
-            cookieHeader: 'admin_refresh_token=token-0003',
-          },
-        },
-      ]
-
-      test.each(cases)('cookieHeader: $params.cookieHeader', ({ params }) => {
+    describe('should answer null when the header is absent', () => {
+      test('to be null when the request carries no cookie header', () => {
         const context = BaseAppGraphqlContext.create(/** @type {*} */ ({
           expressRequest: {
-            headers: {
-              cookie: params.cookieHeader,
-            },
+            headers: {},
           },
           requestParams: {},
           engine: {
-            config: {
-              graphqlEndpoint: '/graphql-test',
-              refreshTokenCookie: {
-                name: 'test_refresh_token',
-                lifetimeDays: 14,
-                secure: true,
-                sameSite: 'lax',
-                httpOnly: true,
-              },
-            },
+            config: {},
           },
           userEntity: null,
           visa: {},
         }))
 
-        const actual = context.extractRefreshToken()
+        const actual = context.cookieHeader
 
         expect(actual)
           .toBeNull()
@@ -294,104 +141,6 @@ describe('BaseAppGraphqlContext', () => {
         expect(actual)
           .toBeNull()
       })
-    })
-  })
-})
-
-describe('BaseAppGraphqlContext', () => {
-  describe('#saveRefreshTokenCookie()', () => {
-    test('should hand the token to the response as an HttpOnly cookie', () => {
-      const cookieSpy = jest.fn()
-
-      const context = BaseAppGraphqlContext.create(/** @type {*} */ ({
-        expressRequest: {
-          context: {
-            res: {
-              cookie: cookieSpy,
-            },
-          },
-        },
-        requestParams: {},
-        engine: {
-          config: {
-            graphqlEndpoint: '/graphql-test',
-            refreshTokenCookie: {
-              name: 'test_refresh_token',
-              lifetimeDays: 14,
-              secure: true,
-              sameSite: 'lax',
-              httpOnly: true,
-            },
-          },
-        },
-        userEntity: null,
-        visa: {},
-      }))
-
-      context.saveRefreshTokenCookie({
-        refreshToken: 'refresh-token-0001',
-      })
-
-      expect(cookieSpy)
-        .toHaveBeenCalledWith(
-          'test_refresh_token',
-          'refresh-token-0001',
-          {
-            httpOnly: true,
-            secure: true,
-            sameSite: 'lax',
-            path: '/graphql-test',
-            maxAge: 14 * 24 * 60 * 60 * 1000,
-          }
-        )
-    })
-  })
-})
-
-describe('BaseAppGraphqlContext', () => {
-  describe('#clearRefreshTokenCookie()', () => {
-    test('should clear the cookie with the same attributes it was written with', () => {
-      // The attributes have to match the ones it was written with, or the browser keeps the
-      // original cookie and the session appears to survive a sign-out.
-      const clearCookieSpy = jest.fn()
-
-      const context = BaseAppGraphqlContext.create(/** @type {*} */ ({
-        expressRequest: {
-          context: {
-            res: {
-              clearCookie: clearCookieSpy,
-            },
-          },
-        },
-        requestParams: {},
-        engine: {
-          config: {
-            graphqlEndpoint: '/graphql-test',
-            refreshTokenCookie: {
-              name: 'test_refresh_token',
-              lifetimeDays: 14,
-              secure: true,
-              sameSite: 'lax',
-              httpOnly: true,
-            },
-          },
-        },
-        userEntity: null,
-        visa: {},
-      }))
-
-      context.clearRefreshTokenCookie()
-
-      expect(clearCookieSpy)
-        .toHaveBeenCalledWith(
-          'test_refresh_token',
-          {
-            httpOnly: true,
-            secure: true,
-            sameSite: 'lax',
-            path: '/graphql-test',
-          }
-        )
     })
   })
 })
