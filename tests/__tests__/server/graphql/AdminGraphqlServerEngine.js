@@ -30,7 +30,7 @@ describe('AdminGraphqlServerEngine', () => {
       const expected = {
         graphqlEndpoint: '/graphql-admin',
         refreshTokenCookie: {
-          ttlDays: 14,
+          lifetimeDays: 14,
           secure: true,
           sameSite: 'lax',
           httpOnly: true,

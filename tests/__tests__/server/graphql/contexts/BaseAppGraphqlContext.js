@@ -1,6 +1,38 @@
 import BaseAppGraphqlContext from '../../../../../server/graphql/contexts/BaseAppGraphqlContext.js'
 
 describe('BaseAppGraphqlContext', () => {
+  describe('#get:config', () => {
+    test('should be the engine config', () => {
+      const config = /** @type {*} */ ({
+        graphqlEndpoint: '/graphql-test',
+        refreshTokenCookie: {
+          name: 'test_refresh_token',
+          lifetimeDays: 14,
+          secure: true,
+          sameSite: 'lax',
+          httpOnly: true,
+        },
+      })
+
+      const context = BaseAppGraphqlContext.create(/** @type {*} */ ({
+        expressRequest: {},
+        requestParams: {},
+        engine: {
+          config,
+        },
+        userEntity: null,
+        visa: {},
+      }))
+
+      const actual = context.config
+
+      expect(actual)
+        .toBe(config) // same reference
+    })
+  })
+})
+
+describe('BaseAppGraphqlContext', () => {
   describe('#get:refreshTokenCookiePath', () => {
     test('should be the engine graphql endpoint', () => {
       const context = BaseAppGraphqlContext.create(/** @type {*} */ ({
@@ -11,7 +43,7 @@ describe('BaseAppGraphqlContext', () => {
             graphqlEndpoint: '/graphql-test',
             refreshTokenCookie: {
               name: 'test_refresh_token',
-              ttlDays: 14,
+              lifetimeDays: 14,
               secure: true,
               sameSite: 'lax',
               httpOnly: true,
@@ -35,19 +67,19 @@ describe('BaseAppGraphqlContext', () => {
     const cases = [
       {
         params: {
-          ttlDays: 14,
+          lifetimeDays: 14,
         },
-        expected: 14 * 24 * 60 * 60 * 1000,
+        expected: 1209600000, // 14 * 24 * 60 * 60 * 1000
       },
       {
         params: {
-          ttlDays: 7,
+          lifetimeDays: 7,
         },
-        expected: 7 * 24 * 60 * 60 * 1000,
+        expected: 604800000, // 7 * 24 * 60 * 60 * 1000
       },
     ]
 
-    test.each(cases)('ttlDays: $params.ttlDays', ({ params, expected }) => {
+    test.each(cases)('lifetimeDays: $params.lifetimeDays', ({ params, expected }) => {
       const context = BaseAppGraphqlContext.create(/** @type {*} */ ({
         expressRequest: {},
         requestParams: {},
@@ -56,7 +88,7 @@ describe('BaseAppGraphqlContext', () => {
             graphqlEndpoint: '/graphql-test',
             refreshTokenCookie: {
               name: 'test_refresh_token',
-              ttlDays: params.ttlDays,
+              lifetimeDays: params.lifetimeDays,
               secure: true,
               sameSite: 'lax',
               httpOnly: true,
@@ -88,7 +120,7 @@ describe('BaseAppGraphqlContext', () => {
             graphqlEndpoint: '/graphql-test',
             refreshTokenCookie: {
               name: 'test_refresh_token',
-              ttlDays: 14,
+              lifetimeDays: 14,
               secure: true,
               sameSite: 'lax',
               httpOnly: true,
@@ -145,7 +177,7 @@ describe('BaseAppGraphqlContext', () => {
               graphqlEndpoint: '/graphql-test',
               refreshTokenCookie: {
                 name: 'test_refresh_token',
-                ttlDays: 14,
+                lifetimeDays: 14,
                 secure: true,
                 sameSite: 'lax',
                 httpOnly: true,
@@ -196,7 +228,7 @@ describe('BaseAppGraphqlContext', () => {
               graphqlEndpoint: '/graphql-test',
               refreshTokenCookie: {
                 name: 'test_refresh_token',
-                ttlDays: 14,
+                lifetimeDays: 14,
                 secure: true,
                 sameSite: 'lax',
                 httpOnly: true,
@@ -285,7 +317,7 @@ describe('BaseAppGraphqlContext', () => {
             graphqlEndpoint: '/graphql-test',
             refreshTokenCookie: {
               name: 'test_refresh_token',
-              ttlDays: 14,
+              lifetimeDays: 14,
               secure: true,
               sameSite: 'lax',
               httpOnly: true,
@@ -337,7 +369,7 @@ describe('BaseAppGraphqlContext', () => {
             graphqlEndpoint: '/graphql-test',
             refreshTokenCookie: {
               name: 'test_refresh_token',
-              ttlDays: 14,
+              lifetimeDays: 14,
               secure: true,
               sameSite: 'lax',
               httpOnly: true,

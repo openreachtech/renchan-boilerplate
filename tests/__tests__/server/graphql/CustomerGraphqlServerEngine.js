@@ -31,7 +31,7 @@ describe('CustomerGraphqlServerEngine', () => {
       const expected = {
         graphqlEndpoint: '/graphql-customer',
         refreshTokenCookie: {
-          ttlDays: 14,
+          lifetimeDays: 14,
           secure: true,
           sameSite: 'lax',
           httpOnly: true,
