@@ -3,14 +3,20 @@ import {
   ModelAttributeFactory,
 } from '@openreachtech/renchan-sequelize'
 
+import SessionCredentialClerk from '../../app/auth/SessionCredentialClerk.js'
 import {
-  RandomTextGenerator,
-} from '@openreachtech/renchan-tools'
+  env,
+} from '../../app/globals/_.js'
 
-const MILLISECONDS_PER_DAY = 60 * 60 * 24 * 1000 // milliseconds in a day
+const MILLISECONDS_PER_MINUTE = 60 * 1000
+const DEFAULT_ACCESS_TOKEN_TTL_MINUTES = 15
 
 /**
  * CustomerAccessToken model.
+ *
+ * The short-lived half of the credential pair. It lives in the client's memory only, rides the
+ * `x-renchan-access-token` header, and is replaced from the refresh token series named by
+ * `sessionKey` — which is also what lets signing out revoke the tokens already issued.
  */
 export default class CustomerAccessToken extends RenchanModel {
   /** @override */
@@ -26,6 +32,11 @@ export default class CustomerAccessToken extends RenchanModel {
         allowNull: false,
       },
       accessToken: {
+        type: DataTypes.STRING(191),
+        allowNull: false,
+        unique: true,
+      },
+      sessionKey: {
         type: DataTypes.STRING(191),
         allowNull: false,
       },
@@ -80,6 +91,7 @@ export default class CustomerAccessToken extends RenchanModel {
    *
    * @param {{
    *   customerId: number
+   *   sessionKey: string
    *   generatedAt: Date
    *   expiredAt?: Date
    *   accessToken?: string
@@ -88,6 +100,7 @@ export default class CustomerAccessToken extends RenchanModel {
    */
   static buildWithGeneratedAttributes ({
     customerId,
+    sessionKey,
     generatedAt,
     expiredAt = this.createExpiredAt({
       generatedAt,
@@ -96,10 +109,21 @@ export default class CustomerAccessToken extends RenchanModel {
   }) {
     return this.build({
       CustomerId: customerId,
+      sessionKey,
       generatedAt,
       expiredAt,
       accessToken,
     })
+  }
+
+  /**
+   * get: Lifetime of an access token, in minutes.
+   *
+   * @returns {number} - Minutes.
+   */
+  static get ttlMinutes () {
+    return Number(env.AUTH_ACCESS_TOKEN_TTL_MINUTES)
+      || DEFAULT_ACCESS_TOKEN_TTL_MINUTES
   }
 
   /**
@@ -114,7 +138,7 @@ export default class CustomerAccessToken extends RenchanModel {
     generatedAt,
   }) {
     const expiredAt = new Date(
-      generatedAt.getTime() + MILLISECONDS_PER_DAY
+      generatedAt.getTime() + (this.ttlMinutes * MILLISECONDS_PER_MINUTE)
     )
 
     return expiredAt
@@ -123,17 +147,12 @@ export default class CustomerAccessToken extends RenchanModel {
   /**
    * Generate access token.
    *
-   * @param {{
-   *   length?: number
-   * }} [params] - Parameters.
    * @returns {string} - Access token.
    */
-  static generateAccessToken ({
-    length = 10,
-  } = {}) {
-    const generator = RandomTextGenerator.create()
+  static generateAccessToken () {
+    const credentialClerk = SessionCredentialClerk.create()
 
-    return generator.generate(length)
+    return credentialClerk.generateToken()
   }
 
   /**
@@ -153,32 +172,13 @@ export default class CustomerAccessToken extends RenchanModel {
 
     return expiredAt.getTime() <= pointsAt.getTime()
   }
-
-  /**
-   * Has enough time until expired.
-   *
-   * @param {{
-   *   pointsAt: Date
-   * }} params - Parameters.
-   * @returns {boolean} - True if has enough time until expired.
-   */
-  hasEnoughTimeUntilExpired ({
-    pointsAt,
-  }) {
-    const expiredAt = /** @type {Date} */ (
-      this.get('expiredAt')
-    )
-
-    const MILLISECONDS_PER_HALF_DAY = MILLISECONDS_PER_DAY / 2
-
-    return expiredAt.getTime() - pointsAt.getTime() > MILLISECONDS_PER_HALF_DAY
-  }
 }
 
 /**
  * @typedef {CustomerAccessToken & {
  *   CustomerId: number
  *   accessToken: string
+ *   sessionKey: string
  *   generatedAt: Date
  *   expiredAt: Date
  * }} CustomerAccessTokenEntity
