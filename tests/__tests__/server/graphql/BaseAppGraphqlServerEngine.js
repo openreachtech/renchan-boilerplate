@@ -17,40 +17,46 @@ describe('BaseAppGraphqlServerEngine', () => {
 
 describe('BaseAppGraphqlServerEngine', () => {
   describe('.get:refreshTokenCookieLifetimeDays', () => {
-    test('to fall back to fourteen days when unset', () => {
-      const actual = BaseAppGraphqlServerEngine.refreshTokenCookieLifetimeDays
+    describe('to fall back to the default when the env value is unset', () => {
+      test('should be fourteen days', () => {
+        const actual = BaseAppGraphqlServerEngine.refreshTokenCookieLifetimeDays
 
-      expect(actual)
-        .toBe(14)
+        expect(actual)
+          .toBe(14)
+      })
     })
   })
 })
 
 describe('BaseAppGraphqlServerEngine', () => {
   describe('.get:usesSecureRefreshTokenCookie', () => {
-    test('to be true when unset', () => {
-      const actual = BaseAppGraphqlServerEngine.usesSecureRefreshTokenCookie
+    describe('to keep the secure flag on when the env value is unset', () => {
+      test('should be truthy', () => {
+        const actual = BaseAppGraphqlServerEngine.usesSecureRefreshTokenCookie
 
-      expect(actual)
-        .toBeTruthy()
+        expect(actual)
+          .toBeTruthy()
+      })
     })
   })
 })
 
 describe('BaseAppGraphqlServerEngine', () => {
   describe('.get:refreshTokenCookieConfig', () => {
-    test('to carry the shared cookie attributes', () => {
-      const expected = {
-        lifetimeDays: 14,
-        secure: true,
-        sameSite: 'lax',
-        httpOnly: true,
-      }
+    describe('to carry the shared cookie attributes', () => {
+      test('should be the default config', () => {
+        const expected = {
+          lifetimeDays: 14,
+          secure: true,
+          sameSite: 'lax',
+          httpOnly: true,
+        }
 
-      const actual = BaseAppGraphqlServerEngine.refreshTokenCookieConfig
+        const actual = BaseAppGraphqlServerEngine.refreshTokenCookieConfig
 
-      expect(actual)
-        .toEqual(expected)
+        expect(actual)
+          .toEqual(expected)
+      })
     })
   })
 })

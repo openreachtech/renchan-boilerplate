@@ -17,39 +17,43 @@ describe('BaseAppGraphqlContext', () => {
 
 describe('BaseAppGraphqlContext', () => {
   describe('#get:config', () => {
-    test('should be the engine config', () => {
-      const config = /** @type {*} */ ({
-        graphqlEndpoint: '/graphql-test',
-        refreshTokenCookie: {
-          name: 'test_refresh_token',
-          lifetimeDays: 14,
-          secure: true,
-          sameSite: 'lax',
-          httpOnly: true,
+    describe('to be the engine config', () => {
+      const cases = [
+        {
+          params: {
+            config: /** @type {*} */ ({ label: 'alpha' }),
+          },
         },
+        {
+          params: {
+            config: /** @type {*} */ ({ label: 'beta' }),
+          },
+        },
+      ]
+
+      test.each(cases)('config: $params.config.label', ({ params }) => {
+        const context = BaseAppGraphqlContext.create(/** @type {*} */ ({
+          expressRequest: {},
+          requestParams: {},
+          engine: {
+            config: params.config,
+          },
+          userEntity: null,
+          visa: {},
+        }))
+
+        const actual = context.config
+
+        expect(actual)
+          .toBe(params.config) // same reference
       })
-
-      const context = BaseAppGraphqlContext.create(/** @type {*} */ ({
-        expressRequest: {},
-        requestParams: {},
-        engine: {
-          config,
-        },
-        userEntity: null,
-        visa: {},
-      }))
-
-      const actual = context.config
-
-      expect(actual)
-        .toBe(config) // same reference
     })
   })
 })
 
 describe('BaseAppGraphqlContext', () => {
   describe('#get:cookieHeader', () => {
-    describe('should read the Cookie header of the request', () => {
+    describe('to read the Cookie header of the request', () => {
       const cases = [
         {
           params: {
@@ -87,8 +91,8 @@ describe('BaseAppGraphqlContext', () => {
       })
     })
 
-    describe('should answer null when the header is absent', () => {
-      test('to be null when the request carries no cookie header', () => {
+    describe('to be null when the header is absent', () => {
+      test('should be null when the request carries no cookie header', () => {
         const context = BaseAppGraphqlContext.create(/** @type {*} */ ({
           expressRequest: {
             headers: {},
@@ -112,16 +116,27 @@ describe('BaseAppGraphqlContext', () => {
 
 describe('BaseAppGraphqlContext', () => {
   describe('#get:expressResponse', () => {
-    describe('should reach the express response through the graphql-http request', () => {
-      test('to be the response carried at request.context.res', () => {
-        // renchan hands a context only the request. The express adapter of graphql-http builds
-        // that request as { raw, context: { res } }, which is the only route to the response.
-        const expressResponse = /** @type {*} */ ({ marker: 'response' })
+    describe('to reach the response through the graphql-http request', () => {
+      // renchan hands a context only the request. The express adapter of graphql-http builds that
+      // request as { raw, context: { res } }, which is the only route to the response.
+      const cases = [
+        {
+          params: {
+            expressResponse: /** @type {*} */ ({ label: 'alpha' }),
+          },
+        },
+        {
+          params: {
+            expressResponse: /** @type {*} */ ({ label: 'beta' }),
+          },
+        },
+      ]
 
+      test.each(cases)('expressResponse: $params.expressResponse.label', ({ params }) => {
         const context = BaseAppGraphqlContext.create(/** @type {*} */ ({
           expressRequest: {
             context: {
-              res: expressResponse,
+              res: params.expressResponse,
             },
           },
           requestParams: {},
@@ -135,12 +150,12 @@ describe('BaseAppGraphqlContext', () => {
         const actual = context.expressResponse
 
         expect(actual)
-          .toBe(expressResponse) // same reference
+          .toBe(params.expressResponse) // same reference
       })
     })
 
-    describe('should answer null outside an HTTP request', () => {
-      test('to be null when the request carries no response', () => {
+    describe('to be null outside an HTTP request', () => {
+      test('should be null when the request carries no response', () => {
         const context = BaseAppGraphqlContext.create(/** @type {*} */ ({
           expressRequest: {},
           requestParams: {},
