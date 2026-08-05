@@ -53,6 +53,27 @@ describe('AdminGraphqlServerEngine', () => {
 })
 
 describe('AdminGraphqlServerEngine', () => {
+  describe('.buildRefreshTokenCookieConfig()', () => {
+    describe('to combine the shared config with the audience cookie name', () => {
+      test('should be the admin cookie config', () => {
+        const expected = {
+          lifetimeDays: 14,
+          secure: true,
+          sameSite: 'lax',
+          httpOnly: true,
+          name: 'admin_refresh_token',
+        }
+
+        const actual = AdminGraphqlServerEngine.buildRefreshTokenCookieConfig()
+
+        expect(actual)
+          .toEqual(expected)
+      })
+    })
+  })
+})
+
+describe('AdminGraphqlServerEngine', () => {
   describe('.get:standardErrorCodeHash', () => {
     test('to be fixed value', () => {
       const expected = {
