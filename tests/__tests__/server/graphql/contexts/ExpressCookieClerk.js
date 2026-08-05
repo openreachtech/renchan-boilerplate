@@ -82,18 +82,192 @@ describe('ExpressCookieClerk', () => {
 
 describe('ExpressCookieClerk', () => {
   describe('.get:cookieClient', () => {
-    test('should be the cookie library', () => {
-      const actual = ExpressCookieClerk.cookieClient
+    describe('to be the cookie library', () => {
+      test('should be the cookie module', () => {
+        const actual = ExpressCookieClerk.cookieClient
 
-      expect(actual)
-        .toBe(cookie) // same reference
+        expect(actual)
+          .toBe(cookie) // same reference
+      })
+    })
+  })
+})
+
+describe('ExpressCookieClerk', () => {
+  describe('#get:refreshTokenCookieName', () => {
+    describe('to be the name from the engine config', () => {
+      const cases = [
+        {
+          params: {
+            name: 'customer_refresh_token',
+          },
+          expected: 'customer_refresh_token',
+        },
+        {
+          params: {
+            name: 'admin_refresh_token',
+          },
+          expected: 'admin_refresh_token',
+        },
+      ]
+
+      test.each(cases)('name: $params.name', ({ params, expected }) => {
+        const clerk = ExpressCookieClerk.create({
+          context: /** @type {*} */ ({
+            config: {
+              refreshTokenCookie: {
+                name: params.name,
+              },
+            },
+          }),
+        })
+
+        const actual = clerk.refreshTokenCookieName
+
+        expect(actual)
+          .toBe(expected)
+      })
+    })
+  })
+})
+
+describe('ExpressCookieClerk', () => {
+  describe('#get:refreshTokenCookiePath', () => {
+    describe('to be the engine graphql endpoint', () => {
+      const cases = [
+        {
+          params: {
+            graphqlEndpoint: '/graphql-customer',
+          },
+          expected: '/graphql-customer',
+        },
+        {
+          params: {
+            graphqlEndpoint: '/graphql-admin',
+          },
+          expected: '/graphql-admin',
+        },
+      ]
+
+      test.each(cases)('graphqlEndpoint: $params.graphqlEndpoint', ({ params, expected }) => {
+        const clerk = ExpressCookieClerk.create({
+          context: /** @type {*} */ ({
+            config: {
+              graphqlEndpoint: params.graphqlEndpoint,
+            },
+          }),
+        })
+
+        const actual = clerk.refreshTokenCookiePath
+
+        expect(actual)
+          .toBe(expected)
+      })
+    })
+  })
+})
+
+describe('ExpressCookieClerk', () => {
+  describe('#get:refreshTokenMaxAgeMilliseconds', () => {
+    describe('to be the lifetime rendered in milliseconds', () => {
+      const cases = [
+        {
+          params: {
+            lifetimeDays: 14,
+          },
+          expected: 1209600000, // 14 * 24 * 60 * 60 * 1000
+        },
+        {
+          params: {
+            lifetimeDays: 7,
+          },
+          expected: 604800000, // 7 * 24 * 60 * 60 * 1000
+        },
+      ]
+
+      test.each(cases)('lifetimeDays: $params.lifetimeDays', ({ params, expected }) => {
+        const clerk = ExpressCookieClerk.create({
+          context: /** @type {*} */ ({
+            config: {
+              refreshTokenCookie: {
+                lifetimeDays: params.lifetimeDays,
+              },
+            },
+          }),
+        })
+
+        const actual = clerk.refreshTokenMaxAgeMilliseconds
+
+        expect(actual)
+          .toBe(expected)
+      })
+    })
+  })
+})
+
+describe('ExpressCookieClerk', () => {
+  describe('#generateRefreshTokenCookieOptions()', () => {
+    describe('to read every attribute from the engine config', () => {
+      // `secure` and the path come from the config, so varying them proves nothing is hardcoded;
+      // no `domain` is ever set, which the strict comparison also confirms.
+      const cases = [
+        {
+          params: {
+            config: {
+              graphqlEndpoint: '/graphql-customer',
+              refreshTokenCookie: {
+                httpOnly: true,
+                secure: true,
+                sameSite: 'lax',
+              },
+            },
+          },
+          expected: {
+            httpOnly: true,
+            secure: true,
+            sameSite: 'lax',
+            path: '/graphql-customer',
+          },
+        },
+        {
+          params: {
+            config: {
+              graphqlEndpoint: '/graphql-admin',
+              refreshTokenCookie: {
+                httpOnly: true,
+                secure: false,
+                sameSite: 'lax',
+              },
+            },
+          },
+          expected: {
+            httpOnly: true,
+            secure: false,
+            sameSite: 'lax',
+            path: '/graphql-admin',
+          },
+        },
+      ]
+
+      test.each(cases)('config: $params.config.graphqlEndpoint', ({ params, expected }) => {
+        const clerk = ExpressCookieClerk.create({
+          context: /** @type {*} */ ({
+            config: params.config,
+          }),
+        })
+
+        const actual = clerk.generateRefreshTokenCookieOptions()
+
+        expect(actual)
+          .toEqual(expected)
+      })
     })
   })
 })
 
 describe('ExpressCookieClerk', () => {
   describe('#parseCookieHeader()', () => {
-    describe('should parse the Cookie header into a map', () => {
+    describe('to parse the Cookie header into a map', () => {
       const cases = [
         {
           params: {
@@ -128,11 +302,19 @@ describe('ExpressCookieClerk', () => {
       })
     })
 
-    describe('should answer null when the header is absent', () => {
-      test('to be null for a missing header', () => {
+    describe('to be null when the header is absent', () => {
+      const cases = [
+        {
+          params: {
+            cookieHeader: null,
+          },
+        },
+      ]
+
+      test.each(cases)('cookieHeader: $params.cookieHeader', ({ params }) => {
         const clerk = ExpressCookieClerk.create({
           context: /** @type {*} */ ({
-            cookieHeader: null,
+            cookieHeader: params.cookieHeader,
           }),
         })
 
@@ -146,119 +328,8 @@ describe('ExpressCookieClerk', () => {
 })
 
 describe('ExpressCookieClerk', () => {
-  describe('#get:refreshTokenCookieName', () => {
-    test('should be the name from the engine config', () => {
-      const clerk = ExpressCookieClerk.create({
-        context: /** @type {*} */ ({
-          config: {
-            refreshTokenCookie: {
-              name: 'test_refresh_token',
-            },
-          },
-        }),
-      })
-
-      const actual = clerk.refreshTokenCookieName
-
-      expect(actual)
-        .toBe('test_refresh_token')
-    })
-  })
-})
-
-describe('ExpressCookieClerk', () => {
-  describe('#get:refreshTokenCookiePath', () => {
-    test('should be the engine graphql endpoint', () => {
-      const clerk = ExpressCookieClerk.create({
-        context: /** @type {*} */ ({
-          config: {
-            graphqlEndpoint: '/graphql-test',
-          },
-        }),
-      })
-
-      const actual = clerk.refreshTokenCookiePath
-
-      expect(actual)
-        .toBe('/graphql-test')
-    })
-  })
-})
-
-describe('ExpressCookieClerk', () => {
-  describe('#get:refreshTokenMaxAgeMilliseconds', () => {
-    const cases = [
-      {
-        params: {
-          lifetimeDays: 14,
-        },
-        expected: 1209600000, // 14 * 24 * 60 * 60 * 1000
-      },
-      {
-        params: {
-          lifetimeDays: 7,
-        },
-        expected: 604800000, // 7 * 24 * 60 * 60 * 1000
-      },
-    ]
-
-    test.each(cases)('lifetimeDays: $params.lifetimeDays', ({ params, expected }) => {
-      const clerk = ExpressCookieClerk.create({
-        context: /** @type {*} */ ({
-          config: {
-            refreshTokenCookie: {
-              lifetimeDays: params.lifetimeDays,
-            },
-          },
-        }),
-      })
-
-      const actual = clerk.refreshTokenMaxAgeMilliseconds
-
-      expect(actual)
-        .toBe(expected)
-    })
-  })
-})
-
-describe('ExpressCookieClerk', () => {
-  describe('#generateRefreshTokenCookieOptions()', () => {
-    test('should read the options from the engine config and name no Domain', () => {
-      // Naming a Domain widens the cookie to every subdomain; every attribute comes from the
-      // engine config, so a strict comparison is enough and also proves no Domain is set.
-      const clerk = ExpressCookieClerk.create({
-        context: /** @type {*} */ ({
-          config: {
-            graphqlEndpoint: '/graphql-test',
-            refreshTokenCookie: {
-              name: 'test_refresh_token',
-              lifetimeDays: 14,
-              secure: true,
-              sameSite: 'lax',
-              httpOnly: true,
-            },
-          },
-        }),
-      })
-
-      const expected = {
-        httpOnly: true,
-        secure: true,
-        sameSite: 'lax',
-        path: '/graphql-test',
-      }
-
-      const actual = clerk.generateRefreshTokenCookieOptions()
-
-      expect(actual)
-        .toEqual(expected)
-    })
-  })
-})
-
-describe('ExpressCookieClerk', () => {
   describe('#extractRefreshToken()', () => {
-    describe('should read its own cookie out of the header', () => {
+    describe('to read its own cookie out of the header', () => {
       const cases = [
         {
           params: {
@@ -293,7 +364,7 @@ describe('ExpressCookieClerk', () => {
       })
     })
 
-    describe('should answer null when its own cookie is absent', () => {
+    describe('to be null when its own cookie is absent', () => {
       const cases = [
         {
           params: {
@@ -336,84 +407,101 @@ describe('ExpressCookieClerk', () => {
 
 describe('ExpressCookieClerk', () => {
   describe('#saveRefreshTokenCookie()', () => {
-    test('should hand the token to the response as an HttpOnly cookie', () => {
-      const cookieSpy = jest.fn()
-
-      const clerk = ExpressCookieClerk.create({
-        context: /** @type {*} */ ({
-          expressResponse: {
-            cookie: cookieSpy,
+    describe('to write the token as an HttpOnly cookie', () => {
+      const cases = [
+        {
+          params: {
+            refreshToken: 'refresh-token-0001',
           },
-          config: {
-            graphqlEndpoint: '/graphql-test',
-            refreshTokenCookie: {
-              name: 'test_refresh_token',
-              lifetimeDays: 14,
+        },
+        {
+          params: {
+            refreshToken: 'refresh-token-0002',
+          },
+        },
+      ]
+
+      test.each(cases)('refreshToken: $params.refreshToken', ({ params }) => {
+        const cookieSpy = jest.fn()
+
+        const clerk = ExpressCookieClerk.create({
+          context: /** @type {*} */ ({
+            expressResponse: {
+              cookie: cookieSpy,
+            },
+            config: {
+              graphqlEndpoint: '/graphql-test',
+              refreshTokenCookie: {
+                name: 'test_refresh_token',
+                lifetimeDays: 14,
+                secure: true,
+                sameSite: 'lax',
+                httpOnly: true,
+              },
+            },
+          }),
+        })
+
+        clerk.saveRefreshTokenCookie({
+          refreshToken: params.refreshToken,
+        })
+
+        expect(cookieSpy)
+          .toHaveBeenCalledWith(
+            'test_refresh_token',
+            params.refreshToken,
+            {
+              httpOnly: true,
               secure: true,
               sameSite: 'lax',
-              httpOnly: true,
-            },
-          },
-        }),
+              path: '/graphql-test',
+              maxAge: 1209600000,
+            }
+          )
       })
-
-      clerk.saveRefreshTokenCookie({
-        refreshToken: 'refresh-token-0001',
-      })
-
-      expect(cookieSpy)
-        .toHaveBeenCalledWith(
-          'test_refresh_token',
-          'refresh-token-0001',
-          {
-            httpOnly: true,
-            secure: true,
-            sameSite: 'lax',
-            path: '/graphql-test',
-            maxAge: 1209600000,
-          }
-        )
     })
   })
 })
 
 describe('ExpressCookieClerk', () => {
   describe('#clearRefreshTokenCookie()', () => {
-    test('should clear the cookie with the same attributes it was written with', () => {
-      // The attributes have to match the ones it was written with, or the browser keeps the
-      // original cookie and the session appears to survive a sign-out.
-      const clearCookieSpy = jest.fn()
+    describe('to clear the cookie with the same attributes it was written with', () => {
+      test('should call clearCookie with the matching options', () => {
+        // The attributes have to match the ones it was written with, or the browser keeps the
+        // original cookie and the session appears to survive a sign-out.
+        const clearCookieSpy = jest.fn()
 
-      const clerk = ExpressCookieClerk.create({
-        context: /** @type {*} */ ({
-          expressResponse: {
-            clearCookie: clearCookieSpy,
-          },
-          config: {
-            graphqlEndpoint: '/graphql-test',
-            refreshTokenCookie: {
-              name: 'test_refresh_token',
-              lifetimeDays: 14,
+        const clerk = ExpressCookieClerk.create({
+          context: /** @type {*} */ ({
+            expressResponse: {
+              clearCookie: clearCookieSpy,
+            },
+            config: {
+              graphqlEndpoint: '/graphql-test',
+              refreshTokenCookie: {
+                name: 'test_refresh_token',
+                lifetimeDays: 14,
+                secure: true,
+                sameSite: 'lax',
+                httpOnly: true,
+              },
+            },
+          }),
+        })
+
+        clerk.clearRefreshTokenCookie()
+
+        expect(clearCookieSpy)
+          .toHaveBeenCalledWith(
+            'test_refresh_token',
+            {
+              httpOnly: true,
               secure: true,
               sameSite: 'lax',
-              httpOnly: true,
-            },
-          },
-        }),
+              path: '/graphql-test',
+            }
+          )
       })
-
-      clerk.clearRefreshTokenCookie()
-
-      expect(clearCookieSpy)
-        .toHaveBeenCalledWith(
-          'test_refresh_token',
-          {
-            httpOnly: true,
-            secure: true,
-            sameSite: 'lax',
-            path: '/graphql-test',
-          }
-        )
     })
   })
 })
