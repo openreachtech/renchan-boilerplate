@@ -12,11 +12,11 @@ const MILLISECONDS_PER_DAY = 24 * 60 * 60 * 1000
  * Cookie configuration (name, lifetime, `Secure`) is read from the engine config the context
  * carries, so it is changed in the Engine class alone.
  */
-export default class ExpressCookieClerk {
+export default class RefreshTokenExpressCookieClerk {
   /**
    * Constructor.
    *
-   * @param {ExpressCookieClerkParams} params - Parameters.
+   * @param {RefreshTokenExpressCookieClerkParams} params - Parameters.
    */
   constructor ({
     context,
@@ -27,8 +27,8 @@ export default class ExpressCookieClerk {
   /**
    * Factory method.
    *
-   * @param {ExpressCookieClerkParams} params - Parameters.
-   * @returns {ExpressCookieClerk} - Instance.
+   * @param {RefreshTokenExpressCookieClerkParams} params - Parameters.
+   * @returns {RefreshTokenExpressCookieClerk} - Instance.
    */
   static create ({
     context,
@@ -50,10 +50,10 @@ export default class ExpressCookieClerk {
   /**
    * get: Own class.
    *
-   * @returns {typeof ExpressCookieClerk} - Own class.
+   * @returns {typeof RefreshTokenExpressCookieClerk} - Own class.
    */
   get Ctor () {
-    return /** @type {typeof ExpressCookieClerk} */ (this.constructor)
+    return /** @type {typeof RefreshTokenExpressCookieClerk} */ (this.constructor)
   }
 
   /**
@@ -198,8 +198,8 @@ export default class ExpressCookieClerk {
 
 /**
  * @typedef {{
- *   context: import('./BaseAppGraphqlContext.js').default
- * }} ExpressCookieClerkParams
+ *   context: import('../BaseAppGraphqlContext.js').default
+ * }} RefreshTokenExpressCookieClerkParams
  */
 
 /**
