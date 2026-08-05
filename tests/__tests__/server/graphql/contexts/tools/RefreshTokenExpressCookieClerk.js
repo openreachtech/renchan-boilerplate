@@ -1,8 +1,8 @@
 import cookie from 'cookie'
 
-import ExpressCookieClerk from '../../../../../server/graphql/contexts/ExpressCookieClerk.js'
+import RefreshTokenExpressCookieClerk from '../../../../../../server/graphql/contexts/tools/RefreshTokenExpressCookieClerk.js'
 
-describe('ExpressCookieClerk', () => {
+describe('RefreshTokenExpressCookieClerk', () => {
   describe('constructor', () => {
     describe('to keep properties', () => {
       describe('#context', () => {
@@ -20,7 +20,7 @@ describe('ExpressCookieClerk', () => {
         ]
 
         test.each(cases)('context: $params.context.label', ({ params }) => {
-          const clerk = new ExpressCookieClerk(params)
+          const clerk = new RefreshTokenExpressCookieClerk(params)
 
           expect(clerk)
             .toHaveProperty('context', params.context)
@@ -30,7 +30,7 @@ describe('ExpressCookieClerk', () => {
   })
 })
 
-describe('ExpressCookieClerk', () => {
+describe('RefreshTokenExpressCookieClerk', () => {
   describe('.create()', () => {
     describe('should be instance of own class', () => {
       const cases = [
@@ -47,10 +47,10 @@ describe('ExpressCookieClerk', () => {
       ]
 
       test.each(cases)('context: $params.context.label', ({ params }) => {
-        const actual = ExpressCookieClerk.create(params)
+        const actual = RefreshTokenExpressCookieClerk.create(params)
 
         expect(actual)
-          .toBeInstanceOf(ExpressCookieClerk)
+          .toBeInstanceOf(RefreshTokenExpressCookieClerk)
       })
     })
 
@@ -69,7 +69,7 @@ describe('ExpressCookieClerk', () => {
       ]
 
       test.each(cases)('context: $params.context.label', ({ params }) => {
-        const SpyClass = globalThis.constructorSpy.spyOn(ExpressCookieClerk)
+        const SpyClass = globalThis.constructorSpy.spyOn(RefreshTokenExpressCookieClerk)
 
         SpyClass.create(params)
 
@@ -80,11 +80,11 @@ describe('ExpressCookieClerk', () => {
   })
 })
 
-describe('ExpressCookieClerk', () => {
+describe('RefreshTokenExpressCookieClerk', () => {
   describe('.get:cookieClient', () => {
     describe('to be the cookie library', () => {
       test('should be the cookie module', () => {
-        const actual = ExpressCookieClerk.cookieClient
+        const actual = RefreshTokenExpressCookieClerk.cookieClient
 
         expect(actual)
           .toBe(cookie) // same reference
@@ -93,7 +93,7 @@ describe('ExpressCookieClerk', () => {
   })
 })
 
-describe('ExpressCookieClerk', () => {
+describe('RefreshTokenExpressCookieClerk', () => {
   describe('#get:refreshTokenCookieName', () => {
     describe('to be the name from the engine config', () => {
       const cases = [
@@ -112,7 +112,7 @@ describe('ExpressCookieClerk', () => {
       ]
 
       test.each(cases)('name: $params.name', ({ params, expected }) => {
-        const clerk = ExpressCookieClerk.create({
+        const clerk = RefreshTokenExpressCookieClerk.create({
           context: /** @type {*} */ ({
             config: {
               refreshTokenCookie: {
@@ -131,7 +131,7 @@ describe('ExpressCookieClerk', () => {
   })
 })
 
-describe('ExpressCookieClerk', () => {
+describe('RefreshTokenExpressCookieClerk', () => {
   describe('#get:refreshTokenCookiePath', () => {
     describe('to be the engine graphql endpoint', () => {
       const cases = [
@@ -150,7 +150,7 @@ describe('ExpressCookieClerk', () => {
       ]
 
       test.each(cases)('graphqlEndpoint: $params.graphqlEndpoint', ({ params, expected }) => {
-        const clerk = ExpressCookieClerk.create({
+        const clerk = RefreshTokenExpressCookieClerk.create({
           context: /** @type {*} */ ({
             config: {
               graphqlEndpoint: params.graphqlEndpoint,
@@ -167,7 +167,7 @@ describe('ExpressCookieClerk', () => {
   })
 })
 
-describe('ExpressCookieClerk', () => {
+describe('RefreshTokenExpressCookieClerk', () => {
   describe('#get:refreshTokenMaxAgeMilliseconds', () => {
     describe('to be the lifetime rendered in milliseconds', () => {
       const cases = [
@@ -186,7 +186,7 @@ describe('ExpressCookieClerk', () => {
       ]
 
       test.each(cases)('lifetimeDays: $params.lifetimeDays', ({ params, expected }) => {
-        const clerk = ExpressCookieClerk.create({
+        const clerk = RefreshTokenExpressCookieClerk.create({
           context: /** @type {*} */ ({
             config: {
               refreshTokenCookie: {
@@ -205,7 +205,7 @@ describe('ExpressCookieClerk', () => {
   })
 })
 
-describe('ExpressCookieClerk', () => {
+describe('RefreshTokenExpressCookieClerk', () => {
   describe('#buildRefreshTokenCookieOptionHash()', () => {
     describe('to carry the attributes plus the lifetime rendered as maxAge', () => {
       const cases = [
@@ -252,7 +252,7 @@ describe('ExpressCookieClerk', () => {
       ]
 
       test.each(cases)('config: $params.config.graphqlEndpoint', ({ params, expected }) => {
-        const clerk = ExpressCookieClerk.create({
+        const clerk = RefreshTokenExpressCookieClerk.create({
           context: /** @type {*} */ ({
             config: params.config,
           }),
@@ -267,7 +267,7 @@ describe('ExpressCookieClerk', () => {
   })
 })
 
-describe('ExpressCookieClerk', () => {
+describe('RefreshTokenExpressCookieClerk', () => {
   describe('#buildRefreshTokenCookieAttributeHash()', () => {
     describe('to read every attribute from the engine config, without a lifetime', () => {
       // `secure` and the path come from the config, so varying them proves nothing is hardcoded;
@@ -312,7 +312,7 @@ describe('ExpressCookieClerk', () => {
       ]
 
       test.each(cases)('config: $params.config.graphqlEndpoint', ({ params, expected }) => {
-        const clerk = ExpressCookieClerk.create({
+        const clerk = RefreshTokenExpressCookieClerk.create({
           context: /** @type {*} */ ({
             config: params.config,
           }),
@@ -327,7 +327,7 @@ describe('ExpressCookieClerk', () => {
   })
 })
 
-describe('ExpressCookieClerk', () => {
+describe('RefreshTokenExpressCookieClerk', () => {
   describe('#parseCookieHeader()', () => {
     describe('to parse the Cookie header into a map', () => {
       const cases = [
@@ -351,7 +351,7 @@ describe('ExpressCookieClerk', () => {
       ]
 
       test.each(cases)('cookieHeader: $params.cookieHeader', ({ params, expected }) => {
-        const clerk = ExpressCookieClerk.create({
+        const clerk = RefreshTokenExpressCookieClerk.create({
           context: /** @type {*} */ ({
             cookieHeader: params.cookieHeader,
           }),
@@ -374,7 +374,7 @@ describe('ExpressCookieClerk', () => {
       ]
 
       test.each(cases)('cookieHeader: $params.cookieHeader', ({ params }) => {
-        const clerk = ExpressCookieClerk.create({
+        const clerk = RefreshTokenExpressCookieClerk.create({
           context: /** @type {*} */ ({
             cookieHeader: params.cookieHeader,
           }),
@@ -389,7 +389,7 @@ describe('ExpressCookieClerk', () => {
   })
 })
 
-describe('ExpressCookieClerk', () => {
+describe('RefreshTokenExpressCookieClerk', () => {
   describe('#extractRefreshToken()', () => {
     describe('to read its own cookie out of the header', () => {
       const cases = [
@@ -408,7 +408,7 @@ describe('ExpressCookieClerk', () => {
       ]
 
       test.each(cases)('cookieHeader: $params.cookieHeader', ({ params, expected }) => {
-        const clerk = ExpressCookieClerk.create({
+        const clerk = RefreshTokenExpressCookieClerk.create({
           context: /** @type {*} */ ({
             cookieHeader: params.cookieHeader,
             config: {
@@ -447,7 +447,7 @@ describe('ExpressCookieClerk', () => {
       ]
 
       test.each(cases)('cookieHeader: $params.cookieHeader', ({ params }) => {
-        const clerk = ExpressCookieClerk.create({
+        const clerk = RefreshTokenExpressCookieClerk.create({
           context: /** @type {*} */ ({
             cookieHeader: params.cookieHeader,
             config: {
@@ -467,7 +467,7 @@ describe('ExpressCookieClerk', () => {
   })
 })
 
-describe('ExpressCookieClerk', () => {
+describe('RefreshTokenExpressCookieClerk', () => {
   describe('#saveRefreshTokenCookie()', () => {
     describe('to write the token as an HttpOnly cookie', () => {
       const cases = [
@@ -486,7 +486,7 @@ describe('ExpressCookieClerk', () => {
       test.each(cases)('refreshToken: $params.refreshToken', ({ params }) => {
         const cookieSpy = jest.fn()
 
-        const clerk = ExpressCookieClerk.create({
+        const clerk = RefreshTokenExpressCookieClerk.create({
           context: /** @type {*} */ ({
             expressResponse: {
               cookie: cookieSpy,
@@ -525,7 +525,7 @@ describe('ExpressCookieClerk', () => {
   })
 })
 
-describe('ExpressCookieClerk', () => {
+describe('RefreshTokenExpressCookieClerk', () => {
   describe('#clearRefreshTokenCookie()', () => {
     describe('to clear the cookie with the same attributes it was written with', () => {
       test('should call clearCookie with the matching options', () => {
@@ -533,7 +533,7 @@ describe('ExpressCookieClerk', () => {
         // original cookie and the session appears to survive a sign-out.
         const clearCookieSpy = jest.fn()
 
-        const clerk = ExpressCookieClerk.create({
+        const clerk = RefreshTokenExpressCookieClerk.create({
           context: /** @type {*} */ ({
             expressResponse: {
               clearCookie: clearCookieSpy,

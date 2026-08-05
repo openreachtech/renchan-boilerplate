@@ -50,7 +50,7 @@ export default class AdminGraphqlServerEngine extends BaseAppGraphqlServerEngine
   /**
    * Build the refresh-token cookie config for this audience.
    *
-   * @returns {import('./contexts/ExpressCookieClerk.js').RefreshTokenCookieConfig} - Cookie config.
+   * @returns {import('./contexts/tools/RefreshTokenExpressCookieClerk.js').RefreshTokenCookieConfig} - Cookie config.
    */
   static buildRefreshTokenCookieConfig () {
     return {

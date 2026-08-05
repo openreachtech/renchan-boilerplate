@@ -5,9 +5,9 @@ import {
 /**
  * Base GraphQL context of this app.
  *
- * A plain DTO. It exposes the request/response and the engine config that a resolver — or an
- * `ExpressCookieClerk` built from it — needs, and carries no logic of its own. The refresh-token
- * cookie is handled by `ExpressCookieClerk`, not here.
+ * A plain DTO. It exposes the request/response and the engine config that a resolver — or a
+ * `RefreshTokenExpressCookieClerk` built from it — needs, and carries no logic of its own. The
+ * refresh-token cookie is handled by `RefreshTokenExpressCookieClerk`, not here.
  *
  * **How the response is reachable.** renchan hands a context only `expressRequest`, so the
  * response is not among its properties. But that request is not the express one: the express
@@ -57,6 +57,6 @@ export default class BaseAppGraphqlContext extends BaseGraphqlContext {
 
 /**
  * @typedef {GraphqlType.Config & {
- *   refreshTokenCookie: import('./ExpressCookieClerk.js').RefreshTokenCookieConfig
+ *   refreshTokenCookie: import('./tools/RefreshTokenExpressCookieClerk.js').RefreshTokenCookieConfig
  * }} AppGraphqlConfig
  */
