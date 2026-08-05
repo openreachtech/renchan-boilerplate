@@ -206,10 +206,72 @@ describe('ExpressCookieClerk', () => {
 })
 
 describe('ExpressCookieClerk', () => {
-  describe('#generateRefreshTokenCookieOptions()', () => {
-    describe('to read every attribute from the engine config', () => {
+  describe('#buildRefreshTokenCookieOptionHash()', () => {
+    describe('to carry the attributes plus the lifetime rendered as maxAge', () => {
+      const cases = [
+        {
+          params: {
+            config: {
+              graphqlEndpoint: '/graphql-customer',
+              refreshTokenCookie: {
+                httpOnly: true,
+                secure: true,
+                sameSite: 'lax',
+                lifetimeDays: 14,
+              },
+            },
+          },
+          expected: {
+            httpOnly: true,
+            secure: true,
+            sameSite: 'lax',
+            path: '/graphql-customer',
+            maxAge: 1209600000, // 14 * 24 * 60 * 60 * 1000
+          },
+        },
+        {
+          params: {
+            config: {
+              graphqlEndpoint: '/graphql-admin',
+              refreshTokenCookie: {
+                httpOnly: true,
+                secure: false,
+                sameSite: 'lax',
+                lifetimeDays: 7,
+              },
+            },
+          },
+          expected: {
+            httpOnly: true,
+            secure: false,
+            sameSite: 'lax',
+            path: '/graphql-admin',
+            maxAge: 604800000, // 7 * 24 * 60 * 60 * 1000
+          },
+        },
+      ]
+
+      test.each(cases)('config: $params.config.graphqlEndpoint', ({ params, expected }) => {
+        const clerk = ExpressCookieClerk.create({
+          context: /** @type {*} */ ({
+            config: params.config,
+          }),
+        })
+
+        const actual = clerk.buildRefreshTokenCookieOptionHash()
+
+        expect(actual)
+          .toEqual(expected)
+      })
+    })
+  })
+})
+
+describe('ExpressCookieClerk', () => {
+  describe('#buildRefreshTokenCookieAttributeHash()', () => {
+    describe('to read every attribute from the engine config, without a lifetime', () => {
       // `secure` and the path come from the config, so varying them proves nothing is hardcoded;
-      // no `domain` is ever set, which the strict comparison also confirms.
+      // no `domain` and no `maxAge` are ever set, which the strict comparison also confirms.
       const cases = [
         {
           params: {
@@ -256,7 +318,7 @@ describe('ExpressCookieClerk', () => {
           }),
         })
 
-        const actual = clerk.generateRefreshTokenCookieOptions()
+        const actual = clerk.buildRefreshTokenCookieAttributeHash()
 
         expect(actual)
           .toEqual(expected)
