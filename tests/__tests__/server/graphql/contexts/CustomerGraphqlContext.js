@@ -1,16 +1,13 @@
-import {
-  BaseGraphqlContext,
-} from '@openreachtech/renchan'
-
+import BaseAppGraphqlContext from '../../../../../server/graphql/contexts/BaseAppGraphqlContext.js'
 import CustomerGraphqlContext from '../../../../../server/graphql/contexts/CustomerGraphqlContext.js'
 
 describe('CustomerGraphqlContext', () => {
   describe('super class', () => {
-    test('to be BaseGraphqlContext', () => {
+    test('to be BaseAppGraphqlContext', () => {
       const actual = CustomerGraphqlContext.prototype
 
       expect(actual)
-        .toBeInstanceOf(BaseGraphqlContext)
+        .toBeInstanceOf(BaseAppGraphqlContext)
     })
   })
 })
