@@ -115,15 +115,13 @@ export default class ExpressCookieClerk {
    * @returns {Record<string, string> | null} - Parsed cookies, or null when the header is absent.
    */
   parseCookieHeader () {
-    const {
-      cookieHeader,
-    } = this.context
-
-    if (!cookieHeader) {
+    if (!this.context.cookieHeader) {
       return null
     }
 
-    return this.Ctor.cookieClient.parse(cookieHeader)
+    return this.Ctor.cookieClient.parse(
+      this.context.cookieHeader
+    )
   }
 
   /**
