@@ -29,10 +29,7 @@ export default class AdminGraphqlServerEngine extends BaseAppGraphqlServerEngine
   static get config () {
     return {
       graphqlEndpoint: '/graphql-admin',
-      refreshTokenCookie: {
-        ...this.refreshTokenCookieConfig,
-        name: REFRESH_TOKEN_COOKIE.ADMIN.NAME,
-      },
+      refreshTokenCookie: this.buildRefreshTokenCookieConfig(),
       staticPath: rootPath.to('public/'),
       schemaPath: rootPath.to('server/graphql/schemas/admin.graphql'),
       actualResolversPath: rootPath.to('server/graphql/resolvers/admin/actual/'),
@@ -48,6 +45,18 @@ export default class AdminGraphqlServerEngine extends BaseAppGraphqlServerEngine
       //   host: 'localhost',
       //   port: 6379,
       // },
+    }
+  }
+
+  /**
+   * Build the refresh-token cookie config for this audience.
+   *
+   * @returns {import('./contexts/ExpressCookieClerk.js').RefreshTokenCookieConfig} - Cookie config.
+   */
+  static buildRefreshTokenCookieConfig () {
+    return {
+      ...this.refreshTokenCookieConfig,
+      name: REFRESH_TOKEN_COOKIE.ADMIN.NAME,
     }
   }
 
