@@ -49,6 +49,27 @@ describe('CustomerGraphqlServerEngine', () => {
 })
 
 describe('CustomerGraphqlServerEngine', () => {
+  describe('.buildRefreshTokenCookieConfig()', () => {
+    describe('to combine the shared config with the audience cookie name', () => {
+      test('should be the customer cookie config', () => {
+        const expected = {
+          lifetimeDays: 14,
+          secure: true,
+          sameSite: 'lax',
+          httpOnly: true,
+          name: 'customer_refresh_token',
+        }
+
+        const actual = CustomerGraphqlServerEngine.buildRefreshTokenCookieConfig()
+
+        expect(actual)
+          .toEqual(expected)
+      })
+    })
+  })
+})
+
+describe('CustomerGraphqlServerEngine', () => {
   describe('.get:standardErrorCodeHash', () => {
     test('to be fixed value', () => {
       const expected = {
