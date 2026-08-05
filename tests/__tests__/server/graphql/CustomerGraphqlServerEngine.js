@@ -1,12 +1,10 @@
 import {
-  BaseGraphqlServerEngine,
-} from '@openreachtech/renchan'
-
-import {
   rootPath,
 } from '../../../../app/globals/_.js'
 
 import CustomerGraphqlServerEngine from '../../../../server/graphql/CustomerGraphqlServerEngine.js'
+
+import BaseAppGraphqlServerEngine from '../../../../server/graphql/BaseAppGraphqlServerEngine.js'
 
 import CustomerGraphqlContext from '../../../../server/graphql/contexts/CustomerGraphqlContext.js'
 import CustomerGraphqlShare from '../../../../server/graphql/contexts/CustomerGraphqlShare.js'
@@ -17,7 +15,7 @@ describe('CustomerGraphqlServerEngine', () => {
       const actual = CustomerGraphqlServerEngine.prototype
 
       expect(actual)
-        .toBeInstanceOf(BaseGraphqlServerEngine)
+        .toBeInstanceOf(BaseAppGraphqlServerEngine)
     })
   })
 })
@@ -27,6 +25,13 @@ describe('CustomerGraphqlServerEngine', () => {
     test('to be fixed value', () => {
       const expected = {
         graphqlEndpoint: '/graphql-customer',
+        refreshTokenCookie: {
+          lifetimeDays: 14,
+          secure: true,
+          sameSite: 'lax',
+          httpOnly: true,
+          name: 'customer_refresh_token',
+        },
         staticPath: rootPath.to('public/'),
         schemaPath: rootPath.to('server/graphql/schemas/customer.graphql'),
         actualResolversPath: rootPath.to('server/graphql/resolvers/customer/actual/'),
@@ -39,6 +44,27 @@ describe('CustomerGraphqlServerEngine', () => {
 
       expect(actual)
         .toStrictEqual(expected)
+    })
+  })
+})
+
+describe('CustomerGraphqlServerEngine', () => {
+  describe('.buildRefreshTokenCookieConfig()', () => {
+    describe('to combine the shared config with the audience cookie name', () => {
+      test('should be the customer cookie config', () => {
+        const expected = {
+          lifetimeDays: 14,
+          secure: true,
+          sameSite: 'lax',
+          httpOnly: true,
+          name: 'customer_refresh_token',
+        }
+
+        const actual = CustomerGraphqlServerEngine.buildRefreshTokenCookieConfig()
+
+        expect(actual)
+          .toEqual(expected)
+      })
     })
   })
 })

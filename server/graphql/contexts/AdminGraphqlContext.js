@@ -1,13 +1,14 @@
-import {
-  BaseGraphqlContext,
-} from '@openreachtech/renchan'
+import BaseAppGraphqlContext from './BaseAppGraphqlContext.js'
 
 /**
  * Admin GraphQL context.
  *
- * @extends {BaseGraphqlContext}
+ * The refresh token is separated from the customer's under its own cookie name and its own path,
+ * so the browser never even sends the customer's cookie here.
+ *
+ * @extends {BaseAppGraphqlContext}
  */
-export default class AdminGraphqlContext extends BaseGraphqlContext {
+export default class AdminGraphqlContext extends BaseAppGraphqlContext {
   /**
    * Find user.
    *
