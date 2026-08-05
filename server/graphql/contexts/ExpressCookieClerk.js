@@ -139,10 +139,7 @@ export default class ExpressCookieClerk {
       ?.cookie(
         this.refreshTokenCookieName,
         refreshToken,
-        {
-          ...this.generateRefreshTokenCookieOptions(),
-          maxAge: this.refreshTokenMaxAgeMilliseconds,
-        }
+        this.buildRefreshTokenCookieOptionHash()
       )
   }
 
@@ -158,16 +155,32 @@ export default class ExpressCookieClerk {
     this.context.expressResponse
       ?.clearCookie(
         this.refreshTokenCookieName,
-        this.generateRefreshTokenCookieOptions()
+        this.buildRefreshTokenCookieAttributeHash()
       )
   }
 
   /**
-   * Build the options of the refresh token cookie.
+   * Build the option hash to write the refresh token cookie with — its attributes plus a lifetime.
    *
-   * @returns {RefreshTokenCookieOptions} - Cookie options, without a lifetime.
+   * @returns {RefreshTokenCookieOptionHash} - Cookie options, including the lifetime.
    */
-  generateRefreshTokenCookieOptions () {
+  buildRefreshTokenCookieOptionHash () {
+    return {
+      ...this.buildRefreshTokenCookieAttributeHash(),
+      maxAge: this.refreshTokenMaxAgeMilliseconds,
+    }
+  }
+
+  /**
+   * Build the attribute hash that identifies the refresh token cookie — no lifetime.
+   *
+   * Writing and clearing share these attributes: clearing must present the same ones to target the
+   * cookie, but must not carry a lifetime, or the browser re-establishes the cookie instead of
+   * removing it.
+   *
+   * @returns {RefreshTokenCookieAttributeHash} - Cookie attributes, without a lifetime.
+   */
+  buildRefreshTokenCookieAttributeHash () {
     const {
       httpOnly,
       secure,
@@ -205,5 +218,15 @@ export default class ExpressCookieClerk {
  *   secure: boolean
  *   sameSite: 'lax'
  *   path: string
- * }} RefreshTokenCookieOptions
+ *   maxAge: number
+ * }} RefreshTokenCookieOptionHash
+ */
+
+/**
+ * @typedef {{
+ *   httpOnly: boolean
+ *   secure: boolean
+ *   sameSite: 'lax'
+ *   path: string
+ * }} RefreshTokenCookieAttributeHash
  */
