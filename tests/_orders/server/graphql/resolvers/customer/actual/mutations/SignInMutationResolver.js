@@ -3,6 +3,7 @@ import SignInMutationResolver from '../../../../../../../../server/graphql/resol
 import RefreshTokenExpressCookieClerk from '../../../../../../../../server/graphql/contexts/tools/RefreshTokenExpressCookieClerk.js'
 
 import CustomerAccessToken from '../../../../../../../../sequelize/models/CustomerAccessToken.js'
+import CustomerRefreshToken from '../../../../../../../../sequelize/models/CustomerRefreshToken.js'
 
 describe('SignInMutationResolver', () => {
   describe('#generateTransactionCallback()', () => {
@@ -14,9 +15,9 @@ describe('SignInMutationResolver', () => {
             now: new Date('2026-08-01T00:00:01.001Z'),
           },
           expected: {
-            accessToken: expect.stringMatching(/^[0-9a-f]{64}$/u),
+            accessTokenEntity: expect.any(CustomerAccessToken),
+            refreshTokenEntity: expect.any(CustomerRefreshToken),
             refreshToken: expect.stringMatching(/^[0-9a-f]{64}$/u),
-            sessionKey: expect.stringMatching(/^[0-9a-f]{64}$/u),
           },
         },
         {
@@ -25,9 +26,9 @@ describe('SignInMutationResolver', () => {
             now: new Date('2026-08-02T00:00:02.002Z'),
           },
           expected: {
-            accessToken: expect.stringMatching(/^[0-9a-f]{64}$/u),
+            accessTokenEntity: expect.any(CustomerAccessToken),
+            refreshTokenEntity: expect.any(CustomerRefreshToken),
             refreshToken: expect.stringMatching(/^[0-9a-f]{64}$/u),
-            sessionKey: expect.stringMatching(/^[0-9a-f]{64}$/u),
           },
         },
       ]
@@ -63,9 +64,9 @@ describe('SignInMutationResolver', () => {
             now: new Date('2026-08-03T00:00:03.003Z'),
           },
           expected: {
-            accessToken: expect.stringMatching(/^[0-9a-f]{64}$/u),
+            accessTokenEntity: expect.any(CustomerAccessToken),
+            refreshTokenEntity: expect.any(CustomerRefreshToken),
             refreshToken: expect.stringMatching(/^[0-9a-f]{64}$/u),
-            sessionKey: expect.stringMatching(/^[0-9a-f]{64}$/u),
           },
         },
         {
@@ -74,9 +75,9 @@ describe('SignInMutationResolver', () => {
             now: new Date('2026-08-04T00:00:04.004Z'),
           },
           expected: {
-            accessToken: expect.stringMatching(/^[0-9a-f]{64}$/u),
+            accessTokenEntity: expect.any(CustomerAccessToken),
+            refreshTokenEntity: expect.any(CustomerRefreshToken),
             refreshToken: expect.stringMatching(/^[0-9a-f]{64}$/u),
-            sessionKey: expect.stringMatching(/^[0-9a-f]{64}$/u),
           },
         },
       ]

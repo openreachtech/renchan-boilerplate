@@ -38,6 +38,24 @@ export default class RenewAccessTokenMutationResolver extends BaseMutationResolv
   }
 
   /**
+   * get: RefreshTokenExpressCookieClerk class — a seam so tests can substitute it.
+   *
+   * @returns {typeof RefreshTokenExpressCookieClerk} - The class.
+   */
+  get RefreshTokenExpressCookieClerkCtor () {
+    return RefreshTokenExpressCookieClerk
+  }
+
+  /**
+   * get: SessionRegisterer class — a seam so tests can substitute it.
+   *
+   * @returns {typeof SessionRegisterer} - The class.
+   */
+  get SessionRegistererCtor () {
+    return SessionRegisterer
+  }
+
+  /**
    * Resolve the renewAccessToken mutation.
    *
    * @override
@@ -108,7 +126,7 @@ export default class RenewAccessTokenMutationResolver extends BaseMutationResolv
   createCookieClerk ({
     context,
   }) {
-    return RefreshTokenExpressCookieClerk.create({
+    return this.RefreshTokenExpressCookieClerkCtor.create({
       context,
     })
   }
@@ -119,7 +137,7 @@ export default class RenewAccessTokenMutationResolver extends BaseMutationResolv
    * @returns {SessionRegisterer} - Session registerer.
    */
   createSessionRegisterer () {
-    return SessionRegisterer.create({
+    return this.SessionRegistererCtor.create({
       AccessTokenModel: CustomerAccessToken,
       RefreshTokenModel: CustomerRefreshToken,
     })
@@ -245,11 +263,11 @@ export default class RenewAccessTokenMutationResolver extends BaseMutationResolv
    */
   formatResponse ({
     credentialPair: {
-      accessToken,
+      accessTokenEntity,
     },
   }) {
     return {
-      accessToken,
+      accessToken: accessTokenEntity.accessToken,
     }
   }
 }

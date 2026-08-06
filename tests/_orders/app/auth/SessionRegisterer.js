@@ -14,9 +14,9 @@ describe('SessionRegisterer', () => {
             now: new Date('2026-08-01T00:00:01.001Z'),
           },
           expected: {
-            accessToken: expect.stringMatching(/^[0-9a-f]{64}$/u),
+            accessTokenEntity: expect.any(CustomerAccessToken),
+            refreshTokenEntity: expect.any(CustomerRefreshToken),
             refreshToken: expect.stringMatching(/^[0-9a-f]{64}$/u),
-            sessionKey: 'clerk-session-key-950001',
           },
         },
         {
@@ -26,9 +26,9 @@ describe('SessionRegisterer', () => {
             now: new Date('2026-08-02T00:00:02.002Z'),
           },
           expected: {
-            accessToken: expect.stringMatching(/^[0-9a-f]{64}$/u),
+            accessTokenEntity: expect.any(CustomerAccessToken),
+            refreshTokenEntity: expect.any(CustomerRefreshToken),
             refreshToken: expect.stringMatching(/^[0-9a-f]{64}$/u),
-            sessionKey: 'clerk-session-key-950002',
           },
         },
       ]
@@ -68,9 +68,9 @@ describe('SessionRegisterer', () => {
           },
           // The session key is minted, not supplied, so it matches the token format too.
           expected: {
-            accessToken: expect.stringMatching(/^[0-9a-f]{64}$/u),
+            accessTokenEntity: expect.any(CustomerAccessToken),
+            refreshTokenEntity: expect.any(CustomerRefreshToken),
             refreshToken: expect.stringMatching(/^[0-9a-f]{64}$/u),
-            sessionKey: expect.stringMatching(/^[0-9a-f]{64}$/u),
           },
         },
         {
@@ -79,9 +79,9 @@ describe('SessionRegisterer', () => {
             now: new Date('2026-08-04T00:00:04.004Z'),
           },
           expected: {
-            accessToken: expect.stringMatching(/^[0-9a-f]{64}$/u),
+            accessTokenEntity: expect.any(CustomerAccessToken),
+            refreshTokenEntity: expect.any(CustomerRefreshToken),
             refreshToken: expect.stringMatching(/^[0-9a-f]{64}$/u),
-            sessionKey: expect.stringMatching(/^[0-9a-f]{64}$/u),
           },
         },
       ]

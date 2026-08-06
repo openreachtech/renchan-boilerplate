@@ -31,6 +31,32 @@ describe('RenewAccessTokenMutationResolver', () => {
 })
 
 describe('RenewAccessTokenMutationResolver', () => {
+  describe('#get:RefreshTokenExpressCookieClerkCtor', () => {
+    test('should be the RefreshTokenExpressCookieClerk class', () => {
+      const resolver = RenewAccessTokenMutationResolver.create()
+
+      const received = resolver.RefreshTokenExpressCookieClerkCtor
+
+      expect(received)
+        .toBe(RefreshTokenExpressCookieClerk) // same reference
+    })
+  })
+})
+
+describe('RenewAccessTokenMutationResolver', () => {
+  describe('#get:SessionRegistererCtor', () => {
+    test('should be the SessionRegisterer class', () => {
+      const resolver = RenewAccessTokenMutationResolver.create()
+
+      const received = resolver.SessionRegistererCtor
+
+      expect(received)
+        .toBe(SessionRegisterer) // same reference
+    })
+  })
+})
+
+describe('RenewAccessTokenMutationResolver', () => {
   describe('#createSessionRegisterer()', () => {
     test('should be a session registerer', () => {
       const resolver = RenewAccessTokenMutationResolver.create()
@@ -85,9 +111,9 @@ describe('RenewAccessTokenMutationResolver', () => {
         {
           input: {
             credentialPair: {
-              accessToken: 'access-token-value-0001',
-              refreshToken: 'refresh-token-value-0001',
-              sessionKey: 'session-key-value-0001',
+              accessTokenEntity: /** @type {*} */ ({
+                accessToken: 'access-token-value-0001',
+              }),
             },
           },
           expected: {
@@ -97,9 +123,9 @@ describe('RenewAccessTokenMutationResolver', () => {
         {
           input: {
             credentialPair: {
-              accessToken: 'access-token-value-0002',
-              refreshToken: 'refresh-token-value-0002',
-              sessionKey: 'session-key-value-0002',
+              accessTokenEntity: /** @type {*} */ ({
+                accessToken: 'access-token-value-0002',
+              }),
             },
           },
           expected: {

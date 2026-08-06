@@ -45,12 +45,21 @@ export default class SessionRegisterer {
   }
 
   /**
+   * get: SessionCredentialClerk class — a seam so tests can substitute it.
+   *
+   * @returns {typeof SessionCredentialClerk} - The class.
+   */
+  static get SessionCredentialClerkCtor () {
+    return SessionCredentialClerk
+  }
+
+  /**
    * Create session credential clerk.
    *
    * @returns {SessionCredentialClerk} - Session credential clerk.
    */
   static createCredentialClerk () {
-    return SessionCredentialClerk.create()
+    return this.SessionCredentialClerkCtor.create()
   }
 
   /**
@@ -104,7 +113,7 @@ export default class SessionRegisterer {
       transaction,
     })
 
-    await this.saveRefreshToken({
+    const refreshTokenEntity = await this.saveRefreshToken({
       customerId,
       sessionKey,
       refreshToken,
@@ -113,9 +122,9 @@ export default class SessionRegisterer {
     })
 
     return {
-      accessToken: accessTokenEntity.accessToken,
+      accessTokenEntity,
+      refreshTokenEntity,
       refreshToken,
-      sessionKey,
     }
   }
 
@@ -330,9 +339,13 @@ export default class SessionRegisterer {
  */
 
 /**
+ * The saved token records of one pair, plus the plain refresh token — the plaintext is not on the
+ * record (only its digest is stored), so it is handed back alongside for the caller to set as a
+ * cookie.
+ *
  * @typedef {{
- *   accessToken: string
+ *   accessTokenEntity: *
+ *   refreshTokenEntity: *
  *   refreshToken: string
- *   sessionKey: string
  * }} SessionCredentialPair
  */

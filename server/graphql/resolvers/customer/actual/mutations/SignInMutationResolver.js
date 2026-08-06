@@ -34,6 +34,24 @@ export default class SignInMutationResolver extends BaseMutationResolver {
     }
   }
 
+  /**
+   * get: RefreshTokenExpressCookieClerk class — a seam so tests can substitute it.
+   *
+   * @returns {typeof RefreshTokenExpressCookieClerk} - The class.
+   */
+  get RefreshTokenExpressCookieClerkCtor () {
+    return RefreshTokenExpressCookieClerk
+  }
+
+  /**
+   * get: SessionRegisterer class — a seam so tests can substitute it.
+   *
+   * @returns {typeof SessionRegisterer} - The class.
+   */
+  get SessionRegistererCtor () {
+    return SessionRegisterer
+  }
+
   /** @override */
   async resolve ({
     variables: {
@@ -178,7 +196,7 @@ export default class SignInMutationResolver extends BaseMutationResolver {
    * @returns {SessionRegisterer} - Session registerer.
    */
   createSessionRegisterer () {
-    return SessionRegisterer.create({
+    return this.SessionRegistererCtor.create({
       AccessTokenModel: CustomerAccessToken,
       RefreshTokenModel: CustomerRefreshToken,
     })
@@ -195,7 +213,7 @@ export default class SignInMutationResolver extends BaseMutationResolver {
   createCookieClerk ({
     context,
   }) {
-    return RefreshTokenExpressCookieClerk.create({
+    return this.RefreshTokenExpressCookieClerkCtor.create({
       context,
     })
   }
@@ -212,11 +230,11 @@ export default class SignInMutationResolver extends BaseMutationResolver {
    */
   formatResponse ({
     credentialPair: {
-      accessToken,
+      accessTokenEntity,
     },
   }) {
     return {
-      accessToken,
+      accessToken: accessTokenEntity.accessToken,
     }
   }
 }

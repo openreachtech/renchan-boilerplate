@@ -218,6 +218,17 @@ describe('SessionRegisterer', () => {
 })
 
 describe('SessionRegisterer', () => {
+  describe('.get:SessionCredentialClerkCtor', () => {
+    test('should be the SessionCredentialClerk class', () => {
+      const received = SessionRegisterer.SessionCredentialClerkCtor
+
+      expect(received)
+        .toBe(SessionCredentialClerk) // same reference
+    })
+  })
+})
+
+describe('SessionRegisterer', () => {
   describe('.createCredentialClerk()', () => {
     test('should be a session credential clerk', () => {
       const received = SessionRegisterer.createCredentialClerk()

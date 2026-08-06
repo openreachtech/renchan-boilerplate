@@ -77,6 +77,32 @@ describe('SignInMutationResolver', () => {
 })
 
 describe('SignInMutationResolver', () => {
+  describe('#get:RefreshTokenExpressCookieClerkCtor', () => {
+    test('should be the RefreshTokenExpressCookieClerk class', () => {
+      const resolver = SignInMutationResolver.create()
+
+      const received = resolver.RefreshTokenExpressCookieClerkCtor
+
+      expect(received)
+        .toBe(RefreshTokenExpressCookieClerk) // same reference
+    })
+  })
+})
+
+describe('SignInMutationResolver', () => {
+  describe('#get:SessionRegistererCtor', () => {
+    test('should be the SessionRegisterer class', () => {
+      const resolver = SignInMutationResolver.create()
+
+      const received = resolver.SessionRegistererCtor
+
+      expect(received)
+        .toBe(SessionRegisterer) // same reference
+    })
+  })
+})
+
+describe('SignInMutationResolver', () => {
   describe('#createSessionRegisterer()', () => {
     test('should be a session registerer', () => {
       const resolver = SignInMutationResolver.create()
@@ -193,9 +219,9 @@ describe('SignInMutationResolver', () => {
         {
           input: {
             credentialPair: {
-              accessToken: 'access-token-value-01',
-              refreshToken: 'refresh-token-value-01',
-              sessionKey: 'session-key-value-01',
+              accessTokenEntity: /** @type {*} */ ({
+                accessToken: 'access-token-value-01',
+              }),
             },
           },
           expected: {
@@ -205,9 +231,9 @@ describe('SignInMutationResolver', () => {
         {
           input: {
             credentialPair: {
-              accessToken: 'access-token-value-02',
-              refreshToken: 'refresh-token-value-02',
-              sessionKey: 'session-key-value-02',
+              accessTokenEntity: /** @type {*} */ ({
+                accessToken: 'access-token-value-02',
+              }),
             },
           },
           expected: {

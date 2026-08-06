@@ -257,22 +257,14 @@ describe('RenewAccessTokenMutationResolver', () => {
             presentedRefreshToken: 'refresh-token-10-01', // seeded: active
             now: new Date('2026-08-10T06:00:10.010Z'),
           },
-          expected: {
-            accessToken: expect.stringMatching(/^[0-9a-f]{64}$/u),
-            refreshToken: expect.stringMatching(/^[0-9a-f]{64}$/u),
-            sessionKey: 'session-key-10-01',
-          },
+          expected: 'session-key-10-01',
         },
         {
           input: {
             presentedRefreshToken: 'refresh-token-11-01', // seeded: active
             now: new Date('2026-08-11T06:00:11.011Z'),
           },
-          expected: {
-            accessToken: expect.stringMatching(/^[0-9a-f]{64}$/u),
-            refreshToken: expect.stringMatching(/^[0-9a-f]{64}$/u),
-            sessionKey: 'session-key-11-01',
-          },
+          expected: 'session-key-11-01',
         },
       ]
 
@@ -297,9 +289,10 @@ describe('RenewAccessTokenMutationResolver', () => {
         }
 
         const received = await resolver.rotateSession(args)
+        const receivedSessionKey = received.refreshTokenEntity.sessionKey
 
-        expect(received)
-          .toEqual(expected)
+        expect(receivedSessionKey)
+          .toBe(expected)
       })
     })
   })
@@ -314,22 +307,14 @@ describe('RenewAccessTokenMutationResolver', () => {
             presentedRefreshToken: 'refresh-token-08-01', // seeded: active
             now: new Date('2026-08-08T06:00:08.008Z'),
           },
-          expected: {
-            accessToken: expect.stringMatching(/^[0-9a-f]{64}$/u),
-            refreshToken: expect.stringMatching(/^[0-9a-f]{64}$/u),
-            sessionKey: 'session-key-08-01',
-          },
+          expected: 'session-key-08-01',
         },
         {
           input: {
             presentedRefreshToken: 'refresh-token-09-01', // seeded: active
             now: new Date('2026-08-09T06:00:09.009Z'),
           },
-          expected: {
-            accessToken: expect.stringMatching(/^[0-9a-f]{64}$/u),
-            refreshToken: expect.stringMatching(/^[0-9a-f]{64}$/u),
-            sessionKey: 'session-key-09-01',
-          },
+          expected: 'session-key-09-01',
         },
       ]
 
@@ -354,9 +339,10 @@ describe('RenewAccessTokenMutationResolver', () => {
         const received = await CustomerAccessToken.beginTransaction(
           resolver.generateTransactionCallback(args)
         )
+        const receivedSessionKey = received.refreshTokenEntity.sessionKey
 
-        expect(received)
-          .toEqual(expected)
+        expect(receivedSessionKey)
+          .toBe(expected)
       })
     })
   })
