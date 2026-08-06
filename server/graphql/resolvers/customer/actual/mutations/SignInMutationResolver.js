@@ -2,11 +2,23 @@ import {
   BaseMutationResolver,
 } from '@openreachtech/renchan'
 
+import SessionRegisterer from '../../../../../../app/auth/SessionRegisterer.js'
+import RefreshTokenExpressCookieClerk from '../../../../contexts/tools/RefreshTokenExpressCookieClerk.js'
+
 import Customer from '../../../../../../sequelize/models/Customer.js'
 import CustomerPasswordHash from '../../../../../../sequelize/models/CustomerPasswordHash.js'
 import CustomerSecret from '../../../../../../sequelize/models/CustomerSecret.js'
 import CustomerAccessToken from '../../../../../../sequelize/models/CustomerAccessToken.js'
+import CustomerRefreshToken from '../../../../../../sequelize/models/CustomerRefreshToken.js'
 
+/**
+ * Resolve the signIn mutation.
+ *
+ * Issues the session pair: the access token in the response body, the refresh token only as an
+ * `HttpOnly` cookie — never in the body, so no page script can read it.
+ *
+ * @extends {BaseMutationResolver}
+ */
 export default class SignInMutationResolver extends BaseMutationResolver {
   /** @override */
   static get schema () {
@@ -48,22 +60,32 @@ export default class SignInMutationResolver extends BaseMutationResolver {
       throw this.errorHash.IncorrectSecret.create()
     }
 
-    const accessTokenEntity = await this.saveAccessToken({
+    const credentialPair = await this.saveSession({
       context,
       customerId: passwordHashEntity.CustomerId,
     })
 
+    // Only after the transaction committed: a cookie for a session that was rolled back would
+    // leave the client holding a refresh token no row backs.
+    const cookieClerk = this.createCookieClerk({
+      context,
+    })
+
+    cookieClerk.saveRefreshTokenCookie({
+      refreshToken: credentialPair.refreshToken,
+    })
+
     return this.formatResponse({
-      accessTokenEntity,
+      credentialPair,
     })
   }
 
   /**
-   * Find password customer by email.
+   * Find password hash by email.
    *
    * @param {{
    *   email: string
-   * }} params
+   * }} params - Parameters.
    * @returns {Promise<import('../../../../../../sequelize/models/CustomerPasswordHash.js').CustomerPasswordHashEntity | null>}
    */
   async findPasswordHashByEmail ({
@@ -106,16 +128,16 @@ export default class SignInMutationResolver extends BaseMutationResolver {
   }
 
   /**
-   * Save access token.
+   * Save a new session.
    *
    * @param {{
    *   context: import('../../../../contexts/CustomerGraphqlContext.js').default
    *   customerId: number
    * }} params - Parameters.
-   * @returns {Promise<import('../../../../../../sequelize/models/CustomerAccessToken.js').CustomerAccessTokenEntity>}
+   * @returns {Promise<import('../../../../../../app/auth/SessionRegisterer.js').SessionCredentialPair>}
    * @throws {Error} - Throws error if transaction fails.
    */
-  async saveAccessToken ({
+  async saveSession ({
     context,
     customerId,
   }) {
@@ -132,38 +154,64 @@ export default class SignInMutationResolver extends BaseMutationResolver {
    *
    * @param {{
    *   customerId: number
-   *   now,
-   * }} params
-   * @returns {function(): Promise<import('../../../../../../sequelize/models/CustomerAccessToken.js').CustomerAccessTokenEntity>}
+   *   now: Date
+   * }} params - Parameters.
+   * @returns {function(*): Promise<import('../../../../../../app/auth/SessionRegisterer.js').SessionCredentialPair>}
    */
   generateTransactionCallback ({
     customerId,
     now,
   }) {
-    const accessTokenEntity = CustomerAccessToken.buildWithGeneratedAttributes({
-      generatedAt: now,
-      customerId,
-    })
+    const sessionRegisterer = this.createSessionRegisterer()
 
-    return async transaction => /** @type {*} */ (
-      accessTokenEntity.save({
+    return async transaction =>
+      sessionRegisterer.saveSession({
+        customerId,
+        now,
         transaction,
       })
-    )
+  }
+
+  /**
+   * Create session registerer bound to the customer tables.
+   *
+   * @returns {SessionRegisterer} - Session registerer.
+   */
+  createSessionRegisterer () {
+    return SessionRegisterer.create({
+      AccessTokenModel: CustomerAccessToken,
+      RefreshTokenModel: CustomerRefreshToken,
+    })
+  }
+
+  /**
+   * Create refresh-token cookie clerk from the request context.
+   *
+   * @param {{
+   *   context: import('../../../../contexts/CustomerGraphqlContext.js').default
+   * }} params - Parameters.
+   * @returns {RefreshTokenExpressCookieClerk} - Cookie clerk.
+   */
+  createCookieClerk ({
+    context,
+  }) {
+    return RefreshTokenExpressCookieClerk.create({
+      context,
+    })
   }
 
   /**
    * Format response.
    *
    * @param {{
-   *   accessTokenEntity: import('../../../../../../sequelize/models/CustomerAccessToken.js').CustomerAccessTokenEntity
+   *   credentialPair: import('../../../../../../app/auth/SessionRegisterer.js').SessionCredentialPair
    * }} params - Parameters.
    * @returns {{
    *   accessToken: string
    * }}
    */
   formatResponse ({
-    accessTokenEntity: {
+    credentialPair: {
       accessToken,
     },
   }) {
