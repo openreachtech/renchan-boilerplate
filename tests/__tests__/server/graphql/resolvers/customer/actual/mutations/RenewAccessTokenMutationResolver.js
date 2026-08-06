@@ -1,232 +1,78 @@
-import CustomerAccessToken from '../../../../../../../../sequelize/models/CustomerAccessToken.js'
 import RenewAccessTokenMutationResolver from '../../../../../../../../server/graphql/resolvers/customer/actual/mutations/RenewAccessTokenMutationResolver.js'
 
+import SessionRegisterer from '../../../../../../../../app/auth/SessionRegisterer.js'
+import RefreshTokenExpressCookieClerk from '../../../../../../../../server/graphql/contexts/tools/RefreshTokenExpressCookieClerk.js'
+
 describe('RenewAccessTokenMutationResolver', () => {
-  describe('.schema', () => {
-    test('to be fixed value', () => {
-      const expected = 'renewAccessToken'
+  describe('.get:schema', () => {
+    test('should be renewAccessToken', () => {
+      const received = RenewAccessTokenMutationResolver.schema
 
-      const actual = RenewAccessTokenMutationResolver.schema
-
-      expect(actual)
-        .toBe(expected)
+      expect(received)
+        .toBe('renewAccessToken')
     })
   })
 })
 
 describe('RenewAccessTokenMutationResolver', () => {
-  describe('.errorCodeHash', () => {
-    test('to be fixed value', () => {
-      const expected = {}
+  describe('.get:errorCodeHash', () => {
+    test('should hold the unauthenticated and reuse codes', () => {
+      const expected = {
+        Unauthenticated: '102.X000.001',
+        RefreshTokenReused: '205.M003.001',
+      }
 
-      const actual = RenewAccessTokenMutationResolver.errorCodeHash
+      const received = RenewAccessTokenMutationResolver.errorCodeHash
 
-      expect(actual)
+      expect(received)
         .toEqual(expected)
     })
   })
 })
 
 describe('RenewAccessTokenMutationResolver', () => {
-  describe('#findAccessToken()', () => {
-    const resolver = RenewAccessTokenMutationResolver.create()
+  describe('#createSessionRegisterer()', () => {
+    test('should be a session registerer', () => {
+      const resolver = RenewAccessTokenMutationResolver.create()
 
-    describe('to be entity', () => {
-      describe('with available access token', () => {
-        const cases = [
-          {
-            params: {
-              accessToken: 'access-token-01-01',
-            },
-            expected: {
-              id: 140101,
-            },
-          },
-          {
-            params: {
-              accessToken: 'access-token-02-02',
-            },
-            expected: {
-              id: 140202,
-            },
-          },
-          {
-            params: {
-              accessToken: 'access-token-04-01',
-            },
-            expected: {
-              id: 140401,
-            },
-          },
-        ]
+      const received = resolver.createSessionRegisterer()
 
-        test.each(cases)('accessToken: $params.accessToken', async ({ params, expected }) => {
-          const actual = await resolver.findAccessToken(params)
-
-          expect(actual)
-            .toHaveProperty('id', expected.id)
-        })
-      })
-
-      describe('with expired access token', () => {
-        const cases = [
-          {
-            params: {
-              accessToken: 'access-token-02-01',
-            },
-            expected: {
-              id: 140201,
-            },
-          },
-          {
-            params: {
-              accessToken: 'access-token-03-01',
-            },
-            expected: {
-              id: 140301,
-            },
-          },
-          {
-            params: {
-              accessToken: 'access-token-03-02',
-            },
-            expected: {
-              id: 140302,
-            },
-          },
-        ]
-
-        test.each(cases)('accessToken: $params.accessToken', async ({ params, expected }) => {
-          const actual = await resolver.findAccessToken(params)
-
-          expect(actual)
-            .toHaveProperty('id', expected.id)
-        })
-      })
-    })
-
-    describe('to be null', () => {
-      describe('with invalid access token', () => {
-        /**
-         * @type {Array<{
-         *   params: {
-         *     accessToken: string | null
-         *   }
-         * }>}
-         */
-        const cases = /** @type {*} */ ([
-          {
-            params: {
-              accessToken: null,
-            },
-          },
-          {
-            params: {
-              // accessToken: undefined,
-            },
-          },
-        ])
-
-        test.each(cases)('accessToken: $params.accessToken', async ({ params }) => {
-          const actual = await resolver.findAccessToken(params)
-
-          expect(actual)
-            .toBeNull()
-        })
-      })
+      expect(received)
+        .toBeInstanceOf(SessionRegisterer)
     })
   })
 })
 
 describe('RenewAccessTokenMutationResolver', () => {
-  describe('#isAvailableAccessToken()', () => {
-    /**
-     * @type {Array<{
-     *   params: {
-     *     expiredAt: Date
-     *   }
-     *   truthyCases: Array<{
-     *     pointsAt: Date
-     *   }>
-     *   falsyCases: Array<{
-     *     pointsAt: Date
-     *   }>
-     * }>}
-     */
-    const cases = [
-      {
-        params: {
-          expiredAt: new Date('2022-08-01T01:00:01.000Z'),
+  describe('#createCookieClerk()', () => {
+    describe('should be a refresh-token cookie clerk', () => {
+      const cases = [
+        {
+          input: {
+            context: /** @type {*} */ ({
+              cookieHeader: 'cookie-header-0001',
+            }),
+          },
         },
-        truthyCases: [
-          { pointsAt: new Date('2022-07-01T01:00:01.000Z') },
-          { pointsAt: new Date('2022-08-01T01:00:00.999Z') },
-        ],
-        falsyCases: [
-          { pointsAt: new Date('2022-08-01T01:00:01.000Z') }, // on expired at
-          { pointsAt: new Date('2022-08-02T01:00:01.000Z') },
-        ],
-      },
-      {
-        params: {
-          expiredAt: new Date('2022-08-02T02:00:02.000Z'),
+        {
+          input: {
+            context: /** @type {*} */ ({
+              cookieHeader: 'cookie-header-0002',
+            }),
+          },
         },
-        truthyCases: [
-          { pointsAt: new Date('2022-08-01T01:00:01.000Z') },
-          { pointsAt: new Date('2022-08-02T02:00:01.999Z') },
-        ],
-        falsyCases: [
-          { pointsAt: new Date('2022-08-02T02:00:02.000Z') }, // on expired at
-          { pointsAt: new Date('2022-08-03T02:00:02.000Z') },
-        ],
-      },
-      {
-        params: {
-          expiredAt: new Date('2022-08-03T03:00:03.000Z'),
-        },
-        truthyCases: [
-          { pointsAt: new Date('2022-08-02T02:00:02.000Z') },
-          { pointsAt: new Date('2022-08-03T03:00:02.999Z') },
-        ],
-        falsyCases: [
-          { pointsAt: new Date('2022-08-03T03:00:03.000Z') }, // on expired at
-          { pointsAt: new Date('2022-08-04T03:00:03.000Z') },
-        ],
-      },
-    ]
+      ]
 
-    describe.each(cases)('expiredAt: $params.expiredAt', ({ params, truthyCases, falsyCases }) => {
-      const resolver = RenewAccessTokenMutationResolver.create()
+      test.each(cases)('context: $input.context.cookieHeader', ({ input }) => {
+        const resolver = RenewAccessTokenMutationResolver.create()
+        const args = {
+          context: input.context,
+        }
 
-      /** @type {import('../../../../../../../../sequelize/models/CustomerAccessToken.js').CustomerAccessTokenEntity} */
-      const entity = /** @type {*} */ (
-        CustomerAccessToken.build({
-          expiredAt: params.expiredAt,
-        })
-      )
+        const received = resolver.createCookieClerk(args)
 
-      describe('to be truthy', () => {
-        test.each(truthyCases)('pointsAt: $pointsAt', ({ pointsAt }) => {
-          const actual = resolver.isAvailableAccessToken({
-            accessTokenEntity: entity,
-            pointsAt,
-          })
-
-          expect(actual)
-            .toBeTruthy()
-        })
-      })
-
-      describe('to be falsy', () => {
-        test.each(falsyCases)('pointsAt: $pointsAt', ({ pointsAt }) => {
-          const actual = resolver.isAvailableAccessToken({
-            accessTokenEntity: entity,
-            pointsAt,
-          })
-
-          expect(actual)
-            .toBeFalsy()
-        })
+        expect(received)
+          .toBeInstanceOf(RefreshTokenExpressCookieClerk)
       })
     })
   })
@@ -234,46 +80,126 @@ describe('RenewAccessTokenMutationResolver', () => {
 
 describe('RenewAccessTokenMutationResolver', () => {
   describe('#formatResponse()', () => {
-    const resolver = RenewAccessTokenMutationResolver.create()
+    describe('should be the access token of the pair', () => {
+      const cases = [
+        {
+          input: {
+            credentialPair: {
+              accessToken: 'access-token-value-0001',
+              refreshToken: 'refresh-token-value-0001',
+              sessionKey: 'session-key-value-0001',
+            },
+          },
+          expected: {
+            accessToken: 'access-token-value-0001',
+          },
+        },
+        {
+          input: {
+            credentialPair: {
+              accessToken: 'access-token-value-0002',
+              refreshToken: 'refresh-token-value-0002',
+              sessionKey: 'session-key-value-0002',
+            },
+          },
+          expected: {
+            accessToken: 'access-token-value-0002',
+          },
+        },
+      ]
 
-    /**
-     * @type {Array<{
-     *   params: {
-     *     accessTokenEntity: import('../../../../../../../../sequelize/models/CustomerAccessToken.js').CustomerAccessTokenEntity | null
-     *   }
-     *   expected: {
-     *     accessToken: string
-     *   }
-     * }>}
-     */
-    const cases = /** @type {Array<*>} */ ([
-      {
-        params: {
-          accessTokenEntity: CustomerAccessToken.build({
-            accessToken: 'access-token-001',
+      test.each(cases)('accessToken: $input.credentialPair.accessToken', ({
+        input,
+        expected,
+      }) => {
+        const resolver = RenewAccessTokenMutationResolver.create()
+        const args = {
+          credentialPair: input.credentialPair,
+        }
+
+        const received = resolver.formatResponse(args)
+
+        expect(received)
+          .toEqual(expected)
+      })
+    })
+  })
+})
+
+describe('RenewAccessTokenMutationResolver', () => {
+  describe('#resolve()', () => {
+    describe('should refuse a cookie that matches nothing', () => {
+      const cases = [
+        {
+          input: {
+            presentedRefreshToken: null,
+            now: new Date('2026-08-05T05:00:05.005Z'),
+          },
+        },
+        {
+          input: {
+            presentedRefreshToken: 'unmatched-refresh-token-value-0006',
+            now: new Date('2026-08-06T05:00:06.006Z'),
+          },
+        },
+      ]
+
+      test.each(cases)('presentedRefreshToken: $input.presentedRefreshToken', async ({ input }) => {
+        jest.spyOn(RefreshTokenExpressCookieClerk.prototype, 'extractRefreshToken')
+          .mockReturnValue(input.presentedRefreshToken)
+        const clearRefreshTokenCookieSpy = jest.spyOn(RefreshTokenExpressCookieClerk.prototype, 'clearRefreshTokenCookie')
+        const resolver = RenewAccessTokenMutationResolver.create()
+        const args = {
+          context: /** @type {*} */ ({
+            now: input.now,
           }),
+        }
+
+        const actual = () => resolver.resolve(args)
+
+        await expect(actual)
+          .rejects
+          .toThrow('102.X000.001')
+        expect(clearRefreshTokenCookieSpy)
+          .toHaveBeenCalledWith()
+      })
+    })
+
+    describe('should refuse a refresh token that is no longer available', () => {
+      const cases = [
+        {
+          input: {
+            presentedRefreshToken: 'refresh-token-03-01', // seeded: revoked
+            now: new Date('2026-08-07T05:00:07.007Z'),
+          },
         },
-        expected: {
-          accessToken: 'access-token-001',
+        {
+          input: {
+            presentedRefreshToken: 'refresh-token-16-01', // seeded: expired
+            now: new Date('2026-08-08T05:00:08.008Z'),
+          },
         },
-      },
-      {
-        params: {
-          accessTokenEntity: CustomerAccessToken.build({
-            accessToken: 'access-token-002',
+      ]
+
+      test.each(cases)('presentedRefreshToken: $input.presentedRefreshToken', async ({ input }) => {
+        jest.spyOn(RefreshTokenExpressCookieClerk.prototype, 'extractRefreshToken')
+          .mockReturnValue(input.presentedRefreshToken)
+        const clearRefreshTokenCookieSpy = jest.spyOn(RefreshTokenExpressCookieClerk.prototype, 'clearRefreshTokenCookie')
+        const resolver = RenewAccessTokenMutationResolver.create()
+        const args = {
+          context: /** @type {*} */ ({
+            now: input.now,
           }),
-        },
-        expected: {
-          accessToken: 'access-token-002',
-        },
-      },
-    ])
+        }
 
-    test.each(cases)('accessTokenEntity: $params.accessTokenEntity', ({ params, expected }) => {
-      const actual = resolver.formatResponse(params)
+        const actual = () => resolver.resolve(args)
 
-      expect(actual)
-        .toEqual(expected)
+        await expect(actual)
+          .rejects
+          .toThrow('102.X000.001')
+        expect(clearRefreshTokenCookieSpy)
+          .toHaveBeenCalledWith()
+      })
     })
   })
 })
