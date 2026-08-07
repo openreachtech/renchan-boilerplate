@@ -4,12 +4,9 @@ import {
 } from '@openreachtech/renchan-sequelize'
 
 import SessionCredentialClerk from '../../app/auth/SessionCredentialClerk.js'
-import {
-  env,
-} from '../../app/globals/_.js'
 
 const MILLISECONDS_PER_MINUTE = 60 * 1000
-const DEFAULT_ACCESS_TOKEN_LIFETIME_MINUTES = 15
+const ACCESS_TOKEN_LIFETIME_MINUTES = 15
 
 /**
  * CustomerAccessToken model.
@@ -116,16 +113,6 @@ export default class CustomerAccessToken extends RenchanModel {
   }
 
   /**
-   * get: Lifetime of an access token, in minutes.
-   *
-   * @returns {number} - Minutes.
-   */
-  static get lifetimeMinutes () {
-    return Number(env.AUTH_ACCESS_TOKEN_TTL_MINUTES)
-      || DEFAULT_ACCESS_TOKEN_LIFETIME_MINUTES
-  }
-
-  /**
    * Create expired at.
    *
    * @param {{
@@ -137,7 +124,7 @@ export default class CustomerAccessToken extends RenchanModel {
     generatedAt,
   }) {
     const expiredAt = new Date(
-      generatedAt.getTime() + (this.lifetimeMinutes * MILLISECONDS_PER_MINUTE)
+      generatedAt.getTime() + (ACCESS_TOKEN_LIFETIME_MINUTES * MILLISECONDS_PER_MINUTE)
     )
 
     return expiredAt

@@ -7,17 +7,6 @@ import CustomerAccessToken from '../../../../sequelize/models/CustomerAccessToke
 const ACCESS_TOKEN_PATTERN = /^[0-9a-f]{64}$/u
 
 describe('CustomerAccessToken', () => {
-  describe('.get:lifetimeMinutes', () => {
-    test('to be the configured fifteen minutes', () => {
-      const actual = CustomerAccessToken.lifetimeMinutes
-
-      expect(actual)
-        .toBe(15)
-    })
-  })
-})
-
-describe('CustomerAccessToken', () => {
   describe('.createExpiredAt()', () => {
     // Fifteen minutes. Short on purpose — this is the half of the pair that a leak would expose,
     // and its whole defence is not being worth much for long.

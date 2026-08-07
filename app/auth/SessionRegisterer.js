@@ -65,6 +65,7 @@ export default class SessionRegisterer {
   /**
    * Start a new session, in a series of its own.
    *
+   * @public
    * @param {{
    *   customerId: number
    *   now: Date
@@ -90,6 +91,7 @@ export default class SessionRegisterer {
   /**
    * Save a token pair within a series.
    *
+   * @public
    * @param {{
    *   customerId: number
    *   sessionKey: string
@@ -192,6 +194,7 @@ export default class SessionRegisterer {
    *
    * The presented value is hashed before the lookup, because the table stores digests.
    *
+   * @public
    * @param {{
    *   presentedRefreshToken: string | null
    * }} params - Parameters.
@@ -219,6 +222,7 @@ export default class SessionRegisterer {
   /**
    * Mark a refresh token as spent, so presenting it again is detectable.
    *
+   * @public
    * @param {{
    *   refreshTokenEntity: *
    *   now: Date
@@ -244,6 +248,7 @@ export default class SessionRegisterer {
   /**
    * Revoke a whole series — every refresh token in it, and every access token handed out by it.
    *
+   * @public
    * @param {{
    *   sessionKey: string
    *   now: Date
