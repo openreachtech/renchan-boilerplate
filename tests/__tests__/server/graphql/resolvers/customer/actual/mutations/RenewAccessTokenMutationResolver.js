@@ -1,6 +1,9 @@
 import RenewAccessTokenMutationResolver from '../../../../../../../../server/graphql/resolvers/customer/actual/mutations/RenewAccessTokenMutationResolver.js'
 
+import RefreshTokenFinder from '../../../../../../../../app/auth/RefreshTokenFinder.js'
+import RefreshTokenSpender from '../../../../../../../../app/auth/RefreshTokenSpender.js'
 import SessionRegisterer from '../../../../../../../../app/auth/SessionRegisterer.js'
+import SessionRevoker from '../../../../../../../../app/auth/SessionRevoker.js'
 import RefreshTokenExpressCookieClerk from '../../../../../../../../server/graphql/contexts/tools/RefreshTokenExpressCookieClerk.js'
 
 describe('RenewAccessTokenMutationResolver', () => {
@@ -65,6 +68,84 @@ describe('RenewAccessTokenMutationResolver', () => {
 
       expect(received)
         .toBeInstanceOf(SessionRegisterer)
+    })
+  })
+})
+
+describe('RenewAccessTokenMutationResolver', () => {
+  describe('#get:RefreshTokenFinderCtor', () => {
+    test('should be the RefreshTokenFinder class', () => {
+      const resolver = RenewAccessTokenMutationResolver.create()
+
+      const received = resolver.RefreshTokenFinderCtor
+
+      expect(received)
+        .toBe(RefreshTokenFinder) // same reference
+    })
+  })
+})
+
+describe('RenewAccessTokenMutationResolver', () => {
+  describe('#get:SessionRevokerCtor', () => {
+    test('should be the SessionRevoker class', () => {
+      const resolver = RenewAccessTokenMutationResolver.create()
+
+      const received = resolver.SessionRevokerCtor
+
+      expect(received)
+        .toBe(SessionRevoker) // same reference
+    })
+  })
+})
+
+describe('RenewAccessTokenMutationResolver', () => {
+  describe('#createRefreshTokenFinder()', () => {
+    test('should be a refresh token finder', () => {
+      const resolver = RenewAccessTokenMutationResolver.create()
+
+      const received = resolver.createRefreshTokenFinder()
+
+      expect(received)
+        .toBeInstanceOf(RefreshTokenFinder)
+    })
+  })
+})
+
+describe('RenewAccessTokenMutationResolver', () => {
+  describe('#createSessionRevoker()', () => {
+    test('should be a session revoker', () => {
+      const resolver = RenewAccessTokenMutationResolver.create()
+
+      const received = resolver.createSessionRevoker()
+
+      expect(received)
+        .toBeInstanceOf(SessionRevoker)
+    })
+  })
+})
+
+describe('RenewAccessTokenMutationResolver', () => {
+  describe('#get:RefreshTokenSpenderCtor', () => {
+    test('should be the RefreshTokenSpender class', () => {
+      const resolver = RenewAccessTokenMutationResolver.create()
+
+      const received = resolver.RefreshTokenSpenderCtor
+
+      expect(received)
+        .toBe(RefreshTokenSpender) // same reference
+    })
+  })
+})
+
+describe('RenewAccessTokenMutationResolver', () => {
+  describe('#createRefreshTokenSpender()', () => {
+    test('should be a refresh token spender', () => {
+      const resolver = RenewAccessTokenMutationResolver.create()
+
+      const received = resolver.createRefreshTokenSpender()
+
+      expect(received)
+        .toBeInstanceOf(RefreshTokenSpender)
     })
   })
 })

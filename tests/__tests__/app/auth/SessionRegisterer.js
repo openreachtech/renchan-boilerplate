@@ -1,9 +1,6 @@
 import SessionRegisterer from '../../../../app/auth/SessionRegisterer.js'
 import SessionCredentialClerk from '../../../../app/auth/SessionCredentialClerk.js'
 
-import CustomerAccessToken from '../../../../sequelize/models/CustomerAccessToken.js'
-import CustomerRefreshToken from '../../../../sequelize/models/CustomerRefreshToken.js'
-
 describe('SessionRegisterer', () => {
   describe('constructor', () => {
     describe('should keep property', () => {
@@ -235,101 +232,6 @@ describe('SessionRegisterer', () => {
 
       expect(received)
         .toBeInstanceOf(SessionCredentialClerk)
-    })
-  })
-})
-
-describe('SessionRegisterer', () => {
-  describe('#findRefreshTokenEntity()', () => {
-    describe('should answer the seeded row a presented token hashes to', () => {
-      const cases = [
-        {
-          input: {
-            presentedRefreshToken: 'refresh-token-01-01', // seeded: active
-          },
-          expected: 'session-key-01-01',
-        },
-        {
-          input: {
-            presentedRefreshToken: 'refresh-token-02-02', // seeded: active
-          },
-          expected: 'session-key-02-02',
-        },
-      ]
-
-      test.each(cases)('presentedRefreshToken: $input.presentedRefreshToken', async ({
-        input,
-        expected,
-      }) => {
-        const registerer = SessionRegisterer.create({
-          AccessTokenModel: CustomerAccessToken,
-          RefreshTokenModel: CustomerRefreshToken,
-        })
-
-        const received = await registerer.findRefreshTokenEntity(input)
-
-        expect(received)
-          .toHaveProperty('sessionKey', expected)
-      })
-    })
-
-    describe('should be null when the presented token matches no row', () => {
-      const cases = [
-        {
-          input: {
-            presentedRefreshToken: 'unmatched-refresh-token-value-0001',
-          },
-        },
-        {
-          input: {
-            presentedRefreshToken: 'unmatched-refresh-token-value-0002',
-          },
-        },
-      ]
-
-      test.each(cases)('presentedRefreshToken: $input.presentedRefreshToken', async ({ input }) => {
-        const registerer = SessionRegisterer.create({
-          AccessTokenModel: CustomerAccessToken,
-          RefreshTokenModel: CustomerRefreshToken,
-        })
-
-        const received = await registerer.findRefreshTokenEntity(input)
-
-        expect(received)
-          .toBeNull()
-      })
-    })
-
-    describe('should be null without querying when no token is presented', () => {
-      const cases = [
-        {
-          input: {
-            presentedRefreshToken: null,
-          },
-        },
-        {
-          input: {
-            presentedRefreshToken: '',
-          },
-        },
-      ]
-
-      test.each(cases)('presentedRefreshToken: $input.presentedRefreshToken', async ({ input }) => {
-        const findOneSpy = jest.spyOn(CustomerRefreshToken, 'findOne')
-
-        const registerer = SessionRegisterer.create({
-          AccessTokenModel: CustomerAccessToken,
-          RefreshTokenModel: CustomerRefreshToken,
-        })
-
-        const received = await registerer.findRefreshTokenEntity(input)
-
-        expect(received)
-          .toBeNull()
-        expect(findOneSpy)
-          .not
-          .toHaveBeenCalled()
-      })
     })
   })
 })

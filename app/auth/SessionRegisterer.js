@@ -1,10 +1,12 @@
 import SessionCredentialClerk from './SessionCredentialClerk.js'
 
 /**
- * Saves, rotates and revokes the token pair a session is made of.
+ * Issues the token pair a session is made of — a fresh pair for a new session, and the next pair
+ * of a series when rotating.
  *
- * The tables are injected, not imported, so both audiences share one implementation. It reports
- * what it finds and leaves error-naming to the resolver; every write takes a transaction.
+ * The tables are injected, not imported, so both audiences share one implementation; every write
+ * takes a transaction. Finding a token is RefreshTokenFinder's job; spending one is
+ * RefreshTokenSpender's; revoking a series is SessionRevoker's.
  */
 export default class SessionRegisterer {
   /**
@@ -192,152 +194,6 @@ export default class SessionRegisterer {
       })
     )
   }
-
-  /**
-   * Find the row a presented refresh token belongs to.
-   *
-   * The presented value is hashed before the lookup, because the table stores digests.
-   *
-   * @param {{
-   *   presentedRefreshToken: string | null
-   * }} params - Parameters.
-   * @returns {Promise<RefreshTokenEntity | null>} - Refresh token entity, or null when it matches nothing.
-   * @public
-   */
-  async findRefreshTokenEntity ({
-    presentedRefreshToken,
-  }) {
-    if (!presentedRefreshToken) {
-      return null
-    }
-
-    const entity = /** @type {RefreshTokenEntity | null} */ (
-      await this.RefreshTokenModel.findOne({
-        where: {
-          tokenHash: this.RefreshTokenModel.hashToken({
-            token: presentedRefreshToken,
-          }),
-        },
-      })
-    )
-
-    return entity
-      ?? null
-  }
-
-  /**
-   * Mark a refresh token as spent, so presenting it again is detectable.
-   *
-   * @param {{
-   *   refreshTokenEntity: RefreshTokenEntity
-   *   now: Date
-   *   transaction: Transaction
-   * }} params - Parameters.
-   * @returns {Promise<RefreshTokenEntity>} - The refresh token, now marked spent.
-   * @public
-   */
-  async consumeRefreshToken ({
-    refreshTokenEntity,
-    now,
-    transaction,
-  }) {
-    return /** @type {Promise<RefreshTokenEntity>} */ (
-      refreshTokenEntity.update(
-        {
-          usedAt: now,
-        },
-        {
-          transaction,
-        }
-      )
-    )
-  }
-
-  /**
-   * Revoke a whole series — every refresh token in it, and every access token handed out by it.
-   *
-   * @param {{
-   *   sessionKey: string
-   *   now: Date
-   *   transaction: Transaction
-   * }} params - Parameters.
-   * @returns {Promise<SeriesRevocationResult>} - How many refresh tokens were revoked and access tokens deleted.
-   * @public
-   */
-  async revokeSeries ({
-    sessionKey,
-    now,
-    transaction,
-  }) {
-    const [revokedRefreshTokenCount] = await this.revokeRefreshTokensInSeries({
-      sessionKey,
-      now,
-      transaction,
-    })
-
-    const deletedAccessTokenCount = await this.deleteAccessTokensInSeries({
-      sessionKey,
-      transaction,
-    })
-
-    return {
-      revokedRefreshTokenCount,
-      deletedAccessTokenCount,
-    }
-  }
-
-  /**
-   * Revoke every refresh token still live in a series.
-   *
-   * @param {{
-   *   sessionKey: string
-   *   now: Date
-   *   transaction: Transaction
-   * }} params - Parameters.
-   * @returns {Promise<[number]>} - Sequelize bulk-update result: [number of refresh tokens revoked].
-   */
-  async revokeRefreshTokensInSeries ({
-    sessionKey,
-    now,
-    transaction,
-  }) {
-    return this.RefreshTokenModel.update(
-      {
-        revokedAt: now,
-      },
-      {
-        where: {
-          sessionKey,
-          revokedAt: null,
-        },
-        transaction,
-      }
-    )
-  }
-
-  /**
-   * Delete every access token handed out by a series.
-   *
-   * Deleted rather than flagged — the row's absence already says it, with no extra column read on
-   * the auth hot path.
-   *
-   * @param {{
-   *   sessionKey: string
-   *   transaction: Transaction
-   * }} params - Parameters.
-   * @returns {Promise<number>} - Number of access token rows deleted.
-   */
-  async deleteAccessTokensInSeries ({
-    sessionKey,
-    transaction,
-  }) {
-    return this.AccessTokenModel.destroy({
-      where: {
-        sessionKey,
-      },
-      transaction,
-    })
-  }
 }
 
 /**
@@ -386,14 +242,4 @@ export default class SessionRegisterer {
  *   refreshTokenEntity: RefreshTokenEntity
  *   refreshToken: string
  * }} SessionCredentialPair
- */
-
-/**
- * How much a series revocation removed — the refresh tokens marked revoked, and the access token
- * rows deleted.
- *
- * @typedef {{
- *   revokedRefreshTokenCount: number
- *   deletedAccessTokenCount: number
- * }} SeriesRevocationResult
  */

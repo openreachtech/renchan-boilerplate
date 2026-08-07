@@ -1,6 +1,5 @@
 import RenewAccessTokenMutationResolver from '../../../../../../../../server/graphql/resolvers/customer/actual/mutations/RenewAccessTokenMutationResolver.js'
 
-import SessionRegisterer from '../../../../../../../../app/auth/SessionRegisterer.js'
 import RefreshTokenExpressCookieClerk from '../../../../../../../../server/graphql/contexts/tools/RefreshTokenExpressCookieClerk.js'
 
 import CustomerAccessToken from '../../../../../../../../sequelize/models/CustomerAccessToken.js'
@@ -137,36 +136,25 @@ describe('RenewAccessTokenMutationResolver', () => {
 
 describe('RenewAccessTokenMutationResolver', () => {
   describe('#handleReusedToken()', () => {
-    describe('should revoke the series, clear the cookie, and report the reuse', () => {
+    describe('should clear the cookie and report the reuse', () => {
       const cases = [
         {
+          // No live rows on this series — the reuse response still runs revoke (a real no-op here),
+          // clears the cookie, and throws. The real revoke effect is asserted in #revokeReusedSeries().
           input: {
             sessionKey: 'session-key-960001',
             now: new Date('2026-08-22T06:00:22.022Z'),
           },
-          expected: expect.objectContaining({
-            sessionKey: 'session-key-960001',
-            now: new Date('2026-08-22T06:00:22.022Z'),
-          }),
         },
         {
           input: {
             sessionKey: 'session-key-960002',
             now: new Date('2026-08-23T06:00:23.023Z'),
           },
-          expected: expect.objectContaining({
-            sessionKey: 'session-key-960002',
-            now: new Date('2026-08-23T06:00:23.023Z'),
-          }),
         },
       ]
 
-      test.each(cases)('sessionKey: $input.sessionKey', async ({
-        input,
-        expected,
-      }) => {
-        const revokeSeriesSpy = jest.spyOn(SessionRegisterer.prototype, 'revokeSeries')
-          .mockResolvedValue()
+      test.each(cases)('sessionKey: $input.sessionKey', async ({ input }) => {
         const clearRefreshTokenCookieSpy = jest.spyOn(RefreshTokenExpressCookieClerk.prototype, 'clearRefreshTokenCookie')
         const resolver = RenewAccessTokenMutationResolver.create()
         const args = {
@@ -185,8 +173,6 @@ describe('RenewAccessTokenMutationResolver', () => {
         await expect(actual)
           .rejects
           .toThrow('205.M003.001')
-        expect(revokeSeriesSpy)
-          .toHaveBeenCalledWith(expected)
         expect(clearRefreshTokenCookieSpy)
           .toHaveBeenCalledWith()
       })
@@ -200,41 +186,30 @@ describe('RenewAccessTokenMutationResolver', () => {
       const cases = [
         {
           input: {
-            sessionKey: 'session-key-961001',
+            sessionKey: 'session-key-96-01', // seeded: 2 live (+1 revoked) refresh, 3 access
             now: new Date('2026-08-24T06:00:24.024Z'),
           },
-          tally: {
-            revokedRefreshTokenCount: 1,
-            deletedAccessTokenCount: 1,
+          expected: {
+            revokedRefreshTokenCount: 2,
+            deletedAccessTokenCount: 3,
           },
-          expected: expect.objectContaining({
-            sessionKey: 'session-key-961001',
-            now: new Date('2026-08-24T06:00:24.024Z'),
-          }),
         },
         {
           input: {
-            sessionKey: 'session-key-961002',
+            sessionKey: 'session-key-97-01', // seeded: 1 live refresh, 2 access
             now: new Date('2026-08-25T06:00:25.025Z'),
           },
-          tally: {
-            revokedRefreshTokenCount: 2,
+          expected: {
+            revokedRefreshTokenCount: 1,
             deletedAccessTokenCount: 2,
           },
-          expected: expect.objectContaining({
-            sessionKey: 'session-key-961002',
-            now: new Date('2026-08-25T06:00:25.025Z'),
-          }),
         },
       ]
 
       test.each(cases)('sessionKey: $input.sessionKey', async ({
         input,
-        tally,
         expected,
       }) => {
-        const revokeSeriesSpy = jest.spyOn(SessionRegisterer.prototype, 'revokeSeries')
-          .mockResolvedValue(tally)
         const resolver = RenewAccessTokenMutationResolver.create()
         const args = {
           context: /** @type {*} */ ({
@@ -250,9 +225,7 @@ describe('RenewAccessTokenMutationResolver', () => {
         const received = await resolver.revokeReusedSeries(args)
 
         expect(received)
-          .toBe(tally) // same reference
-        expect(revokeSeriesSpy)
-          .toHaveBeenCalledWith(expected)
+          .toEqual(expected)
       })
     })
   })
@@ -264,32 +237,36 @@ describe('RenewAccessTokenMutationResolver', () => {
       const cases = [
         {
           input: {
-            presentedRefreshToken: 'refresh-token-10-01', // seeded: active
+            customerId: 953001,
+            sessionKey: 'clerk-session-key-953001',
+            refreshToken: 'rotate-refresh-token-953001',
+            generatedAt: new Date('2026-08-10T00:00:10.010Z'),
             now: new Date('2026-08-10T06:00:10.010Z'),
           },
-          expected: 'session-key-10-01',
+          expected: 'clerk-session-key-953001',
         },
         {
           input: {
-            presentedRefreshToken: 'refresh-token-11-01', // seeded: active
+            customerId: 953002,
+            sessionKey: 'clerk-session-key-953002',
+            refreshToken: 'rotate-refresh-token-953002',
+            generatedAt: new Date('2026-08-11T00:00:11.011Z'),
             now: new Date('2026-08-11T06:00:11.011Z'),
           },
-          expected: 'session-key-11-01',
+          expected: 'clerk-session-key-953002',
         },
       ]
 
-      test.each(cases)('presentedRefreshToken: $input.presentedRefreshToken', async ({
+      test.each(cases)('sessionKey: $input.sessionKey', async ({
         input,
         expected,
       }) => {
-        const sessionRegisterer = SessionRegisterer.create({
-          AccessTokenModel: CustomerAccessToken,
-          RefreshTokenModel: CustomerRefreshToken,
+        const refreshTokenEntity = CustomerRefreshToken.buildWithGeneratedAttributes({
+          customerId: input.customerId,
+          sessionKey: input.sessionKey,
+          refreshToken: input.refreshToken,
+          generatedAt: input.generatedAt,
         })
-        const refreshTokenEntity = await sessionRegisterer.findRefreshTokenEntity({
-          presentedRefreshToken: input.presentedRefreshToken,
-        })
-
         const resolver = RenewAccessTokenMutationResolver.create()
         const args = {
           context: /** @type {*} */ ({
@@ -299,9 +276,8 @@ describe('RenewAccessTokenMutationResolver', () => {
         }
 
         const received = await resolver.rotateSession(args)
-        const receivedSessionKey = received.refreshTokenEntity.sessionKey
 
-        expect(receivedSessionKey)
+        expect(received.refreshTokenEntity.sessionKey)
           .toBe(expected)
       })
     })
@@ -314,32 +290,36 @@ describe('RenewAccessTokenMutationResolver', () => {
       const cases = [
         {
           input: {
-            presentedRefreshToken: 'refresh-token-08-01', // seeded: active
+            customerId: 953003,
+            sessionKey: 'clerk-session-key-953003',
+            refreshToken: 'rotate-refresh-token-953003',
+            generatedAt: new Date('2026-08-08T00:00:08.008Z'),
             now: new Date('2026-08-08T06:00:08.008Z'),
           },
-          expected: 'session-key-08-01',
+          expected: 'clerk-session-key-953003',
         },
         {
           input: {
-            presentedRefreshToken: 'refresh-token-09-01', // seeded: active
+            customerId: 953004,
+            sessionKey: 'clerk-session-key-953004',
+            refreshToken: 'rotate-refresh-token-953004',
+            generatedAt: new Date('2026-08-09T00:00:09.009Z'),
             now: new Date('2026-08-09T06:00:09.009Z'),
           },
-          expected: 'session-key-09-01',
+          expected: 'clerk-session-key-953004',
         },
       ]
 
-      test.each(cases)('presentedRefreshToken: $input.presentedRefreshToken', async ({
+      test.each(cases)('sessionKey: $input.sessionKey', async ({
         input,
         expected,
       }) => {
-        const sessionRegisterer = SessionRegisterer.create({
-          AccessTokenModel: CustomerAccessToken,
-          RefreshTokenModel: CustomerRefreshToken,
+        const refreshTokenEntity = CustomerRefreshToken.buildWithGeneratedAttributes({
+          customerId: input.customerId,
+          sessionKey: input.sessionKey,
+          refreshToken: input.refreshToken,
+          generatedAt: input.generatedAt,
         })
-        const refreshTokenEntity = await sessionRegisterer.findRefreshTokenEntity({
-          presentedRefreshToken: input.presentedRefreshToken,
-        })
-
         const resolver = RenewAccessTokenMutationResolver.create()
         const args = {
           refreshTokenEntity,
@@ -349,9 +329,8 @@ describe('RenewAccessTokenMutationResolver', () => {
         const received = await CustomerAccessToken.beginTransaction(
           resolver.generateTransactionCallback(args)
         )
-        const receivedSessionKey = received.refreshTokenEntity.sessionKey
 
-        expect(receivedSessionKey)
+        expect(received.refreshTokenEntity.sessionKey)
           .toBe(expected)
       })
     })

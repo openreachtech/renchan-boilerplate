@@ -2,7 +2,10 @@ import {
   BaseMutationResolver,
 } from '@openreachtech/renchan'
 
+import RefreshTokenFinder from '../../../../../../app/auth/RefreshTokenFinder.js'
+import RefreshTokenSpender from '../../../../../../app/auth/RefreshTokenSpender.js'
 import SessionRegisterer from '../../../../../../app/auth/SessionRegisterer.js'
+import SessionRevoker from '../../../../../../app/auth/SessionRevoker.js'
 import RefreshTokenExpressCookieClerk from '../../../../contexts/tools/RefreshTokenExpressCookieClerk.js'
 
 import CustomerAccessToken from '../../../../../../sequelize/models/CustomerAccessToken.js'
@@ -56,6 +59,33 @@ export default class RenewAccessTokenMutationResolver extends BaseMutationResolv
   }
 
   /**
+   * get: RefreshTokenFinder class — a seam so tests can substitute it.
+   *
+   * @returns {typeof RefreshTokenFinder} - The class.
+   */
+  get RefreshTokenFinderCtor () {
+    return RefreshTokenFinder
+  }
+
+  /**
+   * get: SessionRevoker class — a seam so tests can substitute it.
+   *
+   * @returns {typeof SessionRevoker} - The class.
+   */
+  get SessionRevokerCtor () {
+    return SessionRevoker
+  }
+
+  /**
+   * get: RefreshTokenSpender class — a seam so tests can substitute it.
+   *
+   * @returns {typeof RefreshTokenSpender} - The class.
+   */
+  get RefreshTokenSpenderCtor () {
+    return RefreshTokenSpender
+  }
+
+  /**
    * Resolve the renewAccessToken mutation.
    *
    * @override
@@ -74,9 +104,9 @@ export default class RenewAccessTokenMutationResolver extends BaseMutationResolv
       context,
     })
 
-    const sessionRegisterer = this.createSessionRegisterer()
+    const refreshTokenFinder = this.createRefreshTokenFinder()
 
-    const refreshTokenEntity = await sessionRegisterer.findRefreshTokenEntity({
+    const refreshTokenEntity = await refreshTokenFinder.findRefreshTokenEntity({
       presentedRefreshToken: cookieClerk.extractRefreshToken(),
     })
 
@@ -144,6 +174,40 @@ export default class RenewAccessTokenMutationResolver extends BaseMutationResolv
   }
 
   /**
+   * Create refresh token finder bound to the customer table.
+   *
+   * @returns {RefreshTokenFinder} - Refresh token finder.
+   */
+  createRefreshTokenFinder () {
+    return this.RefreshTokenFinderCtor.create({
+      RefreshTokenModel: CustomerRefreshToken,
+    })
+  }
+
+  /**
+   * Create session revoker bound to the customer tables.
+   *
+   * @returns {SessionRevoker} - Session revoker.
+   */
+  createSessionRevoker () {
+    return this.SessionRevokerCtor.create({
+      AccessTokenModel: CustomerAccessToken,
+      RefreshTokenModel: CustomerRefreshToken,
+    })
+  }
+
+  /**
+   * Create refresh token spender bound to the customer table.
+   *
+   * @returns {RefreshTokenSpender} - Refresh token spender.
+   */
+  createRefreshTokenSpender () {
+    return this.RefreshTokenSpenderCtor.create({
+      RefreshTokenModel: CustomerRefreshToken,
+    })
+  }
+
+  /**
    * Revoke the reused token's series, clear the cookie, and report the reuse. Extracted so no
    * `await` sits inside the `if` branch.
    *
@@ -179,16 +243,16 @@ export default class RenewAccessTokenMutationResolver extends BaseMutationResolv
    *   context: import('../../../../contexts/CustomerGraphqlContext.js').default
    *   refreshTokenEntity: RefreshTokenEntity
    * }} params - Parameters.
-   * @returns {Promise<import('../../../../../../app/auth/SessionRegisterer.js').SeriesRevocationResult>} - Counts from revoking the reused series.
+   * @returns {Promise<import('../../../../../../app/auth/SessionRevoker.js').SeriesRevocationResult>} - Counts from revoking the reused series.
    */
   async revokeReusedSeries ({
     context,
     refreshTokenEntity,
   }) {
-    const sessionRegisterer = this.createSessionRegisterer()
+    const sessionRevoker = this.createSessionRevoker()
 
     return CustomerAccessToken.beginTransaction(async transaction =>
-      sessionRegisterer.revokeSeries({
+      sessionRevoker.revokeSeries({
         sessionKey: refreshTokenEntity.sessionKey,
         now: context.now,
         transaction,
@@ -235,8 +299,10 @@ export default class RenewAccessTokenMutationResolver extends BaseMutationResolv
   }) {
     const sessionRegisterer = this.createSessionRegisterer()
 
+    const refreshTokenSpender = this.createRefreshTokenSpender()
+
     return async transaction => {
-      await sessionRegisterer.consumeRefreshToken({
+      await refreshTokenSpender.spendRefreshToken({
         refreshTokenEntity,
         now,
         transaction,
