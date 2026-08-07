@@ -5,66 +5,76 @@ import RefreshTokenExpressCookieClerk from '../../../../../../../../server/graph
 
 describe('RenewAccessTokenMutationResolver', () => {
   describe('.get:schema', () => {
-    test('should be renewAccessToken', () => {
-      const received = RenewAccessTokenMutationResolver.schema
+    describe('when called as is', () => {
+      test('should be fixed value', () => {
+        const received = RenewAccessTokenMutationResolver.schema
 
-      expect(received)
-        .toBe('renewAccessToken')
+        expect(received)
+          .toBe('renewAccessToken')
+      })
     })
   })
 })
 
 describe('RenewAccessTokenMutationResolver', () => {
   describe('.get:errorCodeHash', () => {
-    test('should hold the unauthenticated and reuse codes', () => {
-      const expected = {
-        Unauthenticated: '102.X000.001',
-        RefreshTokenReused: '205.M003.001',
-      }
+    describe('when called as is', () => {
+      test('should be fixed value', () => {
+        const expected = {
+          Unauthenticated: '102.X000.001',
+          RefreshTokenReused: '205.M003.001',
+        }
 
-      const received = RenewAccessTokenMutationResolver.errorCodeHash
+        const received = RenewAccessTokenMutationResolver.errorCodeHash
 
-      expect(received)
-        .toEqual(expected)
+        expect(received)
+          .toEqual(expected)
+      })
     })
   })
 })
 
 describe('RenewAccessTokenMutationResolver', () => {
   describe('#get:RefreshTokenExpressCookieClerkCtor', () => {
-    test('should be the RefreshTokenExpressCookieClerk class', () => {
-      const resolver = RenewAccessTokenMutationResolver.create()
+    describe('when called as is', () => {
+      test('should be fixed value', () => {
+        const resolver = RenewAccessTokenMutationResolver.create()
 
-      const received = resolver.RefreshTokenExpressCookieClerkCtor
+        const received = resolver.RefreshTokenExpressCookieClerkCtor
 
-      expect(received)
-        .toBe(RefreshTokenExpressCookieClerk) // same reference
+        expect(received)
+          .toBe(RefreshTokenExpressCookieClerk) // same reference
+      })
     })
   })
 })
 
 describe('RenewAccessTokenMutationResolver', () => {
   describe('#get:SessionClerkCtor', () => {
-    test('should be the SessionClerk class', () => {
-      const resolver = RenewAccessTokenMutationResolver.create()
+    describe('when called as is', () => {
+      test('should be fixed value', () => {
+        const resolver = RenewAccessTokenMutationResolver.create()
 
-      const received = resolver.SessionClerkCtor
+        const received = resolver.SessionClerkCtor
 
-      expect(received)
-        .toBe(SessionClerk) // same reference
+        expect(received)
+          .toBe(SessionClerk) // same reference
+      })
     })
   })
 })
 
 describe('RenewAccessTokenMutationResolver', () => {
   describe('#createSessionClerk()', () => {
-    test('should be a session clerk', () => {
-      const resolver = RenewAccessTokenMutationResolver.create()
+    describe('when called as is', () => {
+      test('should be a session clerk', () => {
+        const resolver = RenewAccessTokenMutationResolver.create()
 
-      const received = resolver.createSessionClerk()
+        const received = resolver.createSessionClerk()
 
-      expect(received)
-        .toBeInstanceOf(SessionClerk)
+        expect(received)
+          .toBeInstanceOf(SessionClerk)
+      })
     })
   })
 })
@@ -72,6 +82,8 @@ describe('RenewAccessTokenMutationResolver', () => {
 describe('RenewAccessTokenMutationResolver', () => {
   describe('#createCookieClerk()', () => {
     describe('should be a refresh-token cookie clerk', () => {
+      const resolver = RenewAccessTokenMutationResolver.create()
+
       const cases = [
         {
           input: {
@@ -90,12 +102,7 @@ describe('RenewAccessTokenMutationResolver', () => {
       ]
 
       test.each(cases)('context: $input.context.cookieHeader', ({ input }) => {
-        const resolver = RenewAccessTokenMutationResolver.create()
-        const args = {
-          context: input.context,
-        }
-
-        const received = resolver.createCookieClerk(args)
+        const received = resolver.createCookieClerk(input)
 
         expect(received)
           .toBeInstanceOf(RefreshTokenExpressCookieClerk)
@@ -107,6 +114,8 @@ describe('RenewAccessTokenMutationResolver', () => {
 describe('RenewAccessTokenMutationResolver', () => {
   describe('#formatResponse()', () => {
     describe('should be the access token of the pair', () => {
+      const resolver = RenewAccessTokenMutationResolver.create()
+
       const cases = [
         {
           input: {
@@ -134,16 +143,11 @@ describe('RenewAccessTokenMutationResolver', () => {
         },
       ]
 
-      test.each(cases)('accessToken: $input.credentialPair.accessToken', ({
+      test.each(cases)('accessToken: $input.credentialPair.accessTokenEntity.accessToken', ({
         input,
         expected,
       }) => {
-        const resolver = RenewAccessTokenMutationResolver.create()
-        const args = {
-          credentialPair: input.credentialPair,
-        }
-
-        const received = resolver.formatResponse(args)
+        const received = resolver.formatResponse(input)
 
         expect(received)
           .toEqual(expected)
@@ -154,6 +158,8 @@ describe('RenewAccessTokenMutationResolver', () => {
 
 describe('RenewAccessTokenMutationResolver', () => {
   describe('#resolve()', () => {
+    const resolver = RenewAccessTokenMutationResolver.create()
+
     describe('should refuse a cookie that matches nothing', () => {
       const cases = [
         {
@@ -174,7 +180,6 @@ describe('RenewAccessTokenMutationResolver', () => {
         jest.spyOn(RefreshTokenExpressCookieClerk.prototype, 'extractRefreshToken')
           .mockReturnValue(input.presentedRefreshToken)
         const clearRefreshTokenCookieSpy = jest.spyOn(RefreshTokenExpressCookieClerk.prototype, 'clearRefreshTokenCookie')
-        const resolver = RenewAccessTokenMutationResolver.create()
         const args = {
           context: /** @type {*} */ ({
             now: input.now,
@@ -211,7 +216,6 @@ describe('RenewAccessTokenMutationResolver', () => {
         jest.spyOn(RefreshTokenExpressCookieClerk.prototype, 'extractRefreshToken')
           .mockReturnValue(input.presentedRefreshToken)
         const clearRefreshTokenCookieSpy = jest.spyOn(RefreshTokenExpressCookieClerk.prototype, 'clearRefreshTokenCookie')
-        const resolver = RenewAccessTokenMutationResolver.create()
         const args = {
           context: /** @type {*} */ ({
             now: input.now,

@@ -7,6 +7,8 @@ import CustomerRefreshToken from '../../../../../../../../sequelize/models/Custo
 
 describe('RenewAccessTokenMutationResolver', () => {
   describe('#resolve()', () => {
+    const resolver = RenewAccessTokenMutationResolver.create()
+
     describe('should renew the access token from a valid refresh cookie', () => {
       const cases = [
         {
@@ -35,10 +37,6 @@ describe('RenewAccessTokenMutationResolver', () => {
       }) => {
         jest.spyOn(RefreshTokenExpressCookieClerk.prototype, 'extractRefreshToken')
           .mockReturnValue(input.presentedRefreshToken)
-
-        jest.spyOn(RefreshTokenExpressCookieClerk.prototype, 'saveRefreshTokenCookie')
-
-        const resolver = RenewAccessTokenMutationResolver.create()
         const args = {
           context: /** @type {*} */ ({
             now: input.now,
@@ -81,7 +79,6 @@ describe('RenewAccessTokenMutationResolver', () => {
         jest.spyOn(RefreshTokenExpressCookieClerk.prototype, 'extractRefreshToken')
           .mockReturnValue(input.presentedRefreshToken)
         const saveRefreshTokenCookieSpy = jest.spyOn(RefreshTokenExpressCookieClerk.prototype, 'saveRefreshTokenCookie')
-        const resolver = RenewAccessTokenMutationResolver.create()
         const args = {
           context: /** @type {*} */ ({
             now: input.now,
@@ -115,7 +112,6 @@ describe('RenewAccessTokenMutationResolver', () => {
         jest.spyOn(RefreshTokenExpressCookieClerk.prototype, 'extractRefreshToken')
           .mockReturnValue(input.presentedRefreshToken)
         const clearRefreshTokenCookieSpy = jest.spyOn(RefreshTokenExpressCookieClerk.prototype, 'clearRefreshTokenCookie')
-        const resolver = RenewAccessTokenMutationResolver.create()
         const args = {
           context: /** @type {*} */ ({
             now: input.now,
@@ -137,6 +133,8 @@ describe('RenewAccessTokenMutationResolver', () => {
 describe('RenewAccessTokenMutationResolver', () => {
   describe('#handleReusedToken()', () => {
     describe('should clear the cookie and report the reuse', () => {
+      const resolver = RenewAccessTokenMutationResolver.create()
+
       const cases = [
         {
           // No live rows on this series — the reuse response still runs revoke (a real no-op here),
@@ -156,7 +154,6 @@ describe('RenewAccessTokenMutationResolver', () => {
 
       test.each(cases)('sessionKey: $input.sessionKey', async ({ input }) => {
         const clearRefreshTokenCookieSpy = jest.spyOn(RefreshTokenExpressCookieClerk.prototype, 'clearRefreshTokenCookie')
-        const resolver = RenewAccessTokenMutationResolver.create()
         const args = {
           context: /** @type {*} */ ({
             now: input.now,
@@ -182,7 +179,9 @@ describe('RenewAccessTokenMutationResolver', () => {
 
 describe('RenewAccessTokenMutationResolver', () => {
   describe('#revokeReusedSession()', () => {
-    describe('should revoke the whole series of the presented token', () => {
+    describe('should revoke the whole session of the presented token', () => {
+      const resolver = RenewAccessTokenMutationResolver.create()
+
       const cases = [
         {
           input: {
@@ -210,7 +209,6 @@ describe('RenewAccessTokenMutationResolver', () => {
         input,
         expected,
       }) => {
-        const resolver = RenewAccessTokenMutationResolver.create()
         const args = {
           context: /** @type {*} */ ({
             now: input.now,
@@ -233,7 +231,9 @@ describe('RenewAccessTokenMutationResolver', () => {
 
 describe('RenewAccessTokenMutationResolver', () => {
   describe('#rotateSession()', () => {
-    describe('should issue the next pair in the same series', () => {
+    describe('should issue the next pair in the same session', () => {
+      const resolver = RenewAccessTokenMutationResolver.create()
+
       const cases = [
         {
           input: {
@@ -267,7 +267,6 @@ describe('RenewAccessTokenMutationResolver', () => {
           refreshToken: input.refreshToken,
           generatedAt: input.generatedAt,
         })
-        const resolver = RenewAccessTokenMutationResolver.create()
         const args = {
           context: /** @type {*} */ ({
             now: input.now,
@@ -275,9 +274,10 @@ describe('RenewAccessTokenMutationResolver', () => {
           refreshTokenEntity,
         }
 
-        const received = await resolver.rotateSession(args)
+        const NextPair = await resolver.rotateSession(args)
+        const received = NextPair.refreshTokenEntity.sessionKey
 
-        expect(received.refreshTokenEntity.sessionKey)
+        expect(received)
           .toBe(expected)
       })
     })
@@ -286,7 +286,9 @@ describe('RenewAccessTokenMutationResolver', () => {
 
 describe('RenewAccessTokenMutationResolver', () => {
   describe('#generateTransactionCallback()', () => {
-    describe('the callback issues the next pair in the same series', () => {
+    describe('the callback issues the next pair in the same session', () => {
+      const resolver = RenewAccessTokenMutationResolver.create()
+
       const cases = [
         {
           input: {
@@ -320,17 +322,17 @@ describe('RenewAccessTokenMutationResolver', () => {
           refreshToken: input.refreshToken,
           generatedAt: input.generatedAt,
         })
-        const resolver = RenewAccessTokenMutationResolver.create()
         const args = {
           refreshTokenEntity,
           now: input.now,
         }
 
-        const received = await CustomerAccessToken.beginTransaction(
+        const NextPair = await CustomerAccessToken.beginTransaction(
           resolver.generateTransactionCallback(args)
         )
+        const received = NextPair.refreshTokenEntity.sessionKey
 
-        expect(received.refreshTokenEntity.sessionKey)
+        expect(received)
           .toBe(expected)
       })
     })

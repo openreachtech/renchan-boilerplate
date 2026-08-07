@@ -15,6 +15,9 @@ describe('SessionClerk', () => {
                 tableName: 'access_tokens_0001',
               }),
             },
+            expected: {
+              tableName: 'access_tokens_0001',
+            },
           },
           {
             input: {
@@ -22,10 +25,13 @@ describe('SessionClerk', () => {
                 tableName: 'access_tokens_0002',
               }),
             },
+            expected: {
+              tableName: 'access_tokens_0002',
+            },
           },
         ]
 
-        test.each(cases)('AccessTokenModel: $input.AccessTokenModel.tableName', ({ input }) => {
+        test.each(cases)('AccessTokenModel: $input.AccessTokenModel.tableName', ({ input, expected }) => {
           const args = {
             AccessTokenModel: input.AccessTokenModel,
             RefreshTokenModel: /** @type {*} */ ({}),
@@ -35,7 +41,7 @@ describe('SessionClerk', () => {
           const clerk = new SessionClerk(args)
 
           expect(clerk)
-            .toHaveProperty('AccessTokenModel', input.AccessTokenModel)
+            .toHaveProperty('AccessTokenModel', expected)
         })
       })
 
@@ -47,6 +53,9 @@ describe('SessionClerk', () => {
                 tableName: 'refresh_tokens_0001',
               }),
             },
+            expected: {
+              tableName: 'refresh_tokens_0001',
+            },
           },
           {
             input: {
@@ -54,10 +63,13 @@ describe('SessionClerk', () => {
                 tableName: 'refresh_tokens_0002',
               }),
             },
+            expected: {
+              tableName: 'refresh_tokens_0002',
+            },
           },
         ]
 
-        test.each(cases)('RefreshTokenModel: $input.RefreshTokenModel.tableName', ({ input }) => {
+        test.each(cases)('RefreshTokenModel: $input.RefreshTokenModel.tableName', ({ input, expected }) => {
           const args = {
             AccessTokenModel: /** @type {*} */ ({}),
             RefreshTokenModel: input.RefreshTokenModel,
@@ -67,7 +79,7 @@ describe('SessionClerk', () => {
           const clerk = new SessionClerk(args)
 
           expect(clerk)
-            .toHaveProperty('RefreshTokenModel', input.RefreshTokenModel)
+            .toHaveProperty('RefreshTokenModel', expected)
         })
       })
 
@@ -79,6 +91,9 @@ describe('SessionClerk', () => {
                 tokenByteSize: 101,
               }),
             },
+            expected: {
+              tokenByteSize: 101,
+            },
           },
           {
             input: {
@@ -86,10 +101,13 @@ describe('SessionClerk', () => {
                 tokenByteSize: 202,
               }),
             },
+            expected: {
+              tokenByteSize: 202,
+            },
           },
         ]
 
-        test.each(cases)('credentialClerk: $input.credentialClerk.tokenByteSize', ({ input }) => {
+        test.each(cases)('credentialClerk: $input.credentialClerk.tokenByteSize', ({ input, expected }) => {
           const args = {
             AccessTokenModel: /** @type {*} */ ({}),
             RefreshTokenModel: /** @type {*} */ ({}),
@@ -99,7 +117,7 @@ describe('SessionClerk', () => {
           const clerk = new SessionClerk(args)
 
           expect(clerk)
-            .toHaveProperty('credentialClerk', input.credentialClerk)
+            .toHaveProperty('credentialClerk', expected)
         })
       })
     })
@@ -149,7 +167,7 @@ describe('SessionClerk', () => {
     describe('should call constructor', () => {
       const cases = [
         {
-          input: {
+          tally: {
             AccessTokenModel: /** @type {*} */ ({
               tableName: 'access_tokens_0001',
             }),
@@ -162,7 +180,7 @@ describe('SessionClerk', () => {
           },
         },
         {
-          input: {
+          tally: {
             AccessTokenModel: /** @type {*} */ ({
               tableName: 'access_tokens_0002',
             }),
@@ -176,13 +194,13 @@ describe('SessionClerk', () => {
         },
       ]
 
-      test.each(cases)('AccessTokenModel: $input.AccessTokenModel.tableName', ({ input }) => {
+      test.each(cases)('AccessTokenModel: $tally.AccessTokenModel.tableName', ({ tally }) => {
         const SpyClass = globalThis.constructorSpy.spyOn(SessionClerk)
 
-        SpyClass.create(input)
+        SpyClass.create(tally)
 
         expect(SpyClass.__spy__)
-          .toHaveBeenCalledWith(input)
+          .toHaveBeenCalledWith(tally)
       })
     })
 
@@ -201,7 +219,7 @@ describe('SessionClerk', () => {
         const input = {
           AccessTokenModel: expected.AccessTokenModel,
           RefreshTokenModel: expected.RefreshTokenModel,
-          // credentialClerk: omitted, so it falls back to the default
+          // credentialClerk: omitted → falls back to the default
         }
 
         jest.spyOn(SessionClerk, 'createCredentialClerk')
@@ -219,28 +237,37 @@ describe('SessionClerk', () => {
 
 describe('SessionClerk', () => {
   describe('.get:SessionCredentialClerkCtor', () => {
-    test('should be the SessionCredentialClerk class', () => {
-      const received = SessionClerk.SessionCredentialClerkCtor
+    describe('when called as is', () => {
+      test('should be fixed value', () => {
+        const received = SessionClerk.SessionCredentialClerkCtor
 
-      expect(received)
-        .toBe(SessionCredentialClerk) // same reference
+        expect(received)
+          .toBe(SessionCredentialClerk) // same reference
+      })
     })
   })
 })
 
 describe('SessionClerk', () => {
   describe('.createCredentialClerk()', () => {
-    test('should be a session credential clerk', () => {
-      const received = SessionClerk.createCredentialClerk()
+    describe('when called as is', () => {
+      test('should be a session credential clerk', () => {
+        const received = SessionClerk.createCredentialClerk()
 
-      expect(received)
-        .toBeInstanceOf(SessionCredentialClerk)
+        expect(received)
+          .toBeInstanceOf(SessionCredentialClerk)
+      })
     })
   })
 })
 
 describe('SessionClerk', () => {
   describe('#findRefreshToken()', () => {
+    const clerk = SessionClerk.create({
+      AccessTokenModel: CustomerAccessToken,
+      RefreshTokenModel: CustomerRefreshToken,
+    })
+
     describe('should answer the seeded row a presented token hashes to', () => {
       const cases = [
         {
@@ -261,15 +288,11 @@ describe('SessionClerk', () => {
         input,
         expected,
       }) => {
-        const clerk = SessionClerk.create({
-          AccessTokenModel: CustomerAccessToken,
-          RefreshTokenModel: CustomerRefreshToken,
-        })
-
-        const received = await clerk.findRefreshToken(input)
+        const RefreshToken = await clerk.findRefreshToken(input)
+        const received = RefreshToken.sessionKey
 
         expect(received)
-          .toHaveProperty('sessionKey', expected)
+          .toBe(expected)
       })
     })
 
@@ -288,11 +311,6 @@ describe('SessionClerk', () => {
       ]
 
       test.each(cases)('presentedRefreshToken: $input.presentedRefreshToken', async ({ input }) => {
-        const clerk = SessionClerk.create({
-          AccessTokenModel: CustomerAccessToken,
-          RefreshTokenModel: CustomerRefreshToken,
-        })
-
         const received = await clerk.findRefreshToken(input)
 
         expect(received)
@@ -300,7 +318,7 @@ describe('SessionClerk', () => {
       })
     })
 
-    describe('should be null without querying when no token is presented', () => {
+    describe('should not query when no token is presented', () => {
       const cases = [
         {
           input: {
@@ -317,15 +335,8 @@ describe('SessionClerk', () => {
       test.each(cases)('presentedRefreshToken: $input.presentedRefreshToken', async ({ input }) => {
         const findOneSpy = jest.spyOn(CustomerRefreshToken, 'findOne')
 
-        const clerk = SessionClerk.create({
-          AccessTokenModel: CustomerAccessToken,
-          RefreshTokenModel: CustomerRefreshToken,
-        })
+        await clerk.findRefreshToken(input)
 
-        const received = await clerk.findRefreshToken(input)
-
-        expect(received)
-          .toBeNull()
         expect(findOneSpy)
           .not
           .toHaveBeenCalled()

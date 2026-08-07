@@ -8,6 +8,8 @@ import CustomerRefreshToken from '../../../../../../../../sequelize/models/Custo
 describe('SignInMutationResolver', () => {
   describe('#generateTransactionCallback()', () => {
     describe('the callback issues a token pair', () => {
+      const resolver = SignInMutationResolver.create()
+
       const cases = [
         {
           input: {
@@ -37,14 +39,8 @@ describe('SignInMutationResolver', () => {
         input,
         expected,
       }) => {
-        const resolver = SignInMutationResolver.create()
-        const args = {
-          customerId: input.customerId,
-          now: input.now,
-        }
-
         const received = await CustomerAccessToken.beginTransaction(
-          resolver.generateTransactionCallback(args)
+          resolver.generateTransactionCallback(input)
         )
 
         expect(received)
@@ -57,6 +53,8 @@ describe('SignInMutationResolver', () => {
 describe('SignInMutationResolver', () => {
   describe('#saveSession()', () => {
     describe('should issue a token pair', () => {
+      const resolver = SignInMutationResolver.create()
+
       const cases = [
         {
           input: {
@@ -86,7 +84,6 @@ describe('SignInMutationResolver', () => {
         input,
         expected,
       }) => {
-        const resolver = SignInMutationResolver.create()
         const args = {
           context: /** @type {*} */ ({
             now: input.now,
@@ -105,6 +102,8 @@ describe('SignInMutationResolver', () => {
 
 describe('SignInMutationResolver', () => {
   describe('#resolve()', () => {
+    const resolver = SignInMutationResolver.create()
+
     describe('with existing email and correct password', () => {
       const cases = [
         {
@@ -145,8 +144,6 @@ describe('SignInMutationResolver', () => {
         input,
         expected,
       }) => {
-        const resolver = SignInMutationResolver.create()
-
         const received = await resolver.resolve(input)
 
         expect(received)
@@ -195,8 +192,6 @@ describe('SignInMutationResolver', () => {
         expected,
       }) => {
         const saveRefreshTokenCookieSpy = jest.spyOn(RefreshTokenExpressCookieClerk.prototype, 'saveRefreshTokenCookie')
-
-        const resolver = SignInMutationResolver.create()
 
         await resolver.resolve(input)
 

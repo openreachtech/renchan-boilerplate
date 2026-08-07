@@ -6,6 +6,11 @@ import CustomerRefreshToken from '../../../../sequelize/models/CustomerRefreshTo
 describe('SessionClerk', () => {
   describe('#saveTokenPair()', () => {
     describe('should issue a token pair', () => {
+      const clerk = SessionClerk.create({
+        AccessTokenModel: CustomerAccessToken,
+        RefreshTokenModel: CustomerRefreshToken,
+      })
+
       const cases = [
         {
           input: {
@@ -37,10 +42,6 @@ describe('SessionClerk', () => {
         input,
         expected,
       }) => {
-        const clerk = SessionClerk.create({
-          AccessTokenModel: CustomerAccessToken,
-          RefreshTokenModel: CustomerRefreshToken,
-        })
         const args = {
           customerId: input.customerId,
           sessionKey: input.sessionKey,
@@ -60,13 +61,17 @@ describe('SessionClerk', () => {
 describe('SessionClerk', () => {
   describe('#saveSession()', () => {
     describe('should issue a token pair with a minted session key', () => {
+      const clerk = SessionClerk.create({
+        AccessTokenModel: CustomerAccessToken,
+        RefreshTokenModel: CustomerRefreshToken,
+      })
+
       const cases = [
         {
           input: {
             customerId: 951001,
             now: new Date('2026-08-03T00:00:03.003Z'),
           },
-          // The session key is minted, not supplied, so it matches the token format too.
           expected: {
             accessTokenEntity: expect.any(CustomerAccessToken),
             refreshTokenEntity: expect.any(CustomerRefreshToken),
@@ -90,10 +95,6 @@ describe('SessionClerk', () => {
         input,
         expected,
       }) => {
-        const clerk = SessionClerk.create({
-          AccessTokenModel: CustomerAccessToken,
-          RefreshTokenModel: CustomerRefreshToken,
-        })
         const args = {
           customerId: input.customerId,
           now: input.now,
@@ -112,6 +113,11 @@ describe('SessionClerk', () => {
 describe('SessionClerk', () => {
   describe('#spendRefreshToken()', () => {
     describe('should mark the given refresh token used', () => {
+      const clerk = SessionClerk.create({
+        AccessTokenModel: CustomerAccessToken,
+        RefreshTokenModel: CustomerRefreshToken,
+      })
+
       const cases = [
         {
           input: {
@@ -146,10 +152,6 @@ describe('SessionClerk', () => {
           generatedAt: input.generatedAt,
         })
         await refreshTokenEntity.save()
-        const clerk = SessionClerk.create({
-          AccessTokenModel: CustomerAccessToken,
-          RefreshTokenModel: CustomerRefreshToken,
-        })
         const args = {
           refreshTokenEntity,
           now: input.now,
@@ -168,6 +170,11 @@ describe('SessionClerk', () => {
 describe('SessionClerk', () => {
   describe('#revokeAllRefreshTokens()', () => {
     describe('should revoke only the live refresh tokens of the session', () => {
+      const clerk = SessionClerk.create({
+        AccessTokenModel: CustomerAccessToken,
+        RefreshTokenModel: CustomerRefreshToken,
+      })
+
       const cases = [
         {
           input: {
@@ -191,10 +198,6 @@ describe('SessionClerk', () => {
         input,
         expected,
       }) => {
-        const clerk = SessionClerk.create({
-          AccessTokenModel: CustomerAccessToken,
-          RefreshTokenModel: CustomerRefreshToken,
-        })
         const args = {
           sessionKey: input.sessionKey,
           now: input.now,
@@ -213,6 +216,11 @@ describe('SessionClerk', () => {
 describe('SessionClerk', () => {
   describe('#deleteAllAccessTokens()', () => {
     describe('should delete every access token of the session', () => {
+      const clerk = SessionClerk.create({
+        AccessTokenModel: CustomerAccessToken,
+        RefreshTokenModel: CustomerRefreshToken,
+      })
+
       const cases = [
         {
           input: {
@@ -234,10 +242,6 @@ describe('SessionClerk', () => {
         input,
         expected,
       }) => {
-        const clerk = SessionClerk.create({
-          AccessTokenModel: CustomerAccessToken,
-          RefreshTokenModel: CustomerRefreshToken,
-        })
         const args = {
           sessionKey: input.sessionKey,
           transaction: input.transaction,
@@ -255,6 +259,11 @@ describe('SessionClerk', () => {
 describe('SessionClerk', () => {
   describe('#revokeSession()', () => {
     describe('should revoke live refresh tokens and delete access tokens of the session', () => {
+      const clerk = SessionClerk.create({
+        AccessTokenModel: CustomerAccessToken,
+        RefreshTokenModel: CustomerRefreshToken,
+      })
+
       const cases = [
         {
           input: {
@@ -284,10 +293,6 @@ describe('SessionClerk', () => {
         input,
         expected,
       }) => {
-        const clerk = SessionClerk.create({
-          AccessTokenModel: CustomerAccessToken,
-          RefreshTokenModel: CustomerRefreshToken,
-        })
         const args = {
           sessionKey: input.sessionKey,
           now: input.now,
