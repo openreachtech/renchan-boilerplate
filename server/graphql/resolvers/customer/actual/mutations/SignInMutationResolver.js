@@ -78,9 +78,11 @@ export default class SignInMutationResolver extends BaseMutationResolver {
       throw this.errorHash.IncorrectSecret.create()
     }
 
-    const credentialPair = await this.saveSession({
-      context,
+    const sessionClerk = this.createSessionClerk()
+
+    const credentialPair = await sessionClerk.saveSession({
       customerId: passwordHashEntity.CustomerId,
+      now: context.now,
     })
 
     // Only after the transaction committed: a cookie for a session that was rolled back would
@@ -139,51 +141,6 @@ export default class SignInMutationResolver extends BaseMutationResolver {
   }
 
   /**
-   * Save a new session.
-   *
-   * @param {{
-   *   context: import('../../../../contexts/CustomerGraphqlContext.js').default
-   *   customerId: number
-   * }} params - Parameters.
-   * @returns {Promise<import('../../../../../../app/auth/SessionClerk.js').SessionCredentialPair>}
-   * @throws {Error} - Throws error if transaction fails.
-   */
-  async saveSession ({
-    context,
-    customerId,
-  }) {
-    const transactionCallback = this.generateTransactionCallback({
-      customerId,
-      now: context.now,
-    })
-
-    return CustomerAccessToken.beginTransaction(transactionCallback)
-  }
-
-  /**
-   * Generate transaction callback.
-   *
-   * @param {{
-   *   customerId: number
-   *   now: Date
-   * }} params - Parameters.
-   * @returns {function(Transaction): Promise<import('../../../../../../app/auth/SessionClerk.js').SessionCredentialPair>}
-   */
-  generateTransactionCallback ({
-    customerId,
-    now,
-  }) {
-    const sessionClerk = this.createSessionClerk()
-
-    return async transaction =>
-      sessionClerk.saveSession({
-        customerId,
-        now,
-        transaction,
-      })
-  }
-
-  /**
    * Create session clerk bound to the customer tables.
    *
    * @returns {SessionClerk} - Session clerk.
@@ -231,10 +188,6 @@ export default class SignInMutationResolver extends BaseMutationResolver {
     }
   }
 }
-
-/**
- * @typedef {import('sequelize').Transaction} Transaction
- */
 
 /**
  * @typedef {(CustomerSecret & {

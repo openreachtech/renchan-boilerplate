@@ -187,13 +187,10 @@ export default class RenewAccessTokenMutationResolver extends BaseMutationResolv
   }) {
     const sessionClerk = this.createSessionClerk()
 
-    return CustomerAccessToken.beginTransaction(async transaction =>
-      sessionClerk.revokeSession({
-        sessionKey: refreshTokenEntity.sessionKey,
-        now: context.now,
-        transaction,
-      })
-    )
+    return sessionClerk.revokeSession({
+      sessionKey: refreshTokenEntity.sessionKey,
+      now: context.now,
+    })
   }
 
   /**
