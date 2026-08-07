@@ -70,7 +70,7 @@ export default class SessionClerk {
    * @param {{
    *   customerId: number
    *   now: Date
-   *   transaction: Transaction
+   *   transaction?: Transaction | null
    * }} params - Parameters.
    * @returns {Promise<SessionCredentialPair>} - The pair handed to the client.
    * @public
@@ -78,8 +78,19 @@ export default class SessionClerk {
   async saveSession ({
     customerId,
     now,
-    transaction,
+    transaction = null,
   }) {
+    if (!transaction) {
+      return this.AccessTokenModel
+        .beginTransaction(async innerTransaction =>
+          this.saveSession({
+            customerId,
+            now,
+            transaction: innerTransaction,
+          })
+        )
+    }
+
     const sessionKey = this.credentialClerk.generateSessionKey()
 
     return this.saveTokenPair({
@@ -97,7 +108,7 @@ export default class SessionClerk {
    *   customerId: number
    *   sessionKey: string
    *   now: Date
-   *   transaction: Transaction
+   *   transaction?: Transaction | null
    * }} params - Parameters.
    * @returns {Promise<SessionCredentialPair>} - The pair handed to the client.
    * @public
@@ -106,8 +117,20 @@ export default class SessionClerk {
     customerId,
     sessionKey,
     now,
-    transaction,
+    transaction = null,
   }) {
+    if (!transaction) {
+      return this.AccessTokenModel
+        .beginTransaction(async innerTransaction =>
+          this.saveTokenPair({
+            customerId,
+            sessionKey,
+            now,
+            transaction: innerTransaction,
+          })
+        )
+    }
+
     const refreshToken = this.credentialClerk.generateToken()
 
     const accessTokenEntity = await this.saveAccessToken({
@@ -235,7 +258,7 @@ export default class SessionClerk {
    * @param {{
    *   refreshTokenEntity: RefreshTokenEntity
    *   now: Date
-   *   transaction: Transaction
+   *   transaction?: Transaction | null
    * }} params - Parameters.
    * @returns {Promise<[number]>} - Sequelize bulk-update result: [number of rows marked spent].
    * @public
@@ -243,8 +266,19 @@ export default class SessionClerk {
   async spendRefreshToken ({
     refreshTokenEntity,
     now,
-    transaction,
+    transaction = null,
   }) {
+    if (!transaction) {
+      return this.AccessTokenModel
+        .beginTransaction(async innerTransaction =>
+          this.spendRefreshToken({
+            refreshTokenEntity,
+            now,
+            transaction: innerTransaction,
+          })
+        )
+    }
+
     return this.RefreshTokenModel.update(
       {
         usedAt: now,
@@ -264,7 +298,7 @@ export default class SessionClerk {
    * @param {{
    *   sessionKey: string
    *   now: Date
-   *   transaction: Transaction
+   *   transaction?: Transaction | null
    * }} params - Parameters.
    * @returns {Promise<SessionRevocationResult>} - How many refresh tokens were revoked and access tokens deleted.
    * @public
@@ -272,8 +306,19 @@ export default class SessionClerk {
   async revokeSession ({
     sessionKey,
     now,
-    transaction,
+    transaction = null,
   }) {
+    if (!transaction) {
+      return this.AccessTokenModel
+        .beginTransaction(async innerTransaction =>
+          this.revokeSession({
+            sessionKey,
+            now,
+            transaction: innerTransaction,
+          })
+        )
+    }
+
     const [revokedRefreshTokenCount] = await this.revokeAllRefreshTokens({
       sessionKey,
       now,
