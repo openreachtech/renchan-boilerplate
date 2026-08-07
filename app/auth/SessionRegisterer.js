@@ -65,13 +65,13 @@ export default class SessionRegisterer {
   /**
    * Start a new session, in a series of its own.
    *
-   * @public
    * @param {{
    *   customerId: number
    *   now: Date
    *   transaction: *
    * }} params - Parameters.
    * @returns {Promise<SessionCredentialPair>} - The pair handed to the client.
+   * @public
    */
   async saveSession ({
     customerId,
@@ -91,7 +91,6 @@ export default class SessionRegisterer {
   /**
    * Save a token pair within a series.
    *
-   * @public
    * @param {{
    *   customerId: number
    *   sessionKey: string
@@ -99,6 +98,7 @@ export default class SessionRegisterer {
    *   transaction: *
    * }} params - Parameters.
    * @returns {Promise<SessionCredentialPair>} - The pair handed to the client.
+   * @public
    */
   async saveTokenPair ({
     customerId,
@@ -194,11 +194,11 @@ export default class SessionRegisterer {
    *
    * The presented value is hashed before the lookup, because the table stores digests.
    *
-   * @public
    * @param {{
    *   presentedRefreshToken: string | null
    * }} params - Parameters.
    * @returns {Promise<*>} - Refresh token entity, or null when it matches nothing.
+   * @public
    */
   async findRefreshTokenEntity ({
     presentedRefreshToken,
@@ -222,13 +222,13 @@ export default class SessionRegisterer {
   /**
    * Mark a refresh token as spent, so presenting it again is detectable.
    *
-   * @public
    * @param {{
    *   refreshTokenEntity: *
    *   now: Date
    *   transaction: *
    * }} params - Parameters.
    * @returns {Promise<void>}
+   * @public
    */
   async consumeRefreshToken ({
     refreshTokenEntity,
@@ -248,13 +248,13 @@ export default class SessionRegisterer {
   /**
    * Revoke a whole series — every refresh token in it, and every access token handed out by it.
    *
-   * @public
    * @param {{
    *   sessionKey: string
    *   now: Date
    *   transaction: *
    * }} params - Parameters.
    * @returns {Promise<void>}
+   * @public
    */
   async revokeSeries ({
     sessionKey,
