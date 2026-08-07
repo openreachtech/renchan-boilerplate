@@ -149,7 +149,7 @@ export default class RenewAccessTokenMutationResolver extends BaseMutationResolv
    *
    * @param {{
    *   context: import('../../../../contexts/CustomerGraphqlContext.js').default
-   *   refreshTokenEntity: *
+   *   refreshTokenEntity: RefreshTokenEntity
    * }} params - Parameters.
    * @returns {Promise<never>}
    * @throws {Error} - Always, after the reused series has been revoked.
@@ -177,9 +177,9 @@ export default class RenewAccessTokenMutationResolver extends BaseMutationResolv
    *
    * @param {{
    *   context: import('../../../../contexts/CustomerGraphqlContext.js').default
-   *   refreshTokenEntity: *
+   *   refreshTokenEntity: RefreshTokenEntity
    * }} params - Parameters.
-   * @returns {Promise<void>}
+   * @returns {Promise<import('../../../../../../app/auth/SessionRegisterer.js').SeriesRevocationResult>} - Counts from revoking the reused series.
    */
   async revokeReusedSeries ({
     context,
@@ -187,7 +187,7 @@ export default class RenewAccessTokenMutationResolver extends BaseMutationResolv
   }) {
     const sessionRegisterer = this.createSessionRegisterer()
 
-    await CustomerAccessToken.beginTransaction(async transaction =>
+    return CustomerAccessToken.beginTransaction(async transaction =>
       sessionRegisterer.revokeSeries({
         sessionKey: refreshTokenEntity.sessionKey,
         now: context.now,
@@ -201,7 +201,7 @@ export default class RenewAccessTokenMutationResolver extends BaseMutationResolv
    *
    * @param {{
    *   context: import('../../../../contexts/CustomerGraphqlContext.js').default
-   *   refreshTokenEntity: *
+   *   refreshTokenEntity: RefreshTokenEntity
    * }} params - Parameters.
    * @returns {Promise<import('../../../../../../app/auth/SessionRegisterer.js').SessionCredentialPair>}
    * @throws {Error} - Throws error if transaction fails.
@@ -224,10 +224,10 @@ export default class RenewAccessTokenMutationResolver extends BaseMutationResolv
    * Spending the old row and writing the new pair share one transaction.
    *
    * @param {{
-   *   refreshTokenEntity: *
+   *   refreshTokenEntity: RefreshTokenEntity
    *   now: Date
    * }} params - Parameters.
-   * @returns {function(*): Promise<import('../../../../../../app/auth/SessionRegisterer.js').SessionCredentialPair>}
+   * @returns {function(Transaction): Promise<import('../../../../../../app/auth/SessionRegisterer.js').SessionCredentialPair>}
    */
   generateTransactionCallback ({
     refreshTokenEntity,
@@ -271,3 +271,11 @@ export default class RenewAccessTokenMutationResolver extends BaseMutationResolv
     }
   }
 }
+
+/**
+ * @typedef {import('sequelize').Transaction} Transaction
+ */
+
+/**
+ * @typedef {import('../../../../../../sequelize/models/CustomerRefreshToken.js').CustomerRefreshTokenEntity} RefreshTokenEntity
+ */

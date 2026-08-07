@@ -104,19 +104,12 @@ export default class SignInMutationResolver extends BaseMutationResolver {
    * @param {{
    *   email: string
    * }} params - Parameters.
-   * @returns {Promise<import('../../../../../../sequelize/models/CustomerPasswordHash.js').CustomerPasswordHashEntity | null>}
+   * @returns {Promise<CustomerPasswordHashEntity | null>}
    */
   async findPasswordHashByEmail ({
     email,
   }) {
-    /**
-     * @type {CustomerSecret & {
-     *   Customer: Customer & {
-     *     CustomerPasswordHash: CustomerPasswordHash
-     *   }
-     * } | null}
-     */
-    const customerSecretEntity = /** @type {*} */ (
+    const customerSecretEntity = /** @type {CustomerSecretWithPasswordHash} */ (
       await CustomerSecret.findOne({
         where: {
           email,
@@ -142,7 +135,7 @@ export default class SignInMutationResolver extends BaseMutationResolver {
       },
     } = customerSecretEntity
 
-    return /** @type {*} */ (passwordHashEntity)
+    return /** @type {CustomerPasswordHashEntity} */ (passwordHashEntity)
   }
 
   /**
@@ -174,7 +167,7 @@ export default class SignInMutationResolver extends BaseMutationResolver {
    *   customerId: number
    *   now: Date
    * }} params - Parameters.
-   * @returns {function(*): Promise<import('../../../../../../app/auth/SessionRegisterer.js').SessionCredentialPair>}
+   * @returns {function(Transaction): Promise<import('../../../../../../app/auth/SessionRegisterer.js').SessionCredentialPair>}
    */
   generateTransactionCallback ({
     customerId,
@@ -238,3 +231,19 @@ export default class SignInMutationResolver extends BaseMutationResolver {
     }
   }
 }
+
+/**
+ * @typedef {import('sequelize').Transaction} Transaction
+ */
+
+/**
+ * @typedef {(CustomerSecret & {
+ *   Customer: Customer & {
+ *     CustomerPasswordHash: CustomerPasswordHash
+ *   }
+ * }) | null} CustomerSecretWithPasswordHash
+ */
+
+/**
+ * @typedef {import('../../../../../../sequelize/models/CustomerPasswordHash.js').CustomerPasswordHashEntity} CustomerPasswordHashEntity
+ */

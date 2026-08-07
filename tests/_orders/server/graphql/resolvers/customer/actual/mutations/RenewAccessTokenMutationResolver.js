@@ -203,6 +203,10 @@ describe('RenewAccessTokenMutationResolver', () => {
             sessionKey: 'session-key-961001',
             now: new Date('2026-08-24T06:00:24.024Z'),
           },
+          tally: {
+            revokedRefreshTokenCount: 1,
+            deletedAccessTokenCount: 1,
+          },
           expected: expect.objectContaining({
             sessionKey: 'session-key-961001',
             now: new Date('2026-08-24T06:00:24.024Z'),
@@ -213,6 +217,10 @@ describe('RenewAccessTokenMutationResolver', () => {
             sessionKey: 'session-key-961002',
             now: new Date('2026-08-25T06:00:25.025Z'),
           },
+          tally: {
+            revokedRefreshTokenCount: 2,
+            deletedAccessTokenCount: 2,
+          },
           expected: expect.objectContaining({
             sessionKey: 'session-key-961002',
             now: new Date('2026-08-25T06:00:25.025Z'),
@@ -222,11 +230,11 @@ describe('RenewAccessTokenMutationResolver', () => {
 
       test.each(cases)('sessionKey: $input.sessionKey', async ({
         input,
+        tally,
         expected,
       }) => {
         const revokeSeriesSpy = jest.spyOn(SessionRegisterer.prototype, 'revokeSeries')
-          .mockResolvedValue()
-
+          .mockResolvedValue(tally)
         const resolver = RenewAccessTokenMutationResolver.create()
         const args = {
           context: /** @type {*} */ ({
@@ -239,8 +247,10 @@ describe('RenewAccessTokenMutationResolver', () => {
           ),
         }
 
-        await resolver.revokeReusedSeries(args)
+        const received = await resolver.revokeReusedSeries(args)
 
+        expect(received)
+          .toBe(tally) // same reference
         expect(revokeSeriesSpy)
           .toHaveBeenCalledWith(expected)
       })

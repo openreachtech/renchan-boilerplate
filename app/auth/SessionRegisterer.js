@@ -68,7 +68,7 @@ export default class SessionRegisterer {
    * @param {{
    *   customerId: number
    *   now: Date
-   *   transaction: *
+   *   transaction: Transaction
    * }} params - Parameters.
    * @returns {Promise<SessionCredentialPair>} - The pair handed to the client.
    * @public
@@ -95,7 +95,7 @@ export default class SessionRegisterer {
    *   customerId: number
    *   sessionKey: string
    *   now: Date
-   *   transaction: *
+   *   transaction: Transaction
    * }} params - Parameters.
    * @returns {Promise<SessionCredentialPair>} - The pair handed to the client.
    * @public
@@ -137,9 +137,9 @@ export default class SessionRegisterer {
    *   customerId: number
    *   sessionKey: string
    *   now: Date
-   *   transaction: *
+   *   transaction: Transaction
    * }} params - Parameters.
-   * @returns {Promise<*>} - The saved access token entity.
+   * @returns {Promise<AccessTokenEntity>} - The saved access token entity.
    */
   async saveAccessToken ({
     customerId,
@@ -153,9 +153,11 @@ export default class SessionRegisterer {
       generatedAt: now,
     })
 
-    return accessTokenEntity.save({
-      transaction,
-    })
+    return /** @type {Promise<AccessTokenEntity>} */ (
+      accessTokenEntity.save({
+        transaction,
+      })
+    )
   }
 
   /**
@@ -166,9 +168,9 @@ export default class SessionRegisterer {
    *   sessionKey: string
    *   refreshToken: string
    *   now: Date
-   *   transaction: *
+   *   transaction: Transaction
    * }} params - Parameters.
-   * @returns {Promise<*>} - The saved refresh token entity.
+   * @returns {Promise<RefreshTokenEntity>} - The saved refresh token entity.
    */
   async saveRefreshToken ({
     customerId,
@@ -184,9 +186,11 @@ export default class SessionRegisterer {
       generatedAt: now,
     })
 
-    return refreshTokenEntity.save({
-      transaction,
-    })
+    return /** @type {Promise<RefreshTokenEntity>} */ (
+      refreshTokenEntity.save({
+        transaction,
+      })
+    )
   }
 
   /**
@@ -197,7 +201,7 @@ export default class SessionRegisterer {
    * @param {{
    *   presentedRefreshToken: string | null
    * }} params - Parameters.
-   * @returns {Promise<*>} - Refresh token entity, or null when it matches nothing.
+   * @returns {Promise<RefreshTokenEntity | null>} - Refresh token entity, or null when it matches nothing.
    * @public
    */
   async findRefreshTokenEntity ({
@@ -207,13 +211,15 @@ export default class SessionRegisterer {
       return null
     }
 
-    const entity = await this.RefreshTokenModel.findOne({
-      where: {
-        tokenHash: this.RefreshTokenModel.hashToken({
-          token: presentedRefreshToken,
-        }),
-      },
-    })
+    const entity = /** @type {RefreshTokenEntity | null} */ (
+      await this.RefreshTokenModel.findOne({
+        where: {
+          tokenHash: this.RefreshTokenModel.hashToken({
+            token: presentedRefreshToken,
+          }),
+        },
+      })
+    )
 
     return entity
       ?? null
@@ -223,11 +229,11 @@ export default class SessionRegisterer {
    * Mark a refresh token as spent, so presenting it again is detectable.
    *
    * @param {{
-   *   refreshTokenEntity: *
+   *   refreshTokenEntity: RefreshTokenEntity
    *   now: Date
-   *   transaction: *
+   *   transaction: Transaction
    * }} params - Parameters.
-   * @returns {Promise<void>}
+   * @returns {Promise<RefreshTokenEntity>} - The refresh token, now marked spent.
    * @public
    */
   async consumeRefreshToken ({
@@ -235,13 +241,15 @@ export default class SessionRegisterer {
     now,
     transaction,
   }) {
-    await refreshTokenEntity.update(
-      {
-        usedAt: now,
-      },
-      {
-        transaction,
-      }
+    return /** @type {Promise<RefreshTokenEntity>} */ (
+      refreshTokenEntity.update(
+        {
+          usedAt: now,
+        },
+        {
+          transaction,
+        }
+      )
     )
   }
 
@@ -251,9 +259,9 @@ export default class SessionRegisterer {
    * @param {{
    *   sessionKey: string
    *   now: Date
-   *   transaction: *
+   *   transaction: Transaction
    * }} params - Parameters.
-   * @returns {Promise<void>}
+   * @returns {Promise<SeriesRevocationResult>} - How many refresh tokens were revoked and access tokens deleted.
    * @public
    */
   async revokeSeries ({
@@ -261,16 +269,21 @@ export default class SessionRegisterer {
     now,
     transaction,
   }) {
-    await this.revokeRefreshTokensInSeries({
+    const [revokedRefreshTokenCount] = await this.revokeRefreshTokensInSeries({
       sessionKey,
       now,
       transaction,
     })
 
-    await this.deleteAccessTokensInSeries({
+    const deletedAccessTokenCount = await this.deleteAccessTokensInSeries({
       sessionKey,
       transaction,
     })
+
+    return {
+      revokedRefreshTokenCount,
+      deletedAccessTokenCount,
+    }
   }
 
   /**
@@ -279,16 +292,16 @@ export default class SessionRegisterer {
    * @param {{
    *   sessionKey: string
    *   now: Date
-   *   transaction: *
+   *   transaction: Transaction
    * }} params - Parameters.
-   * @returns {Promise<void>}
+   * @returns {Promise<[number]>} - Sequelize bulk-update result: [number of refresh tokens revoked].
    */
   async revokeRefreshTokensInSeries ({
     sessionKey,
     now,
     transaction,
   }) {
-    await this.RefreshTokenModel.update(
+    return this.RefreshTokenModel.update(
       {
         revokedAt: now,
       },
@@ -310,15 +323,15 @@ export default class SessionRegisterer {
    *
    * @param {{
    *   sessionKey: string
-   *   transaction: *
+   *   transaction: Transaction
    * }} params - Parameters.
-   * @returns {Promise<void>}
+   * @returns {Promise<number>} - Number of access token rows deleted.
    */
   async deleteAccessTokensInSeries ({
     sessionKey,
     transaction,
   }) {
-    await this.AccessTokenModel.destroy({
+    return this.AccessTokenModel.destroy({
       where: {
         sessionKey,
       },
@@ -328,17 +341,37 @@ export default class SessionRegisterer {
 }
 
 /**
+ * @typedef {import('sequelize').Transaction} Transaction
+ */
+
+/**
+ * @typedef {typeof import('../../sequelize/models/CustomerAccessToken.js').default} AccessTokenModelClass
+ */
+
+/**
+ * @typedef {typeof import('../../sequelize/models/CustomerRefreshToken.js').default} RefreshTokenModelClass
+ */
+
+/**
+ * @typedef {import('../../sequelize/models/CustomerAccessToken.js').CustomerAccessTokenEntity} AccessTokenEntity
+ */
+
+/**
+ * @typedef {import('../../sequelize/models/CustomerRefreshToken.js').CustomerRefreshTokenEntity} RefreshTokenEntity
+ */
+
+/**
  * @typedef {{
- *   AccessTokenModel: *
- *   RefreshTokenModel: *
+ *   AccessTokenModel: AccessTokenModelClass
+ *   RefreshTokenModel: RefreshTokenModelClass
  *   credentialClerk: SessionCredentialClerk
  * }} SessionRegistererParams
  */
 
 /**
  * @typedef {{
- *   AccessTokenModel: *
- *   RefreshTokenModel: *
+ *   AccessTokenModel: AccessTokenModelClass
+ *   RefreshTokenModel: RefreshTokenModelClass
  *   credentialClerk?: SessionCredentialClerk
  * }} SessionRegistererFactoryParams
  */
@@ -349,8 +382,18 @@ export default class SessionRegisterer {
  * cookie.
  *
  * @typedef {{
- *   accessTokenEntity: *
- *   refreshTokenEntity: *
+ *   accessTokenEntity: AccessTokenEntity
+ *   refreshTokenEntity: RefreshTokenEntity
  *   refreshToken: string
  * }} SessionCredentialPair
+ */
+
+/**
+ * How much a series revocation removed — the refresh tokens marked revoked, and the access token
+ * rows deleted.
+ *
+ * @typedef {{
+ *   revokedRefreshTokenCount: number
+ *   deletedAccessTokenCount: number
+ * }} SeriesRevocationResult
  */

@@ -168,8 +168,10 @@ describe('SessionRegisterer', () => {
           transaction: input.transaction,
         }
 
-        await registerer.revokeRefreshTokensInSeries(args)
+        const received = await registerer.revokeRefreshTokensInSeries(args)
 
+        expect(received)
+          .toEqual([0])
         expect(updateSpy)
           .toHaveBeenCalledWith(...expected)
       })
@@ -225,8 +227,10 @@ describe('SessionRegisterer', () => {
           transaction: input.transaction,
         }
 
-        await registerer.deleteAccessTokensInSeries(args)
+        const received = await registerer.deleteAccessTokensInSeries(args)
 
+        expect(received)
+          .toBe(0)
         expect(destroySpy)
           .toHaveBeenCalledWith(...expected)
       })
@@ -271,11 +275,9 @@ describe('SessionRegisterer', () => {
           transaction: null,
         }
 
-        await registerer.consumeRefreshToken(args)
+        const received = await registerer.consumeRefreshToken(args)
 
-        const received = refreshTokenEntity.usedAt
-
-        expect(received)
+        expect(received.usedAt)
           .toEqual(expected)
       })
     })
@@ -291,8 +293,14 @@ describe('SessionRegisterer', () => {
             sessionKey: 'clerk-session-key-956001',
             now: new Date('2026-08-13T06:00:13.013Z'),
             transaction: null,
+            revokedRefreshTokenCount: 3,
+            deletedAccessTokenCount: 2,
           },
           expected: {
+            result: {
+              revokedRefreshTokenCount: 3,
+              deletedAccessTokenCount: 2,
+            },
             revokeRefreshTokensInSeries: {
               sessionKey: 'clerk-session-key-956001',
               now: new Date('2026-08-13T06:00:13.013Z'),
@@ -309,8 +317,14 @@ describe('SessionRegisterer', () => {
             sessionKey: 'clerk-session-key-956002',
             now: new Date('2026-08-14T06:00:14.014Z'),
             transaction: null,
+            revokedRefreshTokenCount: 5,
+            deletedAccessTokenCount: 4,
           },
           expected: {
+            result: {
+              revokedRefreshTokenCount: 5,
+              deletedAccessTokenCount: 4,
+            },
             revokeRefreshTokensInSeries: {
               sessionKey: 'clerk-session-key-956002',
               now: new Date('2026-08-14T06:00:14.014Z'),
@@ -333,17 +347,19 @@ describe('SessionRegisterer', () => {
           RefreshTokenModel: CustomerRefreshToken,
         })
         const revokeRefreshTokensInSeriesSpy = jest.spyOn(registerer, 'revokeRefreshTokensInSeries')
-          .mockResolvedValue()
+          .mockResolvedValue([input.revokedRefreshTokenCount])
         const deleteAccessTokensInSeriesSpy = jest.spyOn(registerer, 'deleteAccessTokensInSeries')
-          .mockResolvedValue()
+          .mockResolvedValue(input.deletedAccessTokenCount)
         const args = {
           sessionKey: input.sessionKey,
           now: input.now,
           transaction: input.transaction,
         }
 
-        await registerer.revokeSeries(args)
+        const received = await registerer.revokeSeries(args)
 
+        expect(received)
+          .toEqual(expected.result)
         expect(revokeRefreshTokensInSeriesSpy)
           .toHaveBeenCalledWith(expected.revokeRefreshTokensInSeries)
         expect(deleteAccessTokensInSeriesSpy)
