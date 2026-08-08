@@ -4,8 +4,8 @@ import CustomerAccessToken from '../../../../sequelize/models/CustomerAccessToke
 import CustomerRefreshToken from '../../../../sequelize/models/CustomerRefreshToken.js'
 
 describe('SessionClerk', () => {
-  describe('#saveTokenPair()', () => {
-    describe('should issue a token pair', () => {
+  describe('#saveSession()', () => {
+    describe('should issue a token pair for an existing series', () => {
       const clerk = SessionClerk.create({
         AccessTokenModel: CustomerAccessToken,
         RefreshTokenModel: CustomerRefreshToken,
@@ -49,17 +49,13 @@ describe('SessionClerk', () => {
           transaction: null,
         }
 
-        const received = await clerk.saveTokenPair(args)
+        const received = await clerk.saveSession(args)
 
         expect(received)
           .toEqual(expected)
       })
     })
-  })
-})
 
-describe('SessionClerk', () => {
-  describe('#saveSession()', () => {
     describe('should issue a token pair with a minted session key', () => {
       const clerk = SessionClerk.create({
         AccessTokenModel: CustomerAccessToken,
@@ -153,7 +149,7 @@ describe('SessionClerk', () => {
         })
         await refreshTokenEntity.save()
         const args = {
-          refreshTokenEntity,
+          tokenHash: refreshTokenEntity.tokenHash,
           now: input.now,
           transaction: null,
         }

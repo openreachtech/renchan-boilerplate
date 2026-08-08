@@ -65,11 +65,13 @@ export default class SessionClerk {
   }
 
   /**
-   * Start a new session, in a series of its own.
+   * Start or continue a session's token pair. Omit `sessionKey` to mint a new series (sign-in);
+   * pass one to add the next pair to an existing series (rotation).
    *
    * @param {{
    *   customerId: number
    *   now: Date
+   *   sessionKey?: string
    *   transaction?: Transaction | null
    * }} params - Parameters.
    * @returns {Promise<SessionCredentialPair>} - The pair handed to the client.
@@ -78,6 +80,7 @@ export default class SessionClerk {
   async saveSession ({
     customerId,
     now,
+    sessionKey = this.credentialClerk.generateSessionKey(),
     transaction = null,
   }) {
     if (!transaction) {
@@ -86,46 +89,7 @@ export default class SessionClerk {
           this.saveSession({
             customerId,
             now,
-            transaction: innerTransaction,
-          })
-        )
-    }
-
-    const sessionKey = this.credentialClerk.generateSessionKey()
-
-    return this.saveTokenPair({
-      customerId,
-      sessionKey,
-      now,
-      transaction,
-    })
-  }
-
-  /**
-   * Save a token pair within a series.
-   *
-   * @param {{
-   *   customerId: number
-   *   sessionKey: string
-   *   now: Date
-   *   transaction?: Transaction | null
-   * }} params - Parameters.
-   * @returns {Promise<SessionCredentialPair>} - The pair handed to the client.
-   * @public
-   */
-  async saveTokenPair ({
-    customerId,
-    sessionKey,
-    now,
-    transaction = null,
-  }) {
-    if (!transaction) {
-      return this.AccessTokenModel
-        .beginTransaction(async innerTransaction =>
-          this.saveTokenPair({
-            customerId,
             sessionKey,
-            now,
             transaction: innerTransaction,
           })
         )
@@ -224,15 +188,15 @@ export default class SessionClerk {
    * The presented value is hashed before the lookup, because the table stores digests.
    *
    * @param {{
-   *   presentedRefreshToken: string | null
+   *   refreshToken: string | null
    * }} params - Parameters.
    * @returns {Promise<RefreshTokenEntity | null>} - Refresh token entity, or null when it matches nothing.
    * @public
    */
   async findRefreshToken ({
-    presentedRefreshToken,
+    refreshToken,
   }) {
-    if (!presentedRefreshToken) {
+    if (!refreshToken) {
       return null
     }
 
@@ -240,7 +204,7 @@ export default class SessionClerk {
       await this.RefreshTokenModel.findOne({
         where: {
           tokenHash: this.RefreshTokenModel.hashToken({
-            token: presentedRefreshToken,
+            token: refreshToken,
           }),
         },
       })
@@ -256,7 +220,7 @@ export default class SessionClerk {
    * Keyed on the unique token digest, so it marks exactly the one row.
    *
    * @param {{
-   *   refreshTokenEntity: RefreshTokenEntity
+   *   tokenHash: string
    *   now: Date
    *   transaction?: Transaction | null
    * }} params - Parameters.
@@ -264,7 +228,7 @@ export default class SessionClerk {
    * @public
    */
   async spendRefreshToken ({
-    refreshTokenEntity,
+    tokenHash,
     now,
     transaction = null,
   }) {
@@ -272,7 +236,7 @@ export default class SessionClerk {
       return this.AccessTokenModel
         .beginTransaction(async innerTransaction =>
           this.spendRefreshToken({
-            refreshTokenEntity,
+            tokenHash,
             now,
             transaction: innerTransaction,
           })
@@ -285,7 +249,7 @@ export default class SessionClerk {
       },
       {
         where: {
-          tokenHash: refreshTokenEntity.tokenHash,
+          tokenHash,
         },
         transaction,
       }

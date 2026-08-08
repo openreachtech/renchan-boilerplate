@@ -77,7 +77,7 @@ export default class RenewAccessTokenMutationResolver extends BaseMutationResolv
     const sessionClerk = this.createSessionClerk()
 
     const refreshTokenEntity = await sessionClerk.findRefreshToken({
-      presentedRefreshToken: cookieClerk.extractRefreshToken(),
+      refreshToken: cookieClerk.extractRefreshToken(),
     })
 
     if (!refreshTokenEntity) {
@@ -234,12 +234,12 @@ export default class RenewAccessTokenMutationResolver extends BaseMutationResolv
 
     return async transaction => {
       await sessionClerk.spendRefreshToken({
-        refreshTokenEntity,
+        tokenHash: refreshTokenEntity.tokenHash,
         now,
         transaction,
       })
 
-      return sessionClerk.saveTokenPair({
+      return sessionClerk.saveSession({
         customerId: refreshTokenEntity.CustomerId,
         sessionKey: refreshTokenEntity.sessionKey,
         now,

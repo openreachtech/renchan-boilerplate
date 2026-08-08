@@ -1,4 +1,5 @@
 import SessionClerk from '../../../../app/auth/SessionClerk.js'
+
 import SessionCredentialClerk from '../../../../app/auth/SessionCredentialClerk.js'
 
 import CustomerAccessToken from '../../../../sequelize/models/CustomerAccessToken.js'
@@ -8,35 +9,13 @@ describe('SessionClerk', () => {
   describe('constructor', () => {
     describe('should keep property', () => {
       describe('#AccessTokenModel', () => {
-        const cases = [
-          {
-            input: {
-              AccessTokenModel: /** @type {*} */ ({
-                tableName: 'access_tokens_0001',
-              }),
-            },
-            expected: {
-              tableName: 'access_tokens_0001',
-            },
-          },
-          {
-            input: {
-              AccessTokenModel: /** @type {*} */ ({
-                tableName: 'access_tokens_0002',
-              }),
-            },
-            expected: {
-              tableName: 'access_tokens_0002',
-            },
-          },
-        ]
-
-        test.each(cases)('AccessTokenModel: $input.AccessTokenModel.tableName', ({ input, expected }) => {
+        test('is the passed access token model', () => {
           const args = {
-            AccessTokenModel: input.AccessTokenModel,
-            RefreshTokenModel: /** @type {*} */ ({}),
-            credentialClerk: /** @type {*} */ ({}),
+            AccessTokenModel: CustomerAccessToken,
+            RefreshTokenModel: CustomerRefreshToken,
+            credentialClerk: SessionCredentialClerk.create(),
           }
+          const expected = CustomerAccessToken
 
           const clerk = new SessionClerk(args)
 
@@ -46,35 +25,13 @@ describe('SessionClerk', () => {
       })
 
       describe('#RefreshTokenModel', () => {
-        const cases = [
-          {
-            input: {
-              RefreshTokenModel: /** @type {*} */ ({
-                tableName: 'refresh_tokens_0001',
-              }),
-            },
-            expected: {
-              tableName: 'refresh_tokens_0001',
-            },
-          },
-          {
-            input: {
-              RefreshTokenModel: /** @type {*} */ ({
-                tableName: 'refresh_tokens_0002',
-              }),
-            },
-            expected: {
-              tableName: 'refresh_tokens_0002',
-            },
-          },
-        ]
-
-        test.each(cases)('RefreshTokenModel: $input.RefreshTokenModel.tableName', ({ input, expected }) => {
+        test('is the passed refresh token model', () => {
           const args = {
-            AccessTokenModel: /** @type {*} */ ({}),
-            RefreshTokenModel: input.RefreshTokenModel,
-            credentialClerk: /** @type {*} */ ({}),
+            AccessTokenModel: CustomerAccessToken,
+            RefreshTokenModel: CustomerRefreshToken,
+            credentialClerk: SessionCredentialClerk.create(),
           }
+          const expected = CustomerRefreshToken
 
           const clerk = new SessionClerk(args)
 
@@ -87,30 +44,33 @@ describe('SessionClerk', () => {
         const cases = [
           {
             input: {
-              credentialClerk: /** @type {*} */ ({
+              credentialClerk: SessionCredentialClerk.create({
                 tokenByteSize: 101,
               }),
             },
-            expected: {
+            expected: SessionCredentialClerk.create({
               tokenByteSize: 101,
-            },
+            }),
           },
           {
             input: {
-              credentialClerk: /** @type {*} */ ({
+              credentialClerk: SessionCredentialClerk.create({
                 tokenByteSize: 202,
               }),
             },
-            expected: {
+            expected: SessionCredentialClerk.create({
               tokenByteSize: 202,
-            },
+            }),
           },
         ]
 
-        test.each(cases)('credentialClerk: $input.credentialClerk.tokenByteSize', ({ input, expected }) => {
+        test.each(cases)('credentialClerk: $input.credentialClerk.tokenByteSize', ({
+          input,
+          expected,
+        }) => {
           const args = {
-            AccessTokenModel: /** @type {*} */ ({}),
-            RefreshTokenModel: /** @type {*} */ ({}),
+            AccessTokenModel: CustomerAccessToken,
+            RefreshTokenModel: CustomerRefreshToken,
             credentialClerk: input.credentialClerk,
           }
 
@@ -130,33 +90,25 @@ describe('SessionClerk', () => {
       const cases = [
         {
           input: {
-            AccessTokenModel: /** @type {*} */ ({
-              tableName: 'access_tokens_0001',
-            }),
-            RefreshTokenModel: /** @type {*} */ ({
-              tableName: 'refresh_tokens_0001',
-            }),
-            credentialClerk: /** @type {*} */ ({
+            AccessTokenModel: CustomerAccessToken,
+            RefreshTokenModel: CustomerRefreshToken,
+            credentialClerk: SessionCredentialClerk.create({
               tokenByteSize: 101,
             }),
           },
         },
         {
           input: {
-            AccessTokenModel: /** @type {*} */ ({
-              tableName: 'access_tokens_0002',
-            }),
-            RefreshTokenModel: /** @type {*} */ ({
-              tableName: 'refresh_tokens_0002',
-            }),
-            credentialClerk: /** @type {*} */ ({
+            AccessTokenModel: CustomerAccessToken,
+            RefreshTokenModel: CustomerRefreshToken,
+            credentialClerk: SessionCredentialClerk.create({
               tokenByteSize: 202,
             }),
           },
         },
       ]
 
-      test.each(cases)('AccessTokenModel: $input.AccessTokenModel.tableName', ({ input }) => {
+      test.each(cases)('credentialClerk: $input.credentialClerk.tokenByteSize', ({ input }) => {
         const received = SessionClerk.create(input)
 
         expect(received)
@@ -168,33 +120,25 @@ describe('SessionClerk', () => {
       const cases = [
         {
           tally: {
-            AccessTokenModel: /** @type {*} */ ({
-              tableName: 'access_tokens_0001',
-            }),
-            RefreshTokenModel: /** @type {*} */ ({
-              tableName: 'refresh_tokens_0001',
-            }),
-            credentialClerk: /** @type {*} */ ({
+            AccessTokenModel: CustomerAccessToken,
+            RefreshTokenModel: CustomerRefreshToken,
+            credentialClerk: SessionCredentialClerk.create({
               tokenByteSize: 101,
             }),
           },
         },
         {
           tally: {
-            AccessTokenModel: /** @type {*} */ ({
-              tableName: 'access_tokens_0002',
-            }),
-            RefreshTokenModel: /** @type {*} */ ({
-              tableName: 'refresh_tokens_0002',
-            }),
-            credentialClerk: /** @type {*} */ ({
+            AccessTokenModel: CustomerAccessToken,
+            RefreshTokenModel: CustomerRefreshToken,
+            credentialClerk: SessionCredentialClerk.create({
               tokenByteSize: 202,
             }),
           },
         },
       ]
 
-      test.each(cases)('AccessTokenModel: $tally.AccessTokenModel.tableName', ({ tally }) => {
+      test.each(cases)('credentialClerk: $tally.credentialClerk.tokenByteSize', ({ tally }) => {
         const SpyClass = globalThis.constructorSpy.spyOn(SessionClerk)
 
         SpyClass.create(tally)
@@ -208,17 +152,13 @@ describe('SessionClerk', () => {
       test('with no credential clerk', () => {
         const credentialClerk = SessionCredentialClerk.create()
         const expected = {
-          AccessTokenModel: /** @type {*} */ ({
-            tableName: 'access_tokens_0003',
-          }),
-          RefreshTokenModel: /** @type {*} */ ({
-            tableName: 'refresh_tokens_0003',
-          }),
+          AccessTokenModel: CustomerAccessToken,
+          RefreshTokenModel: CustomerRefreshToken,
           credentialClerk,
         }
         const input = {
-          AccessTokenModel: expected.AccessTokenModel,
-          RefreshTokenModel: expected.RefreshTokenModel,
+          AccessTokenModel: CustomerAccessToken,
+          RefreshTokenModel: CustomerRefreshToken,
           // credentialClerk: omitted → falls back to the default
         }
 
@@ -272,19 +212,19 @@ describe('SessionClerk', () => {
       const cases = [
         {
           input: {
-            presentedRefreshToken: 'refresh-token-01-01', // seeded: active
+            refreshToken: 'refresh-token-01-01', // seeded: active
           },
           expected: 'session-key-01-01',
         },
         {
           input: {
-            presentedRefreshToken: 'refresh-token-02-02', // seeded: active
+            refreshToken: 'refresh-token-02-02', // seeded: active
           },
           expected: 'session-key-02-02',
         },
       ]
 
-      test.each(cases)('presentedRefreshToken: $input.presentedRefreshToken', async ({
+      test.each(cases)('refreshToken: $input.refreshToken', async ({
         input,
         expected,
       }) => {
@@ -300,17 +240,17 @@ describe('SessionClerk', () => {
       const cases = [
         {
           input: {
-            presentedRefreshToken: 'unmatched-refresh-token-value-0001',
+            refreshToken: 'unmatched-refresh-token-value-0001',
           },
         },
         {
           input: {
-            presentedRefreshToken: 'unmatched-refresh-token-value-0002',
+            refreshToken: 'unmatched-refresh-token-value-0002',
           },
         },
       ]
 
-      test.each(cases)('presentedRefreshToken: $input.presentedRefreshToken', async ({ input }) => {
+      test.each(cases)('refreshToken: $input.refreshToken', async ({ input }) => {
         const received = await clerk.findRefreshToken(input)
 
         expect(received)
@@ -322,17 +262,17 @@ describe('SessionClerk', () => {
       const cases = [
         {
           input: {
-            presentedRefreshToken: null,
+            refreshToken: null,
           },
         },
         {
           input: {
-            presentedRefreshToken: '',
+            refreshToken: '',
           },
         },
       ]
 
-      test.each(cases)('presentedRefreshToken: $input.presentedRefreshToken', async ({ input }) => {
+      test.each(cases)('refreshToken: $input.refreshToken', async ({ input }) => {
         const findOneSpy = jest.spyOn(CustomerRefreshToken, 'findOne')
 
         await clerk.findRefreshToken(input)
