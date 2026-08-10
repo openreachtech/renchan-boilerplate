@@ -104,24 +104,21 @@ export default class RenewAccessTokenMutationResolver extends BaseMutationResolv
       throw this.errorHash.Unauthenticated.create()
     }
 
-    const {
-      error,
-      credentialPair,
-    } = await sessionClerk.rotateSession({
+    const result = await sessionClerk.rotateSession({
       refreshTokenEntity,
       now: context.now,
     })
 
-    if (error) {
+    if (result.error !== null) {
       throw this.errorHash.FailedToRotateSession.create()
     }
 
     cookieClerk.saveRefreshTokenCookie({
-      refreshToken: credentialPair.refreshToken,
+      refreshToken: result.credentialPair.refreshToken,
     })
 
     return this.formatResponse({
-      credentialPair,
+      credentialPair: result.credentialPair,
     })
   }
 
@@ -189,7 +186,7 @@ export default class RenewAccessTokenMutationResolver extends BaseMutationResolv
    *   context: import('../../../../contexts/CustomerGraphqlContext.js').default
    *   refreshTokenEntity: RefreshTokenEntity
    * }} params - Parameters.
-   * @returns {Promise<import('../../../../../../app/auth/SessionClerk.js').SessionRevocationOutcome>} - Outcome of revoking the reused session.
+   * @returns {Promise<import('../../../../../../app/auth/SessionRevocationResult.js').default>} - Outcome of revoking the reused session.
    */
   async revokeReusedSession ({
     context,

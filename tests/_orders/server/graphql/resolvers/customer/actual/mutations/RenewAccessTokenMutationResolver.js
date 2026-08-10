@@ -1,6 +1,8 @@
 import RenewAccessTokenMutationResolver from '../../../../../../../../server/graphql/resolvers/customer/actual/mutations/RenewAccessTokenMutationResolver.js'
 
 import SessionClerk from '../../../../../../../../app/auth/SessionClerk.js'
+import SessionSavingResult from '../../../../../../../../app/auth/SessionSavingResult.js'
+import SessionRevocationResult from '../../../../../../../../app/auth/SessionRevocationResult.js'
 import RefreshTokenExpressCookieClerk from '../../../../../../../../server/graphql/contexts/tools/RefreshTokenExpressCookieClerk.js'
 
 import CustomerRefreshToken from '../../../../../../../../sequelize/models/CustomerRefreshToken.js'
@@ -148,10 +150,10 @@ describe('RenewAccessTokenMutationResolver', () => {
         jest.spyOn(RefreshTokenExpressCookieClerk.prototype, 'extractRefreshToken')
           .mockReturnValue(input.presentedRefreshToken)
         jest.spyOn(SessionClerk.prototype, 'rotateSession')
-          .mockResolvedValue({
+          .mockResolvedValue(SessionSavingResult.create({
             error: new Error('rotate failed'),
             credentialPair: null,
-          })
+          }))
         const args = {
           context: /** @type {*} */ ({
             now: input.now,
@@ -226,26 +228,26 @@ describe('RenewAccessTokenMutationResolver', () => {
             sessionKey: 'session-key-96-01', // seeded: 2 live (+1 revoked) refresh, 3 access
             now: new Date('2026-08-24T06:00:24.024Z'),
           },
-          expected: {
+          expected: SessionRevocationResult.create({
             error: null,
             revocation: {
               revokedRefreshTokenCount: 2,
               deletedAccessTokenCount: 3,
             },
-          },
+          }),
         },
         {
           input: {
             sessionKey: 'session-key-97-01', // seeded: 1 live refresh, 2 access
             now: new Date('2026-08-25T06:00:25.025Z'),
           },
-          expected: {
+          expected: SessionRevocationResult.create({
             error: null,
             revocation: {
               revokedRefreshTokenCount: 1,
               deletedAccessTokenCount: 2,
             },
-          },
+          }),
         },
       ]
 
@@ -268,6 +270,8 @@ describe('RenewAccessTokenMutationResolver', () => {
 
         expect(received)
           .toEqual(expected)
+        expect(received)
+          .toBeInstanceOf(SessionRevocationResult)
       })
     })
   })

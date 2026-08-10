@@ -83,15 +83,12 @@ export default class SignInMutationResolver extends BaseMutationResolver {
 
     const sessionClerk = this.createSessionClerk()
 
-    const {
-      error,
-      credentialPair,
-    } = await sessionClerk.saveSession({
+    const result = await sessionClerk.saveSession({
       customerId: passwordHashEntity.CustomerId,
       now: context.now,
     })
 
-    if (error) {
+    if (result.error !== null) {
       throw this.errorHash.FailedToSaveSession.create()
     }
 
@@ -102,11 +99,11 @@ export default class SignInMutationResolver extends BaseMutationResolver {
     })
 
     cookieClerk.saveRefreshTokenCookie({
-      refreshToken: credentialPair.refreshToken,
+      refreshToken: result.credentialPair.refreshToken,
     })
 
     return this.formatResponse({
-      credentialPair,
+      credentialPair: result.credentialPair,
     })
   }
 

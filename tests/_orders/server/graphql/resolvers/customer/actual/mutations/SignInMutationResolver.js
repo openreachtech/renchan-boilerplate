@@ -1,6 +1,7 @@
 import SignInMutationResolver from '../../../../../../../../server/graphql/resolvers/customer/actual/mutations/SignInMutationResolver.js'
 
 import SessionClerk from '../../../../../../../../app/auth/SessionClerk.js'
+import SessionSavingResult from '../../../../../../../../app/auth/SessionSavingResult.js'
 import RefreshTokenExpressCookieClerk from '../../../../../../../../server/graphql/contexts/tools/RefreshTokenExpressCookieClerk.js'
 
 describe('SignInMutationResolver', () => {
@@ -135,10 +136,10 @@ describe('SignInMutationResolver', () => {
 
       test.each(cases)('email: $input.variables.input.email', async ({ input }) => {
         jest.spyOn(SessionClerk.prototype, 'saveSession')
-          .mockResolvedValue({
+          .mockResolvedValue(SessionSavingResult.create({
             error: new Error('save failed'),
             credentialPair: null,
-          })
+          }))
 
         const actual = () => resolver.resolve(input)
 

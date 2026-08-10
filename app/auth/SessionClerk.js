@@ -1,4 +1,6 @@
 import SessionCredentialClerk from './SessionCredentialClerk.js'
+import SessionSavingResult from './SessionSavingResult.js'
+import SessionRevocationResult from './SessionRevocationResult.js'
 
 /**
  * The single window for a session's data — every find / save / update / delete across the tables a
@@ -76,7 +78,7 @@ export default class SessionClerk {
    *   now: Date
    *   sessionKey?: string
    * }} params - Parameters.
-   * @returns {Promise<SessionCredentialResult>} - The error (null on success) and the saved pair.
+   * @returns {Promise<SessionSavingResult>} - The error (null on success) and the saved pair.
    * @public
    */
   async saveSession ({
@@ -95,15 +97,15 @@ export default class SessionClerk {
           })
         )
 
-      return {
+      return SessionSavingResult.create({
         error: null,
         credentialPair,
-      }
+      })
     } catch (error) {
-      return {
+      return SessionSavingResult.create({
         error,
         credentialPair: null,
-      }
+      })
     }
   }
 
@@ -251,7 +253,7 @@ export default class SessionClerk {
    *   refreshTokenEntity: RefreshTokenEntity
    *   now: Date
    * }} params - Parameters.
-   * @returns {Promise<SessionCredentialResult>} - The error (null on success) and the next pair.
+   * @returns {Promise<SessionSavingResult>} - The error (null on success) and the next pair.
    * @public
    */
   async rotateSession ({
@@ -275,15 +277,15 @@ export default class SessionClerk {
           })
         })
 
-      return {
+      return SessionSavingResult.create({
         error: null,
         credentialPair,
-      }
+      })
     } catch (error) {
-      return {
+      return SessionSavingResult.create({
         error,
         credentialPair: null,
-      }
+      })
     }
   }
 
@@ -324,7 +326,7 @@ export default class SessionClerk {
    *   sessionKey: string
    *   now: Date
    * }} params - Parameters.
-   * @returns {Promise<SessionRevocationOutcome>} - The error (null on success) and the counts.
+   * @returns {Promise<SessionRevocationResult>} - The error (null on success) and the counts.
    * @public
    */
   async revokeSession ({
@@ -351,15 +353,15 @@ export default class SessionClerk {
           }
         })
 
-      return {
+      return SessionRevocationResult.create({
         error: null,
         revocation,
-      }
+      })
     } catch (error) {
-      return {
+      return SessionRevocationResult.create({
         error,
         revocation: null,
-      }
+      })
     }
   }
 
@@ -465,32 +467,4 @@ export default class SessionClerk {
  *   refreshTokenEntity: RefreshTokenEntity
  *   refreshToken: string
  * }} SessionCredentialPair
- */
-
-/**
- * Outcome of saving or rotating a session: the error (null on success), and the pair on success.
- *
- * @typedef {{
- *   error: Error | null
- *   credentialPair: SessionCredentialPair | null
- * }} SessionCredentialResult
- */
-
-/**
- * How much a session revocation removed — the refresh tokens marked revoked, and the access token
- * rows deleted.
- *
- * @typedef {{
- *   revokedRefreshTokenCount: number
- *   deletedAccessTokenCount: number
- * }} SessionRevocationResult
- */
-
-/**
- * Outcome of revoking a session: the error (null on success), and the counts on success.
- *
- * @typedef {{
- *   error: Error | null
- *   revocation: SessionRevocationResult | null
- * }} SessionRevocationOutcome
  */

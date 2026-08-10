@@ -1,4 +1,6 @@
 import SessionClerk from '../../../../app/auth/SessionClerk.js'
+import SessionSavingResult from '../../../../app/auth/SessionSavingResult.js'
+import SessionRevocationResult from '../../../../app/auth/SessionRevocationResult.js'
 
 import CustomerAccessToken from '../../../../sequelize/models/CustomerAccessToken.js'
 import CustomerRefreshToken from '../../../../sequelize/models/CustomerRefreshToken.js'
@@ -18,14 +20,14 @@ describe('SessionClerk', () => {
             sessionKey: 'clerk-session-key-950001',
             now: new Date('2026-08-01T00:00:01.001Z'),
           },
-          expected: {
+          expected: SessionSavingResult.create({
             error: null,
             credentialPair: {
               accessTokenEntity: expect.any(CustomerAccessToken),
               refreshTokenEntity: expect.any(CustomerRefreshToken),
               refreshToken: expect.stringMatching(/^[0-9a-f]{64}$/u),
             },
-          },
+          }),
         },
         {
           input: {
@@ -33,14 +35,14 @@ describe('SessionClerk', () => {
             sessionKey: 'clerk-session-key-950002',
             now: new Date('2026-08-02T00:00:02.002Z'),
           },
-          expected: {
+          expected: SessionSavingResult.create({
             error: null,
             credentialPair: {
               accessTokenEntity: expect.any(CustomerAccessToken),
               refreshTokenEntity: expect.any(CustomerRefreshToken),
               refreshToken: expect.stringMatching(/^[0-9a-f]{64}$/u),
             },
-          },
+          }),
         },
       ]
 
@@ -58,6 +60,8 @@ describe('SessionClerk', () => {
 
         expect(received)
           .toEqual(expected)
+        expect(received)
+          .toBeInstanceOf(SessionSavingResult)
       })
     })
 
@@ -73,28 +77,28 @@ describe('SessionClerk', () => {
             customerId: 951001,
             now: new Date('2026-08-03T00:00:03.003Z'),
           },
-          expected: {
+          expected: SessionSavingResult.create({
             error: null,
             credentialPair: {
               accessTokenEntity: expect.any(CustomerAccessToken),
               refreshTokenEntity: expect.any(CustomerRefreshToken),
               refreshToken: expect.stringMatching(/^[0-9a-f]{64}$/u),
             },
-          },
+          }),
         },
         {
           input: {
             customerId: 951002,
             now: new Date('2026-08-04T00:00:04.004Z'),
           },
-          expected: {
+          expected: SessionSavingResult.create({
             error: null,
             credentialPair: {
               accessTokenEntity: expect.any(CustomerAccessToken),
               refreshTokenEntity: expect.any(CustomerRefreshToken),
               refreshToken: expect.stringMatching(/^[0-9a-f]{64}$/u),
             },
-          },
+          }),
         },
       ]
 
@@ -111,6 +115,8 @@ describe('SessionClerk', () => {
 
         expect(received)
           .toEqual(expected)
+        expect(received)
+          .toBeInstanceOf(SessionSavingResult)
       })
     })
 
@@ -142,15 +148,17 @@ describe('SessionClerk', () => {
           customerId: input.customerId,
           now: input.now,
         }
-        const expected = {
+        const expected = SessionSavingResult.create({
           error: expect.any(Error),
           credentialPair: null,
-        }
+        })
 
         const received = await clerk.saveSession(args)
 
         expect(received)
           .toEqual(expected)
+        expect(received)
+          .toBeInstanceOf(SessionSavingResult)
       })
     })
   })
@@ -316,26 +324,26 @@ describe('SessionClerk', () => {
             sessionKey: 'session-key-92-01', // seeded: 2 live (+1 revoked) refresh, 3 access
             now: new Date('2026-08-13T06:00:13.013Z'),
           },
-          expected: {
+          expected: SessionRevocationResult.create({
             error: null,
             revocation: {
               revokedRefreshTokenCount: 2,
               deletedAccessTokenCount: 3,
             },
-          },
+          }),
         },
         {
           input: {
             sessionKey: 'session-key-95-01', // seeded: 1 live (+1 revoked) refresh, 2 access
             now: new Date('2026-08-14T06:00:14.014Z'),
           },
-          expected: {
+          expected: SessionRevocationResult.create({
             error: null,
             revocation: {
               revokedRefreshTokenCount: 1,
               deletedAccessTokenCount: 2,
             },
-          },
+          }),
         },
       ]
 
@@ -352,6 +360,8 @@ describe('SessionClerk', () => {
 
         expect(received)
           .toEqual(expected)
+        expect(received)
+          .toBeInstanceOf(SessionRevocationResult)
       })
     })
 
@@ -383,15 +393,17 @@ describe('SessionClerk', () => {
           sessionKey: input.sessionKey,
           now: input.now,
         }
-        const expected = {
+        const expected = SessionRevocationResult.create({
           error: expect.any(Error),
           revocation: null,
-        }
+        })
 
         const received = await clerk.revokeSession(args)
 
         expect(received)
           .toEqual(expected)
+        expect(received)
+          .toBeInstanceOf(SessionRevocationResult)
       })
     })
   })
@@ -449,6 +461,8 @@ describe('SessionClerk', () => {
 
         expect(received)
           .toBe(expected)
+        expect(result)
+          .toBeInstanceOf(SessionSavingResult)
       })
     })
 
@@ -492,15 +506,17 @@ describe('SessionClerk', () => {
           refreshTokenEntity,
           now: input.now,
         }
-        const expected = {
+        const expected = SessionSavingResult.create({
           error: expect.any(Error),
           credentialPair: null,
-        }
+        })
 
         const received = await clerk.rotateSession(args)
 
         expect(received)
           .toEqual(expected)
+        expect(received)
+          .toBeInstanceOf(SessionSavingResult)
       })
     })
   })
