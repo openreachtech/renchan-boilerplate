@@ -97,12 +97,12 @@ export default class SessionClerk {
           })
         )
 
-      return SessionSavingResult.create({
+      return this.createSavingResult({
         error: null,
         credentialPair,
       })
     } catch (error) {
-      return SessionSavingResult.create({
+      return this.createSavingResult({
         error,
         credentialPair: null,
       })
@@ -277,12 +277,12 @@ export default class SessionClerk {
           })
         })
 
-      return SessionSavingResult.create({
+      return this.createSavingResult({
         error: null,
         credentialPair,
       })
     } catch (error) {
-      return SessionSavingResult.create({
+      return this.createSavingResult({
         error,
         credentialPair: null,
       })
@@ -353,12 +353,12 @@ export default class SessionClerk {
           }
         })
 
-      return SessionRevocationResult.create({
+      return this.createRevocationResult({
         error: null,
         revocation,
       })
     } catch (error) {
-      return SessionRevocationResult.create({
+      return this.createRevocationResult({
         error,
         revocation: null,
       })
@@ -418,6 +418,26 @@ export default class SessionClerk {
       },
       transaction,
     })
+  }
+
+  /**
+   * Create a session saving result.
+   *
+   * @param {import('./SessionSavingResult.js').SessionSavingResultParams} params
+   * @returns {SessionSavingResult}
+   */
+  createSavingResult (params) {
+    return SessionSavingResult.create(params)
+  }
+
+  /**
+   * Create a session revocation result.
+   *
+   * @param {import('./SessionRevocationResult.js').SessionRevocationResultParams} params
+   * @returns {SessionRevocationResult}
+   */
+  createRevocationResult (params) {
+    return SessionRevocationResult.create(params)
   }
 }
 

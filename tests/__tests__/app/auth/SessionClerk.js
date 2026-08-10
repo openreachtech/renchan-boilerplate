@@ -1,6 +1,8 @@
 import SessionClerk from '../../../../app/auth/SessionClerk.js'
 
 import SessionCredentialClerk from '../../../../app/auth/SessionCredentialClerk.js'
+import SessionSavingResult from '../../../../app/auth/SessionSavingResult.js'
+import SessionRevocationResult from '../../../../app/auth/SessionRevocationResult.js'
 
 import CustomerAccessToken from '../../../../sequelize/models/CustomerAccessToken.js'
 import CustomerRefreshToken from '../../../../sequelize/models/CustomerRefreshToken.js'
@@ -280,6 +282,72 @@ describe('SessionClerk', () => {
         expect(findOneSpy)
           .not
           .toHaveBeenCalled()
+      })
+    })
+  })
+})
+
+describe('SessionClerk', () => {
+  describe('#createSavingResult()', () => {
+    const clerk = SessionClerk.create({
+      AccessTokenModel: CustomerAccessToken,
+      RefreshTokenModel: CustomerRefreshToken,
+    })
+
+    describe('should be a session saving result', () => {
+      const cases = [
+        {
+          input: {
+            error: new Error('saving-result-error-01'),
+            credentialPair: null,
+          },
+        },
+        {
+          input: {
+            error: new Error('saving-result-error-02'),
+            credentialPair: null,
+          },
+        },
+      ]
+
+      test.each(cases)('error: $input.error.message', ({ input }) => {
+        const received = clerk.createSavingResult(input)
+
+        expect(received)
+          .toBeInstanceOf(SessionSavingResult)
+      })
+    })
+  })
+})
+
+describe('SessionClerk', () => {
+  describe('#createRevocationResult()', () => {
+    const clerk = SessionClerk.create({
+      AccessTokenModel: CustomerAccessToken,
+      RefreshTokenModel: CustomerRefreshToken,
+    })
+
+    describe('should be a session revocation result', () => {
+      const cases = [
+        {
+          input: {
+            error: new Error('revocation-result-error-01'),
+            revocation: null,
+          },
+        },
+        {
+          input: {
+            error: new Error('revocation-result-error-02'),
+            revocation: null,
+          },
+        },
+      ]
+
+      test.each(cases)('error: $input.error.message', ({ input }) => {
+        const received = clerk.createRevocationResult(input)
+
+        expect(received)
+          .toBeInstanceOf(SessionRevocationResult)
       })
     })
   })
