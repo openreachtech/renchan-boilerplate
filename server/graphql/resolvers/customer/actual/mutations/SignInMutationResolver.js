@@ -31,6 +31,9 @@ export default class SignInMutationResolver extends BaseMutationResolver {
       ...super.errorCodeHash,
 
       IncorrectSecret: '202.M002.001',
+
+      // Database errors (204 prefix)
+      FailedToSaveSession: '204.M002.001',
     }
   }
 
@@ -80,10 +83,17 @@ export default class SignInMutationResolver extends BaseMutationResolver {
 
     const sessionClerk = this.createSessionClerk()
 
-    const credentialPair = await sessionClerk.saveSession({
+    const {
+      success,
+      credentialPair,
+    } = await sessionClerk.saveSession({
       customerId: passwordHashEntity.CustomerId,
       now: context.now,
     })
+
+    if (!success) {
+      throw this.errorHash.FailedToSaveSession.create()
+    }
 
     // Only after the transaction committed: a cookie for a session that was rolled back would
     // leave the client holding a refresh token no row backs.

@@ -19,9 +19,12 @@ describe('SessionClerk', () => {
             now: new Date('2026-08-01T00:00:01.001Z'),
           },
           expected: {
-            accessTokenEntity: expect.any(CustomerAccessToken),
-            refreshTokenEntity: expect.any(CustomerRefreshToken),
-            refreshToken: expect.stringMatching(/^[0-9a-f]{64}$/u),
+            success: true,
+            credentialPair: {
+              accessTokenEntity: expect.any(CustomerAccessToken),
+              refreshTokenEntity: expect.any(CustomerRefreshToken),
+              refreshToken: expect.stringMatching(/^[0-9a-f]{64}$/u),
+            },
           },
         },
         {
@@ -31,9 +34,12 @@ describe('SessionClerk', () => {
             now: new Date('2026-08-02T00:00:02.002Z'),
           },
           expected: {
-            accessTokenEntity: expect.any(CustomerAccessToken),
-            refreshTokenEntity: expect.any(CustomerRefreshToken),
-            refreshToken: expect.stringMatching(/^[0-9a-f]{64}$/u),
+            success: true,
+            credentialPair: {
+              accessTokenEntity: expect.any(CustomerAccessToken),
+              refreshTokenEntity: expect.any(CustomerRefreshToken),
+              refreshToken: expect.stringMatching(/^[0-9a-f]{64}$/u),
+            },
           },
         },
       ]
@@ -46,7 +52,6 @@ describe('SessionClerk', () => {
           customerId: input.customerId,
           sessionKey: input.sessionKey,
           now: input.now,
-          transaction: null,
         }
 
         const received = await clerk.saveSession(args)
@@ -69,9 +74,12 @@ describe('SessionClerk', () => {
             now: new Date('2026-08-03T00:00:03.003Z'),
           },
           expected: {
-            accessTokenEntity: expect.any(CustomerAccessToken),
-            refreshTokenEntity: expect.any(CustomerRefreshToken),
-            refreshToken: expect.stringMatching(/^[0-9a-f]{64}$/u),
+            success: true,
+            credentialPair: {
+              accessTokenEntity: expect.any(CustomerAccessToken),
+              refreshTokenEntity: expect.any(CustomerRefreshToken),
+              refreshToken: expect.stringMatching(/^[0-9a-f]{64}$/u),
+            },
           },
         },
         {
@@ -80,9 +88,12 @@ describe('SessionClerk', () => {
             now: new Date('2026-08-04T00:00:04.004Z'),
           },
           expected: {
-            accessTokenEntity: expect.any(CustomerAccessToken),
-            refreshTokenEntity: expect.any(CustomerRefreshToken),
-            refreshToken: expect.stringMatching(/^[0-9a-f]{64}$/u),
+            success: true,
+            credentialPair: {
+              accessTokenEntity: expect.any(CustomerAccessToken),
+              refreshTokenEntity: expect.any(CustomerRefreshToken),
+              refreshToken: expect.stringMatching(/^[0-9a-f]{64}$/u),
+            },
           },
         },
       ]
@@ -94,7 +105,46 @@ describe('SessionClerk', () => {
         const args = {
           customerId: input.customerId,
           now: input.now,
-          transaction: null,
+        }
+
+        const received = await clerk.saveSession(args)
+
+        expect(received)
+          .toEqual(expected)
+      })
+    })
+
+    describe('should report failure when saving throws', () => {
+      const clerk = SessionClerk.create({
+        AccessTokenModel: CustomerAccessToken,
+        RefreshTokenModel: CustomerRefreshToken,
+      })
+
+      const cases = [
+        {
+          input: {
+            customerId: 955001,
+            now: new Date('2026-08-15T06:00:15.015Z'),
+          },
+        },
+        {
+          input: {
+            customerId: 955002,
+            now: new Date('2026-08-16T06:00:16.016Z'),
+          },
+        },
+      ]
+
+      test.each(cases)('customerId: $input.customerId', async ({ input }) => {
+        jest.spyOn(clerk, 'saveTokenPair')
+          .mockRejectedValue(new Error('save failed'))
+        const args = {
+          customerId: input.customerId,
+          now: input.now,
+        }
+        const expected = {
+          success: false,
+          credentialPair: null,
         }
 
         const received = await clerk.saveSession(args)
@@ -265,22 +315,26 @@ describe('SessionClerk', () => {
           input: {
             sessionKey: 'session-key-92-01', // seeded: 2 live (+1 revoked) refresh, 3 access
             now: new Date('2026-08-13T06:00:13.013Z'),
-            transaction: null,
           },
           expected: {
-            revokedRefreshTokenCount: 2,
-            deletedAccessTokenCount: 3,
+            success: true,
+            revocation: {
+              revokedRefreshTokenCount: 2,
+              deletedAccessTokenCount: 3,
+            },
           },
         },
         {
           input: {
             sessionKey: 'session-key-95-01', // seeded: 1 live (+1 revoked) refresh, 2 access
             now: new Date('2026-08-14T06:00:14.014Z'),
-            transaction: null,
           },
           expected: {
-            revokedRefreshTokenCount: 1,
-            deletedAccessTokenCount: 2,
+            success: true,
+            revocation: {
+              revokedRefreshTokenCount: 1,
+              deletedAccessTokenCount: 2,
+            },
           },
         },
       ]
@@ -292,10 +346,158 @@ describe('SessionClerk', () => {
         const args = {
           sessionKey: input.sessionKey,
           now: input.now,
-          transaction: input.transaction,
         }
 
         const received = await clerk.revokeSession(args)
+
+        expect(received)
+          .toEqual(expected)
+      })
+    })
+
+    describe('should report failure when revoking throws', () => {
+      const clerk = SessionClerk.create({
+        AccessTokenModel: CustomerAccessToken,
+        RefreshTokenModel: CustomerRefreshToken,
+      })
+
+      const cases = [
+        {
+          input: {
+            sessionKey: 'session-key-957001',
+            now: new Date('2026-08-17T06:00:17.017Z'),
+          },
+        },
+        {
+          input: {
+            sessionKey: 'session-key-957002',
+            now: new Date('2026-08-18T06:00:18.018Z'),
+          },
+        },
+      ]
+
+      test.each(cases)('sessionKey: $input.sessionKey', async ({ input }) => {
+        jest.spyOn(clerk, 'revokeAllRefreshTokens')
+          .mockRejectedValue(new Error('revoke failed'))
+        const args = {
+          sessionKey: input.sessionKey,
+          now: input.now,
+        }
+        const expected = {
+          success: false,
+          revocation: null,
+        }
+
+        const received = await clerk.revokeSession(args)
+
+        expect(received)
+          .toEqual(expected)
+      })
+    })
+  })
+})
+
+describe('SessionClerk', () => {
+  describe('#rotateSession()', () => {
+    describe('should issue the next pair in the same series', () => {
+      const clerk = SessionClerk.create({
+        AccessTokenModel: CustomerAccessToken,
+        RefreshTokenModel: CustomerRefreshToken,
+      })
+
+      const cases = [
+        {
+          input: {
+            customerId: 954001,
+            sessionKey: 'clerk-session-key-954001',
+            refreshToken: 'rotate-refresh-token-954001',
+            generatedAt: new Date('2026-08-05T00:00:05.005Z'),
+            now: new Date('2026-08-05T06:00:05.005Z'),
+          },
+          expected: 'clerk-session-key-954001',
+        },
+        {
+          input: {
+            customerId: 954002,
+            sessionKey: 'clerk-session-key-954002',
+            refreshToken: 'rotate-refresh-token-954002',
+            generatedAt: new Date('2026-08-06T00:00:06.006Z'),
+            now: new Date('2026-08-06T06:00:06.006Z'),
+          },
+          expected: 'clerk-session-key-954002',
+        },
+      ]
+
+      test.each(cases)('sessionKey: $input.sessionKey', async ({
+        input,
+        expected,
+      }) => {
+        const refreshTokenEntity = CustomerRefreshToken.buildWithGeneratedAttributes({
+          customerId: input.customerId,
+          sessionKey: input.sessionKey,
+          refreshToken: input.refreshToken,
+          generatedAt: input.generatedAt,
+        })
+        await refreshTokenEntity.save()
+        const args = {
+          refreshTokenEntity,
+          now: input.now,
+        }
+
+        const result = await clerk.rotateSession(args)
+        const received = result.credentialPair.refreshTokenEntity.sessionKey
+
+        expect(received)
+          .toBe(expected)
+      })
+    })
+
+    describe('should report failure when saving throws', () => {
+      const clerk = SessionClerk.create({
+        AccessTokenModel: CustomerAccessToken,
+        RefreshTokenModel: CustomerRefreshToken,
+      })
+
+      const cases = [
+        {
+          input: {
+            customerId: 956001,
+            sessionKey: 'clerk-session-key-956001',
+            refreshToken: 'rotate-refresh-token-956001',
+            generatedAt: new Date('2026-08-19T00:00:19.019Z'),
+            now: new Date('2026-08-19T06:00:19.019Z'),
+          },
+        },
+        {
+          input: {
+            customerId: 956002,
+            sessionKey: 'clerk-session-key-956002',
+            refreshToken: 'rotate-refresh-token-956002',
+            generatedAt: new Date('2026-08-20T00:00:20.020Z'),
+            now: new Date('2026-08-20T06:00:20.020Z'),
+          },
+        },
+      ]
+
+      test.each(cases)('sessionKey: $input.sessionKey', async ({ input }) => {
+        const refreshTokenEntity = CustomerRefreshToken.buildWithGeneratedAttributes({
+          customerId: input.customerId,
+          sessionKey: input.sessionKey,
+          refreshToken: input.refreshToken,
+          generatedAt: input.generatedAt,
+        })
+        jest.spyOn(clerk, 'saveTokenPair')
+          .mockRejectedValue(new Error('save failed'))
+        const args = {
+          refreshTokenEntity,
+          now: input.now,
+        }
+        const expected = {
+          success: false,
+          credentialPair: null,
+        }
+
+        const received = await clerk.rotateSession(args)
 
         expect(received)
           .toEqual(expected)

@@ -1,8 +1,8 @@
 import RenewAccessTokenMutationResolver from '../../../../../../../../server/graphql/resolvers/customer/actual/mutations/RenewAccessTokenMutationResolver.js'
 
+import SessionClerk from '../../../../../../../../app/auth/SessionClerk.js'
 import RefreshTokenExpressCookieClerk from '../../../../../../../../server/graphql/contexts/tools/RefreshTokenExpressCookieClerk.js'
 
-import CustomerAccessToken from '../../../../../../../../sequelize/models/CustomerAccessToken.js'
 import CustomerRefreshToken from '../../../../../../../../sequelize/models/CustomerRefreshToken.js'
 
 describe('RenewAccessTokenMutationResolver', () => {
@@ -127,6 +127,44 @@ describe('RenewAccessTokenMutationResolver', () => {
           .toHaveBeenCalledWith()
       })
     })
+
+    describe('should reject when rotating the session fails', () => {
+      const cases = [
+        {
+          input: {
+            presentedRefreshToken: 'refresh-token-08-01', // seeded: active
+            now: new Date('2026-08-08T05:00:08.008Z'),
+          },
+        },
+        {
+          input: {
+            presentedRefreshToken: 'refresh-token-09-01', // seeded: active
+            now: new Date('2026-08-09T05:00:09.009Z'),
+          },
+        },
+      ]
+
+      test.each(cases)('presentedRefreshToken: $input.presentedRefreshToken', async ({ input }) => {
+        jest.spyOn(RefreshTokenExpressCookieClerk.prototype, 'extractRefreshToken')
+          .mockReturnValue(input.presentedRefreshToken)
+        jest.spyOn(SessionClerk.prototype, 'rotateSession')
+          .mockResolvedValue({
+            success: false,
+            credentialPair: null,
+          })
+        const args = {
+          context: /** @type {*} */ ({
+            now: input.now,
+          }),
+        }
+
+        const actual = () => resolver.resolve(args)
+
+        await expect(actual)
+          .rejects
+          .toThrow('204.M003.001')
+      })
+    })
   })
 })
 
@@ -189,8 +227,11 @@ describe('RenewAccessTokenMutationResolver', () => {
             now: new Date('2026-08-24T06:00:24.024Z'),
           },
           expected: {
-            revokedRefreshTokenCount: 2,
-            deletedAccessTokenCount: 3,
+            success: true,
+            revocation: {
+              revokedRefreshTokenCount: 2,
+              deletedAccessTokenCount: 3,
+            },
           },
         },
         {
@@ -199,8 +240,11 @@ describe('RenewAccessTokenMutationResolver', () => {
             now: new Date('2026-08-25T06:00:25.025Z'),
           },
           expected: {
-            revokedRefreshTokenCount: 1,
-            deletedAccessTokenCount: 2,
+            success: true,
+            revocation: {
+              revokedRefreshTokenCount: 1,
+              deletedAccessTokenCount: 2,
+            },
           },
         },
       ]
@@ -224,116 +268,6 @@ describe('RenewAccessTokenMutationResolver', () => {
 
         expect(received)
           .toEqual(expected)
-      })
-    })
-  })
-})
-
-describe('RenewAccessTokenMutationResolver', () => {
-  describe('#rotateSession()', () => {
-    describe('should issue the next pair in the same session', () => {
-      const resolver = RenewAccessTokenMutationResolver.create()
-
-      const cases = [
-        {
-          input: {
-            customerId: 953001,
-            sessionKey: 'clerk-session-key-953001',
-            refreshToken: 'rotate-refresh-token-953001',
-            generatedAt: new Date('2026-08-10T00:00:10.010Z'),
-            now: new Date('2026-08-10T06:00:10.010Z'),
-          },
-          expected: 'clerk-session-key-953001',
-        },
-        {
-          input: {
-            customerId: 953002,
-            sessionKey: 'clerk-session-key-953002',
-            refreshToken: 'rotate-refresh-token-953002',
-            generatedAt: new Date('2026-08-11T00:00:11.011Z'),
-            now: new Date('2026-08-11T06:00:11.011Z'),
-          },
-          expected: 'clerk-session-key-953002',
-        },
-      ]
-
-      test.each(cases)('sessionKey: $input.sessionKey', async ({
-        input,
-        expected,
-      }) => {
-        const refreshTokenEntity = CustomerRefreshToken.buildWithGeneratedAttributes({
-          customerId: input.customerId,
-          sessionKey: input.sessionKey,
-          refreshToken: input.refreshToken,
-          generatedAt: input.generatedAt,
-        })
-        const args = {
-          context: /** @type {*} */ ({
-            now: input.now,
-          }),
-          refreshTokenEntity,
-        }
-
-        const NextPair = await resolver.rotateSession(args)
-        const received = NextPair.refreshTokenEntity.sessionKey
-
-        expect(received)
-          .toBe(expected)
-      })
-    })
-  })
-})
-
-describe('RenewAccessTokenMutationResolver', () => {
-  describe('#generateTransactionCallback()', () => {
-    describe('the callback issues the next pair in the same session', () => {
-      const resolver = RenewAccessTokenMutationResolver.create()
-
-      const cases = [
-        {
-          input: {
-            customerId: 953003,
-            sessionKey: 'clerk-session-key-953003',
-            refreshToken: 'rotate-refresh-token-953003',
-            generatedAt: new Date('2026-08-08T00:00:08.008Z'),
-            now: new Date('2026-08-08T06:00:08.008Z'),
-          },
-          expected: 'clerk-session-key-953003',
-        },
-        {
-          input: {
-            customerId: 953004,
-            sessionKey: 'clerk-session-key-953004',
-            refreshToken: 'rotate-refresh-token-953004',
-            generatedAt: new Date('2026-08-09T00:00:09.009Z'),
-            now: new Date('2026-08-09T06:00:09.009Z'),
-          },
-          expected: 'clerk-session-key-953004',
-        },
-      ]
-
-      test.each(cases)('sessionKey: $input.sessionKey', async ({
-        input,
-        expected,
-      }) => {
-        const refreshTokenEntity = CustomerRefreshToken.buildWithGeneratedAttributes({
-          customerId: input.customerId,
-          sessionKey: input.sessionKey,
-          refreshToken: input.refreshToken,
-          generatedAt: input.generatedAt,
-        })
-        const args = {
-          refreshTokenEntity,
-          now: input.now,
-        }
-
-        const NextPair = await CustomerAccessToken.beginTransaction(
-          resolver.generateTransactionCallback(args)
-        )
-        const received = NextPair.refreshTokenEntity.sessionKey
-
-        expect(received)
-          .toBe(expected)
       })
     })
   })

@@ -22,6 +22,7 @@ describe('SignInMutationResolver', () => {
       test('should be fixed value', () => {
         const expected = {
           IncorrectSecret: '202.M002.001',
+          FailedToSaveSession: '204.M002.001',
         }
 
         const received = SignInMutationResolver.errorCodeHash

@@ -5,8 +5,10 @@ import SessionCredentialClerk from './SessionCredentialClerk.js'
  * session is made of (access tokens + refresh tokens). Callers depend only on this class and never
  * touch the tables themselves.
  *
- * The tables are injected, not imported, so both audiences share one implementation; every write
- * takes a transaction. It reports what it finds and leaves error-naming to the resolver.
+ * The tables are injected, not imported, so both audiences share one implementation. Each public
+ * write opens its own transaction and reports the outcome as `{ success, … }`: the saving logic is
+ * throwable, so a throw rolls the transaction back and is reported as `success: false` — callers
+ * read the boolean and never see the exception. Error-naming is left to the resolver.
  */
 export default class SessionClerk {
   /**
@@ -65,36 +67,62 @@ export default class SessionClerk {
   }
 
   /**
-   * Start or continue a session's token pair. Omit `sessionKey` to mint a new series (sign-in);
-   * pass one to add the next pair to an existing series (rotation).
+   * Start a session's token pair, in a series of its own. Reports the outcome; on a throw the
+   * transaction is rolled back and `success` is false.
    *
    * @param {{
    *   customerId: number
    *   now: Date
    *   sessionKey?: string
-   *   transaction?: Transaction | null
    * }} params - Parameters.
-   * @returns {Promise<SessionCredentialPair>} - The pair handed to the client.
+   * @returns {Promise<SessionCredentialResult>} - Whether it saved, plus the pair on success.
    * @public
    */
   async saveSession ({
     customerId,
     now,
     sessionKey = this.credentialClerk.generateSessionKey(),
-    transaction = null,
   }) {
-    if (!transaction) {
-      return this.AccessTokenModel
-        .beginTransaction(async innerTransaction =>
-          this.saveSession({
+    try {
+      const credentialPair = await this.AccessTokenModel
+        .beginTransaction(async transaction =>
+          this.saveTokenPair({
             customerId,
-            now,
             sessionKey,
-            transaction: innerTransaction,
+            now,
+            transaction,
           })
         )
-    }
 
+      return {
+        success: true,
+        credentialPair,
+      }
+    } catch {
+      return {
+        success: false,
+        credentialPair: null,
+      }
+    }
+  }
+
+  /**
+   * Save both halves of a pair within a series. Throwable; runs inside a caller-opened transaction.
+   *
+   * @param {{
+   *   customerId: number
+   *   sessionKey: string
+   *   now: Date
+   *   transaction: Transaction
+   * }} params - Parameters.
+   * @returns {Promise<SessionCredentialPair>} - The saved pair, plus the plain refresh token.
+   */
+  async saveTokenPair ({
+    customerId,
+    sessionKey,
+    now,
+    transaction,
+  }) {
     const refreshToken = this.credentialClerk.generateToken()
 
     const accessTokenEntity = await this.saveAccessToken({
@@ -215,34 +243,65 @@ export default class SessionClerk {
   }
 
   /**
-   * Mark a refresh token spent, so presenting it again is detectable.
+   * Rotate a session: spend the presented refresh token and issue the next pair in the same series.
+   * Spending and re-issuing share one transaction, so a throw rolls both back and `success` is false.
    *
-   * Keyed on the unique token digest, so it marks exactly the one row.
+   * @param {{
+   *   refreshTokenEntity: RefreshTokenEntity
+   *   now: Date
+   * }} params - Parameters.
+   * @returns {Promise<SessionCredentialResult>} - Whether it rotated, plus the next pair on success.
+   * @public
+   */
+  async rotateSession ({
+    refreshTokenEntity,
+    now,
+  }) {
+    try {
+      const credentialPair = await this.AccessTokenModel
+        .beginTransaction(async transaction => {
+          await this.spendRefreshToken({
+            tokenHash: refreshTokenEntity.tokenHash,
+            now,
+            transaction,
+          })
+
+          return this.saveTokenPair({
+            customerId: refreshTokenEntity.CustomerId,
+            sessionKey: refreshTokenEntity.sessionKey,
+            now,
+            transaction,
+          })
+        })
+
+      return {
+        success: true,
+        credentialPair,
+      }
+    } catch {
+      return {
+        success: false,
+        credentialPair: null,
+      }
+    }
+  }
+
+  /**
+   * Mark a refresh token spent, so presenting it again is detectable. Keyed on the unique token
+   * digest, so it marks exactly the one row. Throwable; runs inside a caller-opened transaction.
    *
    * @param {{
    *   tokenHash: string
    *   now: Date
-   *   transaction?: Transaction | null
+   *   transaction: Transaction
    * }} params - Parameters.
    * @returns {Promise<[number]>} - Sequelize bulk-update result: [number of rows marked spent].
-   * @public
    */
   async spendRefreshToken ({
     tokenHash,
     now,
-    transaction = null,
+    transaction,
   }) {
-    if (!transaction) {
-      return this.AccessTokenModel
-        .beginTransaction(async innerTransaction =>
-          this.spendRefreshToken({
-            tokenHash,
-            now,
-            transaction: innerTransaction,
-          })
-        )
-    }
-
     return this.RefreshTokenModel.update(
       {
         usedAt: now,
@@ -258,50 +317,54 @@ export default class SessionClerk {
 
   /**
    * Revoke a whole session — every refresh token in it, and every access token it handed out.
+   * Reports the outcome; on a throw the transaction is rolled back and `success` is false.
    *
    * @param {{
    *   sessionKey: string
    *   now: Date
-   *   transaction?: Transaction | null
    * }} params - Parameters.
-   * @returns {Promise<SessionRevocationResult>} - How many refresh tokens were revoked and access tokens deleted.
+   * @returns {Promise<SessionRevocationOutcome>} - Whether it revoked, plus the counts on success.
    * @public
    */
   async revokeSession ({
     sessionKey,
     now,
-    transaction = null,
   }) {
-    if (!transaction) {
-      return this.AccessTokenModel
-        .beginTransaction(async innerTransaction =>
-          this.revokeSession({
+    try {
+      const revocation = await this.AccessTokenModel
+        .beginTransaction(async transaction => {
+          const [revokedRefreshTokenCount] = await this.revokeAllRefreshTokens({
             sessionKey,
             now,
-            transaction: innerTransaction,
+            transaction,
           })
-        )
-    }
 
-    const [revokedRefreshTokenCount] = await this.revokeAllRefreshTokens({
-      sessionKey,
-      now,
-      transaction,
-    })
+          const deletedAccessTokenCount = await this.deleteAllAccessTokens({
+            sessionKey,
+            transaction,
+          })
 
-    const deletedAccessTokenCount = await this.deleteAllAccessTokens({
-      sessionKey,
-      transaction,
-    })
+          return {
+            revokedRefreshTokenCount,
+            deletedAccessTokenCount,
+          }
+        })
 
-    return {
-      revokedRefreshTokenCount,
-      deletedAccessTokenCount,
+      return {
+        success: true,
+        revocation,
+      }
+    } catch {
+      return {
+        success: false,
+        revocation: null,
+      }
     }
   }
 
   /**
-   * Revoke every refresh token still live in a session.
+   * Revoke every refresh token still live in a session. Throwable; runs inside a caller-opened
+   * transaction.
    *
    * @param {{
    *   sessionKey: string
@@ -330,7 +393,8 @@ export default class SessionClerk {
   }
 
   /**
-   * Delete every access token handed out by a session.
+   * Delete every access token handed out by a session. Throwable; runs inside a caller-opened
+   * transaction.
    *
    * Deleted rather than flagged — the row's absence already says it, with no extra column read on
    * the auth hot path.
@@ -403,6 +467,15 @@ export default class SessionClerk {
  */
 
 /**
+ * Outcome of saving or rotating a session: the success flag, and the pair when it succeeded.
+ *
+ * @typedef {{
+ *   success: boolean
+ *   credentialPair: SessionCredentialPair | null
+ * }} SessionCredentialResult
+ */
+
+/**
  * How much a session revocation removed — the refresh tokens marked revoked, and the access token
  * rows deleted.
  *
@@ -410,4 +483,13 @@ export default class SessionClerk {
  *   revokedRefreshTokenCount: number
  *   deletedAccessTokenCount: number
  * }} SessionRevocationResult
+ */
+
+/**
+ * Outcome of revoking a session: the success flag, and the counts when it succeeded.
+ *
+ * @typedef {{
+ *   success: boolean
+ *   revocation: SessionRevocationResult | null
+ * }} SessionRevocationOutcome
  */

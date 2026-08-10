@@ -1,5 +1,6 @@
 import SignInMutationResolver from '../../../../../../../../server/graphql/resolvers/customer/actual/mutations/SignInMutationResolver.js'
 
+import SessionClerk from '../../../../../../../../app/auth/SessionClerk.js'
 import RefreshTokenExpressCookieClerk from '../../../../../../../../server/graphql/contexts/tools/RefreshTokenExpressCookieClerk.js'
 
 describe('SignInMutationResolver', () => {
@@ -99,6 +100,51 @@ describe('SignInMutationResolver', () => {
 
         expect(saveRefreshTokenCookieSpy)
           .toHaveBeenCalledWith(expected)
+      })
+    })
+
+    describe('should reject when saving the session fails', () => {
+      const cases = [
+        {
+          input: {
+            variables: {
+              input: {
+                email: 'customer.100001@example.com',
+                password: 'pAsswOrd$01',
+              },
+            },
+            context: /** @type {*} */ ({
+              now: new Date('2026-08-09T00:00:09.009Z'),
+            }),
+          },
+        },
+        {
+          input: {
+            variables: {
+              input: {
+                email: 'customer.100002@example.com',
+                password: 'pAsswOrd$02',
+              },
+            },
+            context: /** @type {*} */ ({
+              now: new Date('2026-08-10T00:00:10.010Z'),
+            }),
+          },
+        },
+      ]
+
+      test.each(cases)('email: $input.variables.input.email', async ({ input }) => {
+        jest.spyOn(SessionClerk.prototype, 'saveSession')
+          .mockResolvedValue({
+            success: false,
+            credentialPair: null,
+          })
+
+        const actual = () => resolver.resolve(input)
+
+        await expect(actual)
+          .rejects
+          .toThrow('204.M002.001')
       })
     })
   })

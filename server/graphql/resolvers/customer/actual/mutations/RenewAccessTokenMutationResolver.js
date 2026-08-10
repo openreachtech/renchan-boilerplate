@@ -33,6 +33,9 @@ export default class RenewAccessTokenMutationResolver extends BaseMutationResolv
       // code so the client sees the same "sign in again" signal.
       Unauthenticated: '102.X000.001',
 
+      // Database errors (204 prefix)
+      FailedToRotateSession: '204.M003.001',
+
       RefreshTokenReused: '205.M003.001',
     }
   }
@@ -101,10 +104,17 @@ export default class RenewAccessTokenMutationResolver extends BaseMutationResolv
       throw this.errorHash.Unauthenticated.create()
     }
 
-    const credentialPair = await this.rotateSession({
-      context,
+    const {
+      success,
+      credentialPair,
+    } = await sessionClerk.rotateSession({
       refreshTokenEntity,
+      now: context.now,
     })
+
+    if (!success) {
+      throw this.errorHash.FailedToRotateSession.create()
+    }
 
     cookieClerk.saveRefreshTokenCookie({
       refreshToken: credentialPair.refreshToken,
@@ -179,7 +189,7 @@ export default class RenewAccessTokenMutationResolver extends BaseMutationResolv
    *   context: import('../../../../contexts/CustomerGraphqlContext.js').default
    *   refreshTokenEntity: RefreshTokenEntity
    * }} params - Parameters.
-   * @returns {Promise<import('../../../../../../app/auth/SessionClerk.js').SessionRevocationResult>} - Counts from revoking the reused session.
+   * @returns {Promise<import('../../../../../../app/auth/SessionClerk.js').SessionRevocationOutcome>} - Outcome of revoking the reused session.
    */
   async revokeReusedSession ({
     context,
@@ -191,61 +201,6 @@ export default class RenewAccessTokenMutationResolver extends BaseMutationResolv
       sessionKey: refreshTokenEntity.sessionKey,
       now: context.now,
     })
-  }
-
-  /**
-   * Spend the presented token and issue the next pair of the session.
-   *
-   * @param {{
-   *   context: import('../../../../contexts/CustomerGraphqlContext.js').default
-   *   refreshTokenEntity: RefreshTokenEntity
-   * }} params - Parameters.
-   * @returns {Promise<import('../../../../../../app/auth/SessionClerk.js').SessionCredentialPair>}
-   * @throws {Error} - Throws error if transaction fails.
-   */
-  async rotateSession ({
-    context,
-    refreshTokenEntity,
-  }) {
-    const transactionCallback = this.generateTransactionCallback({
-      refreshTokenEntity,
-      now: context.now,
-    })
-
-    return CustomerAccessToken.beginTransaction(transactionCallback)
-  }
-
-  /**
-   * Generate transaction callback.
-   *
-   * Spending the old row and writing the new pair share one transaction.
-   *
-   * @param {{
-   *   refreshTokenEntity: RefreshTokenEntity
-   *   now: Date
-   * }} params - Parameters.
-   * @returns {function(Transaction): Promise<import('../../../../../../app/auth/SessionClerk.js').SessionCredentialPair>}
-   */
-  generateTransactionCallback ({
-    refreshTokenEntity,
-    now,
-  }) {
-    const sessionClerk = this.createSessionClerk()
-
-    return async transaction => {
-      await sessionClerk.spendRefreshToken({
-        tokenHash: refreshTokenEntity.tokenHash,
-        now,
-        transaction,
-      })
-
-      return sessionClerk.saveSession({
-        customerId: refreshTokenEntity.CustomerId,
-        sessionKey: refreshTokenEntity.sessionKey,
-        now,
-        transaction,
-      })
-    }
   }
 
   /**
@@ -268,10 +223,6 @@ export default class RenewAccessTokenMutationResolver extends BaseMutationResolv
     }
   }
 }
-
-/**
- * @typedef {import('sequelize').Transaction} Transaction
- */
 
 /**
  * @typedef {import('../../../../../../sequelize/models/CustomerRefreshToken.js').CustomerRefreshTokenEntity} RefreshTokenEntity
