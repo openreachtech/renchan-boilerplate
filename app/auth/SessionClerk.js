@@ -6,9 +6,10 @@ import SessionCredentialClerk from './SessionCredentialClerk.js'
  * touch the tables themselves.
  *
  * The tables are injected, not imported, so both audiences share one implementation. Each public
- * write opens its own transaction and reports the outcome as `{ success, … }`: the saving logic is
- * throwable, so a throw rolls the transaction back and is reported as `success: false` — callers
- * read the boolean and never see the exception. Error-naming is left to the resolver.
+ * write opens its own transaction and reports the outcome as `{ error, … }`: the saving logic is
+ * throwable, so a throw rolls the transaction back and is handed back as `error` (null on success)
+ * — callers read `error` and never have the exception thrown at them. Error-naming is left to the
+ * resolver.
  */
 export default class SessionClerk {
   /**
@@ -68,14 +69,14 @@ export default class SessionClerk {
 
   /**
    * Start a session's token pair, in a series of its own. Reports the outcome; on a throw the
-   * transaction is rolled back and `success` is false.
+   * transaction is rolled back and returned as the `error`.
    *
    * @param {{
    *   customerId: number
    *   now: Date
    *   sessionKey?: string
    * }} params - Parameters.
-   * @returns {Promise<SessionCredentialResult>} - Whether it saved, plus the pair on success.
+   * @returns {Promise<SessionCredentialResult>} - The error (null on success) and the saved pair.
    * @public
    */
   async saveSession ({
@@ -95,12 +96,12 @@ export default class SessionClerk {
         )
 
       return {
-        success: true,
+        error: null,
         credentialPair,
       }
-    } catch {
+    } catch (error) {
       return {
-        success: false,
+        error,
         credentialPair: null,
       }
     }
@@ -244,13 +245,13 @@ export default class SessionClerk {
 
   /**
    * Rotate a session: spend the presented refresh token and issue the next pair in the same series.
-   * Spending and re-issuing share one transaction, so a throw rolls both back and `success` is false.
+   * Spending and re-issuing share one transaction, so a throw rolls both back and is returned as the `error`.
    *
    * @param {{
    *   refreshTokenEntity: RefreshTokenEntity
    *   now: Date
    * }} params - Parameters.
-   * @returns {Promise<SessionCredentialResult>} - Whether it rotated, plus the next pair on success.
+   * @returns {Promise<SessionCredentialResult>} - The error (null on success) and the next pair.
    * @public
    */
   async rotateSession ({
@@ -275,12 +276,12 @@ export default class SessionClerk {
         })
 
       return {
-        success: true,
+        error: null,
         credentialPair,
       }
-    } catch {
+    } catch (error) {
       return {
-        success: false,
+        error,
         credentialPair: null,
       }
     }
@@ -317,13 +318,13 @@ export default class SessionClerk {
 
   /**
    * Revoke a whole session — every refresh token in it, and every access token it handed out.
-   * Reports the outcome; on a throw the transaction is rolled back and `success` is false.
+   * Reports the outcome; on a throw the transaction is rolled back and returned as the `error`.
    *
    * @param {{
    *   sessionKey: string
    *   now: Date
    * }} params - Parameters.
-   * @returns {Promise<SessionRevocationOutcome>} - Whether it revoked, plus the counts on success.
+   * @returns {Promise<SessionRevocationOutcome>} - The error (null on success) and the counts.
    * @public
    */
   async revokeSession ({
@@ -351,12 +352,12 @@ export default class SessionClerk {
         })
 
       return {
-        success: true,
+        error: null,
         revocation,
       }
-    } catch {
+    } catch (error) {
       return {
-        success: false,
+        error,
         revocation: null,
       }
     }
@@ -467,10 +468,10 @@ export default class SessionClerk {
  */
 
 /**
- * Outcome of saving or rotating a session: the success flag, and the pair when it succeeded.
+ * Outcome of saving or rotating a session: the error (null on success), and the pair on success.
  *
  * @typedef {{
- *   success: boolean
+ *   error: Error | null
  *   credentialPair: SessionCredentialPair | null
  * }} SessionCredentialResult
  */
@@ -486,10 +487,10 @@ export default class SessionClerk {
  */
 
 /**
- * Outcome of revoking a session: the success flag, and the counts when it succeeded.
+ * Outcome of revoking a session: the error (null on success), and the counts on success.
  *
  * @typedef {{
- *   success: boolean
+ *   error: Error | null
  *   revocation: SessionRevocationResult | null
  * }} SessionRevocationOutcome
  */

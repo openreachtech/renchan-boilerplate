@@ -84,14 +84,14 @@ export default class SignInMutationResolver extends BaseMutationResolver {
     const sessionClerk = this.createSessionClerk()
 
     const {
-      success,
+      error,
       credentialPair,
     } = await sessionClerk.saveSession({
       customerId: passwordHashEntity.CustomerId,
       now: context.now,
     })
 
-    if (!success) {
+    if (error) {
       throw this.errorHash.FailedToSaveSession.create()
     }
 

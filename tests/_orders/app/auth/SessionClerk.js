@@ -19,7 +19,7 @@ describe('SessionClerk', () => {
             now: new Date('2026-08-01T00:00:01.001Z'),
           },
           expected: {
-            success: true,
+            error: null,
             credentialPair: {
               accessTokenEntity: expect.any(CustomerAccessToken),
               refreshTokenEntity: expect.any(CustomerRefreshToken),
@@ -34,7 +34,7 @@ describe('SessionClerk', () => {
             now: new Date('2026-08-02T00:00:02.002Z'),
           },
           expected: {
-            success: true,
+            error: null,
             credentialPair: {
               accessTokenEntity: expect.any(CustomerAccessToken),
               refreshTokenEntity: expect.any(CustomerRefreshToken),
@@ -74,7 +74,7 @@ describe('SessionClerk', () => {
             now: new Date('2026-08-03T00:00:03.003Z'),
           },
           expected: {
-            success: true,
+            error: null,
             credentialPair: {
               accessTokenEntity: expect.any(CustomerAccessToken),
               refreshTokenEntity: expect.any(CustomerRefreshToken),
@@ -88,7 +88,7 @@ describe('SessionClerk', () => {
             now: new Date('2026-08-04T00:00:04.004Z'),
           },
           expected: {
-            success: true,
+            error: null,
             credentialPair: {
               accessTokenEntity: expect.any(CustomerAccessToken),
               refreshTokenEntity: expect.any(CustomerRefreshToken),
@@ -143,7 +143,7 @@ describe('SessionClerk', () => {
           now: input.now,
         }
         const expected = {
-          success: false,
+          error: expect.any(Error),
           credentialPair: null,
         }
 
@@ -317,7 +317,7 @@ describe('SessionClerk', () => {
             now: new Date('2026-08-13T06:00:13.013Z'),
           },
           expected: {
-            success: true,
+            error: null,
             revocation: {
               revokedRefreshTokenCount: 2,
               deletedAccessTokenCount: 3,
@@ -330,7 +330,7 @@ describe('SessionClerk', () => {
             now: new Date('2026-08-14T06:00:14.014Z'),
           },
           expected: {
-            success: true,
+            error: null,
             revocation: {
               revokedRefreshTokenCount: 1,
               deletedAccessTokenCount: 2,
@@ -384,7 +384,7 @@ describe('SessionClerk', () => {
           now: input.now,
         }
         const expected = {
-          success: false,
+          error: expect.any(Error),
           revocation: null,
         }
 
@@ -493,7 +493,7 @@ describe('SessionClerk', () => {
           now: input.now,
         }
         const expected = {
-          success: false,
+          error: expect.any(Error),
           credentialPair: null,
         }
 

@@ -105,14 +105,14 @@ export default class RenewAccessTokenMutationResolver extends BaseMutationResolv
     }
 
     const {
-      success,
+      error,
       credentialPair,
     } = await sessionClerk.rotateSession({
       refreshTokenEntity,
       now: context.now,
     })
 
-    if (!success) {
+    if (error) {
       throw this.errorHash.FailedToRotateSession.create()
     }
 

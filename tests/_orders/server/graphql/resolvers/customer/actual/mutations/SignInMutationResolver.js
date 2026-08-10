@@ -136,7 +136,7 @@ describe('SignInMutationResolver', () => {
       test.each(cases)('email: $input.variables.input.email', async ({ input }) => {
         jest.spyOn(SessionClerk.prototype, 'saveSession')
           .mockResolvedValue({
-            success: false,
+            error: new Error('save failed'),
             credentialPair: null,
           })
 
