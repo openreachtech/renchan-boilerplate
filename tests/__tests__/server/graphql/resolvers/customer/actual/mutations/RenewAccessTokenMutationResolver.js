@@ -22,7 +22,6 @@ describe('RenewAccessTokenMutationResolver', () => {
       test('should be fixed value', () => {
         const expected = {
           Unauthenticated: '102.X000.001',
-          FailedToRotateSession: '204.M003.001',
           RefreshTokenReused: '205.M003.001',
         }
 

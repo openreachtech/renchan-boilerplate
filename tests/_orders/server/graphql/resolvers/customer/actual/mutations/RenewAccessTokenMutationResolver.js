@@ -151,7 +151,7 @@ describe('RenewAccessTokenMutationResolver', () => {
           .mockReturnValue(input.presentedRefreshToken)
         jest.spyOn(SessionClerk.prototype, 'rotateSession')
           .mockResolvedValue(SessionSavingResult.create({
-            error: new Error('rotate failed'),
+            error: new Error('Failed to rotate the session'),
             credentialPair: null,
           }))
         const args = {
@@ -164,7 +164,7 @@ describe('RenewAccessTokenMutationResolver', () => {
 
         await expect(actual)
           .rejects
-          .toThrow('204.M003.001')
+          .toThrow('Failed to rotate the session')
       })
     })
   })

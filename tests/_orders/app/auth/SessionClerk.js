@@ -143,7 +143,7 @@ describe('SessionClerk', () => {
 
       test.each(cases)('customerId: $input.customerId', async ({ input }) => {
         jest.spyOn(clerk, 'saveTokenPair')
-          .mockRejectedValue(new Error('save failed'))
+          .mockRejectedValue(new Error('Failed to save the session token pair'))
         const args = {
           customerId: input.customerId,
           now: input.now,
@@ -388,7 +388,7 @@ describe('SessionClerk', () => {
 
       test.each(cases)('sessionKey: $input.sessionKey', async ({ input }) => {
         jest.spyOn(clerk, 'revokeAllRefreshTokens')
-          .mockRejectedValue(new Error('revoke failed'))
+          .mockRejectedValue(new Error('Failed to revoke the session tokens'))
         const args = {
           sessionKey: input.sessionKey,
           now: input.now,
@@ -501,7 +501,7 @@ describe('SessionClerk', () => {
           generatedAt: input.generatedAt,
         })
         jest.spyOn(clerk, 'saveTokenPair')
-          .mockRejectedValue(new Error('save failed'))
+          .mockRejectedValue(new Error('Failed to save the session token pair'))
         const args = {
           refreshTokenEntity,
           now: input.now,

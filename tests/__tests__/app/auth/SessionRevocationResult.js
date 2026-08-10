@@ -135,3 +135,101 @@ describe('SessionRevocationResult', () => {
     })
   })
 })
+
+describe('SessionRevocationResult', () => {
+  describe('#hasError()', () => {
+    describe('should be truthy when an error is present', () => {
+      const cases = [
+        {
+          input: {
+            error: new Error('has-error-01'),
+            revocation: null,
+          },
+        },
+        {
+          input: {
+            error: new Error('has-error-02'),
+            revocation: null,
+          },
+        },
+      ]
+
+      test.each(cases)('error: $input.error.message', ({ input }) => {
+        const result = SessionRevocationResult.create(input)
+
+        const received = result.hasError()
+
+        expect(received)
+          .toBeTruthy()
+      })
+    })
+
+    describe('should be falsy when there is no error', () => {
+      const cases = [
+        {
+          input: {
+            error: null,
+            revocation: {
+              revokedRefreshTokenCount: 6,
+              deletedAccessTokenCount: 7,
+            },
+          },
+        },
+        {
+          input: {
+            error: null,
+            revocation: {
+              revokedRefreshTokenCount: 8,
+              deletedAccessTokenCount: 9,
+            },
+          },
+        },
+      ]
+
+      test.each(cases)('revocation: $input.revocation.revokedRefreshTokenCount', ({ input }) => {
+        const result = SessionRevocationResult.create(input)
+
+        const received = result.hasError()
+
+        expect(received)
+          .toBeFalsy()
+      })
+    })
+  })
+})
+
+describe('SessionRevocationResult', () => {
+  describe('#extractErrorMessage()', () => {
+    describe('should be the caught error message', () => {
+      const cases = [
+        {
+          input: {
+            error: new Error('extract-message-01'),
+            revocation: null,
+          },
+          expected: 'extract-message-01',
+        },
+        {
+          input: {
+            error: new Error('extract-message-02'),
+            revocation: null,
+          },
+          expected: 'extract-message-02',
+        },
+      ]
+
+      test.each(cases)('error: $input.error.message', ({
+        input,
+        expected,
+      }) => {
+        const result = SessionRevocationResult.create(input)
+
+        const received = result.extractErrorMessage()
+
+        expect(received)
+          .toBe(expected)
+      })
+    })
+  })
+})
+

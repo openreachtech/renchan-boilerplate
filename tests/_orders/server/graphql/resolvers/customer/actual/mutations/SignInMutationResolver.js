@@ -137,7 +137,7 @@ describe('SignInMutationResolver', () => {
       test.each(cases)('email: $input.variables.input.email', async ({ input }) => {
         jest.spyOn(SessionClerk.prototype, 'saveSession')
           .mockResolvedValue(SessionSavingResult.create({
-            error: new Error('save failed'),
+            error: new Error('Failed to save the session token pair'),
             credentialPair: null,
           }))
 
@@ -145,7 +145,7 @@ describe('SignInMutationResolver', () => {
 
         await expect(actual)
           .rejects
-          .toThrow('204.M002.001')
+          .toThrow('Failed to save the session token pair')
       })
     })
   })

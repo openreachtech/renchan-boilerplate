@@ -131,3 +131,99 @@ describe('SessionSavingResult', () => {
     })
   })
 })
+
+describe('SessionSavingResult', () => {
+  describe('#hasError()', () => {
+    describe('should be truthy when an error is present', () => {
+      const cases = [
+        {
+          input: {
+            error: new Error('has-error-01'),
+            credentialPair: null,
+          },
+        },
+        {
+          input: {
+            error: new Error('has-error-02'),
+            credentialPair: null,
+          },
+        },
+      ]
+
+      test.each(cases)('error: $input.error.message', ({ input }) => {
+        const result = SessionSavingResult.create(input)
+
+        const received = result.hasError()
+
+        expect(received)
+          .toBeTruthy()
+      })
+    })
+
+    describe('should be falsy when there is no error', () => {
+      const cases = [
+        {
+          input: {
+            error: null,
+            credentialPair: /** @type {*} */ ({
+              refreshToken: 'refresh-token-value-07',
+            }),
+          },
+        },
+        {
+          input: {
+            error: null,
+            credentialPair: /** @type {*} */ ({
+              refreshToken: 'refresh-token-value-08',
+            }),
+          },
+        },
+      ]
+
+      test.each(cases)('credentialPair: $input.credentialPair.refreshToken', ({ input }) => {
+        const result = SessionSavingResult.create(input)
+
+        const received = result.hasError()
+
+        expect(received)
+          .toBeFalsy()
+      })
+    })
+  })
+})
+
+describe('SessionSavingResult', () => {
+  describe('#extractErrorMessage()', () => {
+    describe('should be the caught error message', () => {
+      const cases = [
+        {
+          input: {
+            error: new Error('extract-message-01'),
+            credentialPair: null,
+          },
+          expected: 'extract-message-01',
+        },
+        {
+          input: {
+            error: new Error('extract-message-02'),
+            credentialPair: null,
+          },
+          expected: 'extract-message-02',
+        },
+      ]
+
+      test.each(cases)('error: $input.error.message', ({
+        input,
+        expected,
+      }) => {
+        const result = SessionSavingResult.create(input)
+
+        const received = result.extractErrorMessage()
+
+        expect(received)
+          .toBe(expected)
+      })
+    })
+  })
+})
+

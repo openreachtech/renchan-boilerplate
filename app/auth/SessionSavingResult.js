@@ -30,6 +30,24 @@ export default class SessionSavingResult {
       new this(params)
     )
   }
+
+  /**
+   * Check whether saving failed.
+   *
+   * @returns {boolean} - True when an error was caught.
+   */
+  hasError () {
+    return this.error !== null
+  }
+
+  /**
+   * Extract the caught error's message.
+   *
+   * @returns {string} - The error message.
+   */
+  extractErrorMessage () {
+    return this.error.message
+  }
 }
 
 /**

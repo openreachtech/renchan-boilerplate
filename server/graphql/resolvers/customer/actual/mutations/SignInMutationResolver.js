@@ -31,9 +31,6 @@ export default class SignInMutationResolver extends BaseMutationResolver {
       ...super.errorCodeHash,
 
       IncorrectSecret: '202.M002.001',
-
-      // Database errors (204 prefix)
-      FailedToSaveSession: '204.M002.001',
     }
   }
 
@@ -88,8 +85,8 @@ export default class SignInMutationResolver extends BaseMutationResolver {
       now: context.now,
     })
 
-    if (result.error !== null) {
-      throw this.errorHash.FailedToSaveSession.create()
+    if (result.hasError()) {
+      throw new Error(result.extractErrorMessage())
     }
 
     // Only after the transaction committed: a cookie for a session that was rolled back would

@@ -33,9 +33,6 @@ export default class RenewAccessTokenMutationResolver extends BaseMutationResolv
       // code so the client sees the same "sign in again" signal.
       Unauthenticated: '102.X000.001',
 
-      // Database errors (204 prefix)
-      FailedToRotateSession: '204.M003.001',
-
       RefreshTokenReused: '205.M003.001',
     }
   }
@@ -109,8 +106,8 @@ export default class RenewAccessTokenMutationResolver extends BaseMutationResolv
       now: context.now,
     })
 
-    if (result.error !== null) {
-      throw this.errorHash.FailedToRotateSession.create()
+    if (result.hasError()) {
+      throw new Error(result.extractErrorMessage())
     }
 
     cookieClerk.saveRefreshTokenCookie({
