@@ -1,7 +1,7 @@
 import SignInMutationResolver from '../../../../../../../../server/graphql/resolvers/customer/actual/mutations/SignInMutationResolver.js'
 
-import SessionClerk from '../../../../../../../../app/auth/SessionClerk.js'
-import SessionSavingResult from '../../../../../../../../app/auth/SessionSavingResult.js'
+import SessionClerk from '../../../../../../../../app/session/SessionClerk.js'
+import SessionSavingResult from '../../../../../../../../app/session/SessionSavingResult.js'
 import RefreshTokenExpressCookieClerk from '../../../../../../../../server/graphql/contexts/tools/RefreshTokenExpressCookieClerk.js'
 
 describe('SignInMutationResolver', () => {

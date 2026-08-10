@@ -1,6 +1,6 @@
-import SessionClerk from '../../../../app/auth/SessionClerk.js'
-import SessionSavingResult from '../../../../app/auth/SessionSavingResult.js'
-import SessionRevocationResult from '../../../../app/auth/SessionRevocationResult.js'
+import SessionClerk from '../../../../app/session/SessionClerk.js'
+import SessionSavingResult from '../../../../app/session/SessionSavingResult.js'
+import SessionRevocationResult from '../../../../app/session/SessionRevocationResult.js'
 
 import CustomerAccessToken from '../../../../sequelize/models/CustomerAccessToken.js'
 import CustomerRefreshToken from '../../../../sequelize/models/CustomerRefreshToken.js'

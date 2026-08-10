@@ -1,6 +1,6 @@
 import RenewAccessTokenMutationResolver from '../../../../../../../../server/graphql/resolvers/customer/actual/mutations/RenewAccessTokenMutationResolver.js'
 
-import SessionClerk from '../../../../../../../../app/auth/SessionClerk.js'
+import SessionClerk from '../../../../../../../../app/session/SessionClerk.js'
 import RefreshTokenExpressCookieClerk from '../../../../../../../../server/graphql/contexts/tools/RefreshTokenExpressCookieClerk.js'
 
 describe('RenewAccessTokenMutationResolver', () => {

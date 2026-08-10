@@ -2,7 +2,7 @@ import {
   BaseMutationResolver,
 } from '@openreachtech/renchan'
 
-import SessionClerk from '../../../../../../app/auth/SessionClerk.js'
+import SessionClerk from '../../../../../../app/session/SessionClerk.js'
 import RefreshTokenExpressCookieClerk from '../../../../contexts/tools/RefreshTokenExpressCookieClerk.js'
 
 import CustomerAccessToken from '../../../../../../sequelize/models/CustomerAccessToken.js'
@@ -183,7 +183,7 @@ export default class RenewAccessTokenMutationResolver extends BaseMutationResolv
    *   context: import('../../../../contexts/CustomerGraphqlContext.js').default
    *   refreshTokenEntity: RefreshTokenEntity
    * }} params - Parameters.
-   * @returns {Promise<import('../../../../../../app/auth/SessionRevocationResult.js').default>} - Outcome of revoking the reused session.
+   * @returns {Promise<import('../../../../../../app/session/SessionRevocationResult.js').default>} - Outcome of revoking the reused session.
    */
   async revokeReusedSession ({
     context,
@@ -201,7 +201,7 @@ export default class RenewAccessTokenMutationResolver extends BaseMutationResolv
    * Format response.
    *
    * @param {{
-   *   credentialPair: import('../../../../../../app/auth/SessionClerk.js').SessionCredentialPair
+   *   credentialPair: import('../../../../../../app/session/SessionClerk.js').SessionCredentialPair
    * }} params - Parameters.
    * @returns {{
    *   accessToken: string

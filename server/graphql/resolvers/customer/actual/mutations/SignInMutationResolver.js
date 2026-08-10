@@ -2,7 +2,7 @@ import {
   BaseMutationResolver,
 } from '@openreachtech/renchan'
 
-import SessionClerk from '../../../../../../app/auth/SessionClerk.js'
+import SessionClerk from '../../../../../../app/session/SessionClerk.js'
 import RefreshTokenExpressCookieClerk from '../../../../contexts/tools/RefreshTokenExpressCookieClerk.js'
 
 import Customer from '../../../../../../sequelize/models/Customer.js'
@@ -176,7 +176,7 @@ export default class SignInMutationResolver extends BaseMutationResolver {
    * Format response.
    *
    * @param {{
-   *   credentialPair: import('../../../../../../app/auth/SessionClerk.js').SessionCredentialPair
+   *   credentialPair: import('../../../../../../app/session/SessionClerk.js').SessionCredentialPair
    * }} params - Parameters.
    * @returns {{
    *   accessToken: string

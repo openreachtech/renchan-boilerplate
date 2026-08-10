@@ -1,4 +1,4 @@
-import SessionCredentialClerk from '../../../../app/auth/SessionCredentialClerk.js'
+import SessionCredentialClerk from '../../../../app/session/SessionCredentialClerk.js'
 
 /**
  * 32 bytes rendered as hex.

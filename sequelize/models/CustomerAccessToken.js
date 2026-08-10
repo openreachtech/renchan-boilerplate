@@ -3,7 +3,7 @@ import {
   ModelAttributeFactory,
 } from '@openreachtech/renchan-sequelize'
 
-import SessionCredentialClerk from '../../app/auth/SessionCredentialClerk.js'
+import SessionCredentialClerk from '../../app/session/SessionCredentialClerk.js'
 
 const MILLISECONDS_PER_MINUTE = 60 * 1000
 const ACCESS_TOKEN_LIFETIME_MINUTES = 15

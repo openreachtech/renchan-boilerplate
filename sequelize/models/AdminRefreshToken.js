@@ -3,7 +3,7 @@ import {
   ModelAttributeFactory,
 } from '@openreachtech/renchan-sequelize'
 
-import SessionCredentialClerk from '../../app/auth/SessionCredentialClerk.js'
+import SessionCredentialClerk from '../../app/session/SessionCredentialClerk.js'
 import {
   env,
 } from '../../app/globals/_.js'

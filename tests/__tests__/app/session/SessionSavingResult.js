@@ -1,21 +1,21 @@
-import SessionRevocationResult from '../../../../app/auth/SessionRevocationResult.js'
+import SessionSavingResult from '../../../../app/session/SessionSavingResult.js'
 
-describe('SessionRevocationResult', () => {
+describe('SessionSavingResult', () => {
   describe('constructor', () => {
     describe('should keep property', () => {
       describe('#error', () => {
         const cases = [
           {
             input: {
-              error: new Error('session-revocation-error-01'),
+              error: new Error('session-saving-error-01'),
             },
-            expected: new Error('session-revocation-error-01'),
+            expected: new Error('session-saving-error-01'),
           },
           {
             input: {
-              error: new Error('session-revocation-error-02'),
+              error: new Error('session-saving-error-02'),
             },
-            expected: new Error('session-revocation-error-02'),
+            expected: new Error('session-saving-error-02'),
           },
         ]
 
@@ -25,86 +25,82 @@ describe('SessionRevocationResult', () => {
         }) => {
           const args = {
             error: input.error,
-            revocation: null,
+            credentialPair: null,
           }
 
-          const result = new SessionRevocationResult(args)
+          const result = new SessionSavingResult(args)
 
           expect(result)
             .toHaveProperty('error', expected)
         })
       })
 
-      describe('#revocation', () => {
+      describe('#credentialPair', () => {
         const cases = [
           {
             input: {
-              revocation: {
-                revokedRefreshTokenCount: 2,
-                deletedAccessTokenCount: 3,
-              },
+              credentialPair: /** @type {*} */ ({
+                refreshToken: 'refresh-token-value-01',
+              }),
             },
             expected: {
-              revokedRefreshTokenCount: 2,
-              deletedAccessTokenCount: 3,
+              refreshToken: 'refresh-token-value-01',
             },
           },
           {
             input: {
-              revocation: {
-                revokedRefreshTokenCount: 4,
-                deletedAccessTokenCount: 5,
-              },
+              credentialPair: /** @type {*} */ ({
+                refreshToken: 'refresh-token-value-02',
+              }),
             },
             expected: {
-              revokedRefreshTokenCount: 4,
-              deletedAccessTokenCount: 5,
+              refreshToken: 'refresh-token-value-02',
             },
           },
         ]
 
-        test.each(cases)('revocation: $input.revocation.revokedRefreshTokenCount', ({
+        test.each(cases)('credentialPair: $input.credentialPair.refreshToken', ({
           input,
           expected,
         }) => {
           const args = {
             error: null,
-            revocation: input.revocation,
+            credentialPair: input.credentialPair,
           }
 
-          const result = new SessionRevocationResult(args)
+          const result = new SessionSavingResult(args)
 
           expect(result)
-            .toHaveProperty('revocation', expected)
+            .toHaveProperty('credentialPair', expected)
         })
       })
     })
   })
 })
 
-describe('SessionRevocationResult', () => {
+describe('SessionSavingResult', () => {
   describe('.create()', () => {
     describe('should be an instance of own class', () => {
       const cases = [
         {
           input: {
-            error: new Error('session-revocation-error-03'),
-            revocation: null,
+            error: new Error('session-saving-error-03'),
+            credentialPair: null,
           },
         },
         {
           input: {
-            error: new Error('session-revocation-error-04'),
-            revocation: null,
+            error: new Error('session-saving-error-04'),
+            credentialPair: null,
           },
         },
       ]
 
       test.each(cases)('error: $input.error.message', ({ input }) => {
-        const received = SessionRevocationResult.create(input)
+        const received = SessionSavingResult.create(input)
 
         expect(received)
-          .toBeInstanceOf(SessionRevocationResult)
+          .toBeInstanceOf(SessionSavingResult)
       })
     })
 
@@ -112,20 +108,20 @@ describe('SessionRevocationResult', () => {
       const cases = [
         {
           tally: {
-            error: new Error('session-revocation-error-05'),
-            revocation: null,
+            error: new Error('session-saving-error-05'),
+            credentialPair: null,
           },
         },
         {
           tally: {
-            error: new Error('session-revocation-error-06'),
-            revocation: null,
+            error: new Error('session-saving-error-06'),
+            credentialPair: null,
           },
         },
       ]
 
       test.each(cases)('error: $tally.error.message', ({ tally }) => {
-        const SpyClass = globalThis.constructorSpy.spyOn(SessionRevocationResult)
+        const SpyClass = globalThis.constructorSpy.spyOn(SessionSavingResult)
 
         SpyClass.create(tally)
 
@@ -136,26 +132,26 @@ describe('SessionRevocationResult', () => {
   })
 })
 
-describe('SessionRevocationResult', () => {
+describe('SessionSavingResult', () => {
   describe('#hasError()', () => {
     describe('should be truthy when an error is present', () => {
       const cases = [
         {
           input: {
             error: new Error('has-error-01'),
-            revocation: null,
+            credentialPair: null,
           },
         },
         {
           input: {
             error: new Error('has-error-02'),
-            revocation: null,
+            credentialPair: null,
           },
         },
       ]
 
       test.each(cases)('error: $input.error.message', ({ input }) => {
-        const result = SessionRevocationResult.create(input)
+        const result = SessionSavingResult.create(input)
 
         const received = result.hasError()
 
@@ -169,25 +165,23 @@ describe('SessionRevocationResult', () => {
         {
           input: {
             error: null,
-            revocation: {
-              revokedRefreshTokenCount: 6,
-              deletedAccessTokenCount: 7,
-            },
+            credentialPair: /** @type {*} */ ({
+              refreshToken: 'refresh-token-value-07',
+            }),
           },
         },
         {
           input: {
             error: null,
-            revocation: {
-              revokedRefreshTokenCount: 8,
-              deletedAccessTokenCount: 9,
-            },
+            credentialPair: /** @type {*} */ ({
+              refreshToken: 'refresh-token-value-08',
+            }),
           },
         },
       ]
 
-      test.each(cases)('revocation: $input.revocation.revokedRefreshTokenCount', ({ input }) => {
-        const result = SessionRevocationResult.create(input)
+      test.each(cases)('credentialPair: $input.credentialPair.refreshToken', ({ input }) => {
+        const result = SessionSavingResult.create(input)
 
         const received = result.hasError()
 
@@ -198,21 +192,21 @@ describe('SessionRevocationResult', () => {
   })
 })
 
-describe('SessionRevocationResult', () => {
+describe('SessionSavingResult', () => {
   describe('#extractErrorMessage()', () => {
     describe('should be the caught error message', () => {
       const cases = [
         {
           input: {
             error: new Error('extract-message-01'),
-            revocation: null,
+            credentialPair: null,
           },
           expected: 'extract-message-01',
         },
         {
           input: {
             error: new Error('extract-message-02'),
-            revocation: null,
+            credentialPair: null,
           },
           expected: 'extract-message-02',
         },
@@ -222,7 +216,7 @@ describe('SessionRevocationResult', () => {
         input,
         expected,
       }) => {
-        const result = SessionRevocationResult.create(input)
+        const result = SessionSavingResult.create(input)
 
         const received = result.extractErrorMessage()
 
@@ -232,4 +226,3 @@ describe('SessionRevocationResult', () => {
     })
   })
 })
-
