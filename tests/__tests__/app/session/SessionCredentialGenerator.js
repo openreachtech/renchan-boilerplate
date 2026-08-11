@@ -1,8 +1,4 @@
-<<<<<<<< HEAD:tests/__tests__/app/session/SessionCredentialGenerator.js
 import SessionCredentialGenerator from '../../../../app/session/SessionCredentialGenerator.js'
-========
-import SessionCredentialClerk from '../../../../app/session/SessionCredentialClerk.js'
->>>>>>>> fd4e13b (Add SessionClerk and the session Result classes):tests/__tests__/app/session/SessionCredentialClerk.js
 
 /**
  * 32 bytes rendered as hex.

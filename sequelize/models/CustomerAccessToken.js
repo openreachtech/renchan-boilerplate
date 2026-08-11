@@ -3,7 +3,7 @@ import {
   ModelAttributeFactory,
 } from '@openreachtech/renchan-sequelize'
 
-import SessionCredentialClerk from '../../app/session/SessionCredentialClerk.js'
+import SessionCredentialGenerator from '../../app/session/SessionCredentialGenerator.js'
 
 const MILLISECONDS_PER_MINUTE = 60 * 1000
 const ACCESS_TOKEN_LIFETIME_MINUTES = 15
@@ -136,9 +136,9 @@ export default class CustomerAccessToken extends RenchanModel {
    * @returns {string} - Access token.
    */
   static generateAccessToken () {
-    const credentialClerk = SessionCredentialClerk.create()
+    const credentialGenerator = SessionCredentialGenerator.create()
 
-    return credentialClerk.generateToken()
+    return credentialGenerator.generateToken()
   }
 
   /**

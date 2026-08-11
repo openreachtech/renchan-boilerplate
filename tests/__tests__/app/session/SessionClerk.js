@@ -1,6 +1,6 @@
 import SessionClerk from '../../../../app/session/SessionClerk.js'
 
-import SessionCredentialClerk from '../../../../app/session/SessionCredentialClerk.js'
+import SessionCredentialGenerator from '../../../../app/session/SessionCredentialGenerator.js'
 import SavingSessionResult from '../../../../app/session/SavingSessionResult.js'
 import RevokingSessionResult from '../../../../app/session/RevokingSessionResult.js'
 
@@ -15,7 +15,7 @@ describe('SessionClerk', () => {
           const args = {
             AccessTokenModel: CustomerAccessToken,
             RefreshTokenModel: CustomerRefreshToken,
-            credentialClerk: SessionCredentialClerk.create(),
+            credentialGenerator: SessionCredentialGenerator.create(),
           }
           const expected = CustomerAccessToken
 
@@ -31,7 +31,7 @@ describe('SessionClerk', () => {
           const args = {
             AccessTokenModel: CustomerAccessToken,
             RefreshTokenModel: CustomerRefreshToken,
-            credentialClerk: SessionCredentialClerk.create(),
+            credentialGenerator: SessionCredentialGenerator.create(),
           }
           const expected = CustomerRefreshToken
 
@@ -42,44 +42,44 @@ describe('SessionClerk', () => {
         })
       })
 
-      describe('#credentialClerk', () => {
+      describe('#credentialGenerator', () => {
         const cases = [
           {
             input: {
-              credentialClerk: SessionCredentialClerk.create({
+              credentialGenerator: SessionCredentialGenerator.create({
                 tokenByteSize: 101,
               }),
             },
-            expected: SessionCredentialClerk.create({
+            expected: SessionCredentialGenerator.create({
               tokenByteSize: 101,
             }),
           },
           {
             input: {
-              credentialClerk: SessionCredentialClerk.create({
+              credentialGenerator: SessionCredentialGenerator.create({
                 tokenByteSize: 202,
               }),
             },
-            expected: SessionCredentialClerk.create({
+            expected: SessionCredentialGenerator.create({
               tokenByteSize: 202,
             }),
           },
         ]
 
-        test.each(cases)('credentialClerk: $input.credentialClerk.tokenByteSize', ({
+        test.each(cases)('credentialGenerator: $input.credentialGenerator.tokenByteSize', ({
           input,
           expected,
         }) => {
           const args = {
             AccessTokenModel: CustomerAccessToken,
             RefreshTokenModel: CustomerRefreshToken,
-            credentialClerk: input.credentialClerk,
+            credentialGenerator: input.credentialGenerator,
           }
 
           const clerk = new SessionClerk(args)
 
           expect(clerk)
-            .toHaveProperty('credentialClerk', expected)
+            .toHaveProperty('credentialGenerator', expected)
         })
       })
     })
@@ -94,7 +94,7 @@ describe('SessionClerk', () => {
           input: {
             AccessTokenModel: CustomerAccessToken,
             RefreshTokenModel: CustomerRefreshToken,
-            credentialClerk: SessionCredentialClerk.create({
+            credentialGenerator: SessionCredentialGenerator.create({
               tokenByteSize: 101,
             }),
           },
@@ -103,14 +103,14 @@ describe('SessionClerk', () => {
           input: {
             AccessTokenModel: CustomerAccessToken,
             RefreshTokenModel: CustomerRefreshToken,
-            credentialClerk: SessionCredentialClerk.create({
+            credentialGenerator: SessionCredentialGenerator.create({
               tokenByteSize: 202,
             }),
           },
         },
       ]
 
-      test.each(cases)('credentialClerk: $input.credentialClerk.tokenByteSize', ({ input }) => {
+      test.each(cases)('credentialGenerator: $input.credentialGenerator.tokenByteSize', ({ input }) => {
         const received = SessionClerk.create(input)
 
         expect(received)
@@ -124,7 +124,7 @@ describe('SessionClerk', () => {
           tally: {
             AccessTokenModel: CustomerAccessToken,
             RefreshTokenModel: CustomerRefreshToken,
-            credentialClerk: SessionCredentialClerk.create({
+            credentialGenerator: SessionCredentialGenerator.create({
               tokenByteSize: 101,
             }),
           },
@@ -133,14 +133,14 @@ describe('SessionClerk', () => {
           tally: {
             AccessTokenModel: CustomerAccessToken,
             RefreshTokenModel: CustomerRefreshToken,
-            credentialClerk: SessionCredentialClerk.create({
+            credentialGenerator: SessionCredentialGenerator.create({
               tokenByteSize: 202,
             }),
           },
         },
       ]
 
-      test.each(cases)('credentialClerk: $tally.credentialClerk.tokenByteSize', ({ tally }) => {
+      test.each(cases)('credentialGenerator: $tally.credentialGenerator.tokenByteSize', ({ tally }) => {
         const SpyClass = globalThis.constructorSpy.spyOn(SessionClerk)
 
         SpyClass.create(tally)
@@ -150,22 +150,22 @@ describe('SessionClerk', () => {
       })
     })
 
-    describe('should fill default credentialClerk', () => {
+    describe('should fill default credentialGenerator', () => {
       test('with no credential clerk', () => {
-        const credentialClerk = SessionCredentialClerk.create()
+        const credentialGenerator = SessionCredentialGenerator.create()
         const expected = {
           AccessTokenModel: CustomerAccessToken,
           RefreshTokenModel: CustomerRefreshToken,
-          credentialClerk,
+          credentialGenerator,
         }
         const input = {
           AccessTokenModel: CustomerAccessToken,
           RefreshTokenModel: CustomerRefreshToken,
-          // credentialClerk: omitted → falls back to the default
+          // credentialGenerator: omitted → falls back to the default
         }
 
-        jest.spyOn(SessionClerk, 'createCredentialClerk')
-          .mockReturnValue(credentialClerk)
+        jest.spyOn(SessionClerk, 'createCredentialGenerator')
+          .mockReturnValue(credentialGenerator)
         const SpyClass = globalThis.constructorSpy.spyOn(SessionClerk)
 
         SpyClass.create(input)
@@ -178,13 +178,13 @@ describe('SessionClerk', () => {
 })
 
 describe('SessionClerk', () => {
-  describe('.get:SessionCredentialClerkCtor', () => {
+  describe('.get:SessionCredentialGeneratorCtor', () => {
     describe('when called as is', () => {
       test('should be fixed value', () => {
-        const received = SessionClerk.SessionCredentialClerkCtor
+        const received = SessionClerk.SessionCredentialGeneratorCtor
 
         expect(received)
-          .toBe(SessionCredentialClerk) // same reference
+          .toBe(SessionCredentialGenerator) // same reference
       })
     })
   })
@@ -235,13 +235,13 @@ describe('SessionClerk', () => {
 })
 
 describe('SessionClerk', () => {
-  describe('.createCredentialClerk()', () => {
+  describe('.createCredentialGenerator()', () => {
     describe('when called as is', () => {
       test('should be a session credential clerk', () => {
-        const received = SessionClerk.createCredentialClerk()
+        const received = SessionClerk.createCredentialGenerator()
 
         expect(received)
-          .toBeInstanceOf(SessionCredentialClerk)
+          .toBeInstanceOf(SessionCredentialGenerator)
       })
     })
   })

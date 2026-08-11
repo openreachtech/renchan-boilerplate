@@ -1,4 +1,4 @@
-import SessionCredentialClerk from '../../../../app/session/SessionCredentialClerk.js'
+import SessionCredentialGenerator from '../../../../app/session/SessionCredentialGenerator.js'
 import CustomerAccessToken from '../../../../sequelize/models/CustomerAccessToken.js'
 
 /**
@@ -81,9 +81,9 @@ describe('CustomerAccessToken', () => {
       })
     })
 
-    describe('to delegate to the credential clerk', () => {
-      test('to call factory method of SessionCredentialClerk', () => {
-        const createSpy = jest.spyOn(SessionCredentialClerk, 'create')
+    describe('to delegate to the credential generator', () => {
+      test('to call factory method of SessionCredentialGenerator', () => {
+        const createSpy = jest.spyOn(SessionCredentialGenerator, 'create')
 
         CustomerAccessToken.generateAccessToken()
 

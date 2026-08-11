@@ -1,4 +1,4 @@
-import SessionCredentialClerk from './SessionCredentialClerk.js'
+import SessionCredentialGenerator from './SessionCredentialGenerator.js'
 import SavingSessionResult from './SavingSessionResult.js'
 import RevokingSessionResult from './RevokingSessionResult.js'
 
@@ -22,11 +22,11 @@ export default class SessionClerk {
   constructor ({
     AccessTokenModel,
     RefreshTokenModel,
-    credentialClerk,
+    credentialGenerator,
   }) {
     this.AccessTokenModel = AccessTokenModel
     this.RefreshTokenModel = RefreshTokenModel
-    this.credentialClerk = credentialClerk
+    this.credentialGenerator = credentialGenerator
   }
 
   /**
@@ -40,13 +40,13 @@ export default class SessionClerk {
   static create ({
     AccessTokenModel,
     RefreshTokenModel,
-    credentialClerk = this.createCredentialClerk(),
+    credentialGenerator = this.createCredentialGenerator(),
   }) {
     return /** @type {InstanceType<T>} */ (
       new this({
         AccessTokenModel,
         RefreshTokenModel,
-        credentialClerk,
+        credentialGenerator,
       })
     )
   }
@@ -70,21 +70,21 @@ export default class SessionClerk {
   }
 
   /**
-   * get: SessionCredentialClerk class — a seam so tests can substitute it.
+   * get: SessionCredentialGenerator class — a seam so tests can substitute it.
    *
-   * @returns {typeof SessionCredentialClerk} - The class.
+   * @returns {typeof SessionCredentialGenerator} - The class.
    */
-  static get SessionCredentialClerkCtor () {
-    return SessionCredentialClerk
+  static get SessionCredentialGeneratorCtor () {
+    return SessionCredentialGenerator
   }
 
   /**
    * Create session credential clerk.
    *
-   * @returns {SessionCredentialClerk} - Session credential clerk.
+   * @returns {SessionCredentialGenerator} - Session credential clerk.
    */
-  static createCredentialClerk () {
-    return this.SessionCredentialClerkCtor.create()
+  static createCredentialGenerator () {
+    return this.SessionCredentialGeneratorCtor.create()
   }
 
   /**
@@ -151,7 +151,7 @@ export default class SessionClerk {
   async saveSession ({
     customerId,
     now,
-    sessionKey = this.credentialClerk.generateSessionKey(),
+    sessionKey = this.credentialGenerator.generateSessionKey(),
     transaction = null,
   }) {
     if (!transaction) {
@@ -238,7 +238,7 @@ export default class SessionClerk {
     now,
     transaction,
   }) {
-    const refreshToken = this.credentialClerk.generateToken()
+    const refreshToken = this.credentialGenerator.generateToken()
 
     const accessTokenEntity = await this.saveAccessToken({
       customerId,
@@ -645,7 +645,7 @@ export default class SessionClerk {
  * @typedef {{
  *   AccessTokenModel: AccessTokenModelClass
  *   RefreshTokenModel: RefreshTokenModelClass
- *   credentialClerk: SessionCredentialClerk
+ *   credentialGenerator: SessionCredentialGenerator
  * }} SessionClerkParams
  */
 
@@ -653,7 +653,7 @@ export default class SessionClerk {
  * @typedef {{
  *   AccessTokenModel: AccessTokenModelClass
  *   RefreshTokenModel: RefreshTokenModelClass
- *   credentialClerk?: SessionCredentialClerk
+ *   credentialGenerator?: SessionCredentialGenerator
  * }} SessionClerkFactoryParams
  */
 
