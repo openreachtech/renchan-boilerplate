@@ -91,18 +91,18 @@ export default class SessionClerk {
    * Create a revoking-session result.
    *
    * @param {{
-   *   error: Error | null
-   *   response: import('./RevokingSessionResult.js').SessionRevocationCounts | null
+   *   response?: import('./RevokingSessionResult.js').SessionRevocationCounts | null
+   *   error?: Error | null
    * }} params
    * @returns {RevokingSessionResult}
    */
   static createRevokingSessionResult ({
-    error,
-    response,
+    response = null,
+    error = null,
   }) {
     return this.RevokingSessionResultCtor.create({
-      error,
       response,
+      error,
     })
   }
 
@@ -110,18 +110,18 @@ export default class SessionClerk {
    * Create a saving-session result.
    *
    * @param {{
-   *   error: Error | null
-   *   response: SessionCredentialPair | null
+   *   response?: SessionCredentialPair | null
+   *   error?: Error | null
    * }} params
    * @returns {SavingSessionResult}
    */
   static createSavingSessionResult ({
-    error,
-    response,
+    response = null,
+    error = null,
   }) {
     return this.SavingSessionResultCtor.create({
-      error,
       response,
+      error,
     })
   }
 
@@ -171,13 +171,11 @@ export default class SessionClerk {
       })
 
       return this.Ctor.createSavingSessionResult({
-        error: null,
         response: credentialPair,
       })
     } catch (error) {
       return this.Ctor.createSavingSessionResult({
         error,
-        response: null,
       })
     }
   }
@@ -216,7 +214,6 @@ export default class SessionClerk {
     } catch (error) {
       return this.Ctor.createSavingSessionResult({
         error,
-        response: null,
       })
     }
   }
@@ -397,13 +394,11 @@ export default class SessionClerk {
       })
 
       return this.Ctor.createSavingSessionResult({
-        error: null,
         response: credentialPair,
       })
     } catch (error) {
       return this.Ctor.createSavingSessionResult({
         error,
-        response: null,
       })
     }
   }
@@ -439,7 +434,6 @@ export default class SessionClerk {
     } catch (error) {
       return this.Ctor.createSavingSessionResult({
         error,
-        response: null,
       })
     }
   }
@@ -518,13 +512,11 @@ export default class SessionClerk {
       }
 
       return this.Ctor.createRevokingSessionResult({
-        error: null,
         response: revocation,
       })
     } catch (error) {
       return this.Ctor.createRevokingSessionResult({
         error,
-        response: null,
       })
     }
   }
@@ -560,7 +552,6 @@ export default class SessionClerk {
     } catch (error) {
       return this.Ctor.createRevokingSessionResult({
         error,
-        response: null,
       })
     }
   }

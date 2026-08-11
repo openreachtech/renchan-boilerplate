@@ -152,7 +152,6 @@ describe('RenewAccessTokenMutationResolver', () => {
         jest.spyOn(SessionClerk.prototype, 'rotateSession')
           .mockResolvedValue(SavingSessionResult.create({
             error: new Error('Failed to rotate the session'),
-            response: null,
           }))
         const args = {
           context: /** @type {*} */ ({
@@ -229,7 +228,6 @@ describe('RenewAccessTokenMutationResolver', () => {
             now: new Date('2026-08-24T06:00:24.024Z'),
           },
           expected: RevokingSessionResult.create({
-            error: null,
             response: {
               revokedRefreshTokenCount: 2,
               deletedAccessTokenCount: 3,
@@ -242,7 +240,6 @@ describe('RenewAccessTokenMutationResolver', () => {
             now: new Date('2026-08-25T06:00:25.025Z'),
           },
           expected: RevokingSessionResult.create({
-            error: null,
             response: {
               revokedRefreshTokenCount: 1,
               deletedAccessTokenCount: 2,

@@ -21,7 +21,6 @@ describe('SessionClerk', () => {
             now: new Date('2026-08-01T00:00:01.001Z'),
           },
           expected: SavingSessionResult.create({
-            error: null,
             response: {
               accessTokenEntity: expect.any(CustomerAccessToken),
               refreshTokenEntity: expect.any(CustomerRefreshToken),
@@ -36,7 +35,6 @@ describe('SessionClerk', () => {
             now: new Date('2026-08-02T00:00:02.002Z'),
           },
           expected: SavingSessionResult.create({
-            error: null,
             response: {
               accessTokenEntity: expect.any(CustomerAccessToken),
               refreshTokenEntity: expect.any(CustomerRefreshToken),
@@ -78,7 +76,6 @@ describe('SessionClerk', () => {
             now: new Date('2026-08-03T00:00:03.003Z'),
           },
           expected: SavingSessionResult.create({
-            error: null,
             response: {
               accessTokenEntity: expect.any(CustomerAccessToken),
               refreshTokenEntity: expect.any(CustomerRefreshToken),
@@ -92,7 +89,6 @@ describe('SessionClerk', () => {
             now: new Date('2026-08-04T00:00:04.004Z'),
           },
           expected: SavingSessionResult.create({
-            error: null,
             response: {
               accessTokenEntity: expect.any(CustomerAccessToken),
               refreshTokenEntity: expect.any(CustomerRefreshToken),
@@ -150,7 +146,6 @@ describe('SessionClerk', () => {
         }
         const expected = SavingSessionResult.create({
           error: expect.any(Error),
-          response: null,
         })
 
         const received = await clerk.saveSession(args)
@@ -175,7 +170,6 @@ describe('SessionClerk', () => {
             now: new Date('2026-08-21T06:00:21.021Z'),
           },
           expected: SavingSessionResult.create({
-            error: null,
             response: {
               accessTokenEntity: expect.any(CustomerAccessToken),
               refreshTokenEntity: expect.any(CustomerRefreshToken),
@@ -189,7 +183,6 @@ describe('SessionClerk', () => {
             now: new Date('2026-08-22T06:00:22.022Z'),
           },
           expected: SavingSessionResult.create({
-            error: null,
             response: {
               accessTokenEntity: expect.any(CustomerAccessToken),
               refreshTokenEntity: expect.any(CustomerRefreshToken),
@@ -381,7 +374,6 @@ describe('SessionClerk', () => {
             now: new Date('2026-08-13T06:00:13.013Z'),
           },
           expected: RevokingSessionResult.create({
-            error: null,
             response: {
               revokedRefreshTokenCount: 2,
               deletedAccessTokenCount: 3,
@@ -394,7 +386,6 @@ describe('SessionClerk', () => {
             now: new Date('2026-08-14T06:00:14.014Z'),
           },
           expected: RevokingSessionResult.create({
-            error: null,
             response: {
               revokedRefreshTokenCount: 1,
               deletedAccessTokenCount: 2,
@@ -451,7 +442,6 @@ describe('SessionClerk', () => {
         }
         const expected = RevokingSessionResult.create({
           error: expect.any(Error),
-          response: null,
         })
 
         const received = await clerk.revokeSession(args)
@@ -564,7 +554,6 @@ describe('SessionClerk', () => {
         }
         const expected = SavingSessionResult.create({
           error: expect.any(Error),
-          response: null,
         })
 
         const received = await clerk.rotateSession(args)

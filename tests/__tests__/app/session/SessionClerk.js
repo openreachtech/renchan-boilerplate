@@ -338,13 +338,11 @@ describe('SessionClerk', () => {
         {
           input: {
             error: new Error('saving-result-error-01'),
-            response: null,
           },
         },
         {
           input: {
             error: new Error('saving-result-error-02'),
-            response: null,
           },
         },
       ]
@@ -366,13 +364,11 @@ describe('SessionClerk', () => {
         {
           input: {
             error: new Error('revocation-result-error-01'),
-            response: null,
           },
         },
         {
           input: {
             error: new Error('revocation-result-error-02'),
-            response: null,
           },
         },
       ]

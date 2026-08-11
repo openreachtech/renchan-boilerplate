@@ -138,7 +138,6 @@ describe('SignInMutationResolver', () => {
         jest.spyOn(SessionClerk.prototype, 'saveSession')
           .mockResolvedValue(SavingSessionResult.create({
             error: new Error('Failed to save the session token pair'),
-            response: null,
           }))
 
         const actual = () => resolver.resolve(input)
