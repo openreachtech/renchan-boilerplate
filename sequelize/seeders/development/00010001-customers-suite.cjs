@@ -1,5 +1,7 @@
 'use strict'
 
+const crypto = require('crypto')
+
 const TimestampSeedsSupplier = require('@openreachtech/renchan-sequelize/lib/tools/TimestampSeedsSupplier.cjs')
 
 const {
@@ -8,12 +10,29 @@ const {
 
 const encipher = Encipher.create()
 
+/**
+ * Digest a refresh token the way CustomerRefreshToken stores it (SHA-256 hex).
+ *
+ * Only the digest is stored, mirroring production; a test presents the plaintext, and the
+ * resolver hashes it to match this. Keep the plaintext readable as `refresh-token-<cc>-<nn>`.
+ *
+ * @param {string} token - Plain refresh token.
+ * @returns {string} - SHA-256 hex digest.
+ */
+function hashRefreshToken (token) {
+  return crypto
+    .createHash('sha256')
+    .update(token)
+    .digest('hex')
+}
+
 const TABLE_NAME = {
   CUSTOMERS: 'customers',
   CUSTOMER_BASICS: 'customer_basics',
   CUSTOMER_SECRETS: 'customer_secrets',
   CUSTOMER_PASSWORD_HASHES: 'customer_password_hashes',
   CUSTOMER_ACCESS_TOKENS: 'customer_access_tokens',
+  CUSTOMER_REFRESH_TOKENS: 'customer_refresh_tokens',
 }
 
 const customersSeeds = [
@@ -191,44 +210,128 @@ async function fulfillPasswordHash ({
  */
 const customerAccessTokensSeeds = [
   // expired_at: 3000-01-01T00:00:00.000Z means it never expires
-  { id: 140101, customer_id: 100001, access_token: 'access-token-01-01', generated_at: new Date('2024-03-01T00:00:01.001Z'), expired_at: new Date('3000-01-01T00:00:00.000Z') },
+  { id: 140101, customer_id: 100001, access_token: 'access-token-01-01', session_key: 'session-key-01-01', generated_at: new Date('2024-03-01T00:00:01.001Z'), expired_at: new Date('3000-01-01T00:00:00.000Z') },
 
   // one expired, and one unlimited
-  { id: 140201, customer_id: 100002, access_token: 'access-token-02-01', generated_at: new Date('2024-03-02T00:00:02.002Z'), expired_at: new Date('2024-03-03T02:02:02.002Z') },
-  { id: 140202, customer_id: 100002, access_token: 'access-token-02-02', generated_at: new Date('2024-05-02T00:00:02.002Z'), expired_at: new Date('3000-01-02T00:00:00.000Z') },
+  { id: 140201, customer_id: 100002, access_token: 'access-token-02-01', session_key: 'session-key-02-01', generated_at: new Date('2024-03-02T00:00:02.002Z'), expired_at: new Date('2024-03-03T02:02:02.002Z') },
+  { id: 140202, customer_id: 100002, access_token: 'access-token-02-02', session_key: 'session-key-02-02', generated_at: new Date('2024-05-02T00:00:02.002Z'), expired_at: new Date('3000-01-02T00:00:00.000Z') },
 
   // two expired
-  { id: 140301, customer_id: 100003, access_token: 'access-token-03-01', generated_at: new Date('2024-03-03T00:00:03.003Z'), expired_at: new Date('2024-03-04T03:03:03.003Z') },
-  { id: 140302, customer_id: 100003, access_token: 'access-token-03-02', generated_at: new Date('2024-05-03T00:00:03.003Z'), expired_at: new Date('2024-05-04T03:03:03.003Z') },
+  { id: 140301, customer_id: 100003, access_token: 'access-token-03-01', session_key: 'session-key-03-01', generated_at: new Date('2024-03-03T00:00:03.003Z'), expired_at: new Date('2024-03-04T03:03:03.003Z') },
+  { id: 140302, customer_id: 100003, access_token: 'access-token-03-02', session_key: 'session-key-03-02', generated_at: new Date('2024-05-03T00:00:03.003Z'), expired_at: new Date('2024-05-04T03:03:03.003Z') },
 
   // expired_at: 3000-01-01T00:00:00.000Z means it never expires
-  { id: 140401, customer_id: 100004, access_token: 'access-token-04-01', generated_at: new Date('2024-03-04T00:00:04.004Z'), expired_at: new Date('3000-01-04T00:00:00.000Z') },
-  { id: 140501, customer_id: 100005, access_token: 'access-token-05-01', generated_at: new Date('2024-03-05T00:00:05.005Z'), expired_at: new Date('3000-01-05T00:00:00.000Z') },
-  { id: 140601, customer_id: 100006, access_token: 'access-token-06-01', generated_at: new Date('2024-03-06T00:00:06.006Z'), expired_at: new Date('3000-01-06T00:00:00.000Z') },
-  { id: 140701, customer_id: 100007, access_token: 'access-token-07-01', generated_at: new Date('2024-03-07T00:00:07.007Z'), expired_at: new Date('3000-01-07T00:00:00.000Z') },
-  { id: 140801, customer_id: 100008, access_token: 'access-token-08-01', generated_at: new Date('2024-03-08T00:00:08.008Z'), expired_at: new Date('3000-01-08T00:00:00.000Z') },
-  { id: 140901, customer_id: 100009, access_token: 'access-token-09-01', generated_at: new Date('2024-03-09T00:00:09.009Z'), expired_at: new Date('3000-01-09T00:00:00.000Z') },
-  { id: 141001, customer_id: 100010, access_token: 'access-token-10-01', generated_at: new Date('2024-03-10T00:00:10.010Z'), expired_at: new Date('3000-01-10T00:00:00.000Z') },
-  { id: 141101, customer_id: 100011, access_token: 'access-token-11-01', generated_at: new Date('2024-03-11T00:00:11.011Z'), expired_at: new Date('3000-01-11T00:00:00.000Z') },
-  { id: 141201, customer_id: 100012, access_token: 'access-token-12-01', generated_at: new Date('2024-03-12T00:00:12.012Z'), expired_at: new Date('3000-01-12T00:00:00.000Z') },
-  { id: 141301, customer_id: 100013, access_token: 'access-token-13-01', generated_at: new Date('2024-03-13T00:00:13.013Z'), expired_at: new Date('3000-01-13T00:00:00.000Z') },
-  { id: 141401, customer_id: 100014, access_token: 'access-token-14-01', generated_at: new Date('2024-03-14T00:00:14.014Z'), expired_at: new Date('3000-01-14T00:00:00.000Z') },
-  { id: 141501, customer_id: 100015, access_token: 'access-token-15-01', generated_at: new Date('2024-03-15T00:00:15.015Z'), expired_at: new Date('3000-01-15T00:00:00.000Z') },
-  { id: 141601, customer_id: 100016, access_token: 'access-token-16-01', generated_at: new Date('2024-03-16T00:00:16.016Z'), expired_at: new Date('3000-01-16T00:00:00.000Z') },
-  { id: 141701, customer_id: 100017, access_token: 'access-token-17-01', generated_at: new Date('2024-03-17T00:00:17.017Z'), expired_at: new Date('3000-01-17T00:00:00.000Z') },
-  { id: 141801, customer_id: 100018, access_token: 'access-token-18-01', generated_at: new Date('2024-03-18T00:00:18.018Z'), expired_at: new Date('3000-01-18T00:00:00.000Z') },
-  { id: 141901, customer_id: 100019, access_token: 'access-token-19-01', generated_at: new Date('2024-03-19T00:00:19.019Z'), expired_at: new Date('3000-01-19T00:00:00.000Z') },
-  { id: 142001, customer_id: 100020, access_token: 'access-token-20-01', generated_at: new Date('2024-03-20T00:00:20.020Z'), expired_at: new Date('3000-01-20T00:00:00.000Z') },
-  { id: 142101, customer_id: 100021, access_token: 'access-token-21-01', generated_at: new Date('2024-03-21T00:00:21.021Z'), expired_at: new Date('3000-01-21T00:00:00.000Z') },
-  { id: 142201, customer_id: 100022, access_token: 'access-token-22-01', generated_at: new Date('2024-03-22T00:00:22.022Z'), expired_at: new Date('3000-01-22T00:00:00.000Z') },
-  { id: 142301, customer_id: 100023, access_token: 'access-token-23-01', generated_at: new Date('2024-03-23T00:00:23.023Z'), expired_at: new Date('3000-01-23T00:00:00.000Z') },
-  { id: 142401, customer_id: 100024, access_token: 'access-token-24-01', generated_at: new Date('2024-03-24T00:00:24.024Z'), expired_at: new Date('3000-01-24T00:00:00.000Z') },
-  { id: 142501, customer_id: 100025, access_token: 'access-token-25-01', generated_at: new Date('2024-03-25T00:00:25.025Z'), expired_at: new Date('3000-01-25T00:00:00.000Z') },
-  { id: 142601, customer_id: 100026, access_token: 'access-token-26-01', generated_at: new Date('2024-03-26T00:00:26.026Z'), expired_at: new Date('3000-01-26T00:00:00.000Z') },
-  { id: 142701, customer_id: 100027, access_token: 'access-token-27-01', generated_at: new Date('2024-03-27T00:00:27.027Z'), expired_at: new Date('3000-01-27T00:00:00.000Z') },
-  { id: 142801, customer_id: 100028, access_token: 'access-token-28-01', generated_at: new Date('2024-03-28T00:00:28.028Z'), expired_at: new Date('3000-01-28T00:00:00.000Z') },
-  { id: 142901, customer_id: 100029, access_token: 'access-token-29-01', generated_at: new Date('2024-03-29T00:00:29.029Z'), expired_at: new Date('3000-01-29T00:00:00.000Z') },
-  { id: 143001, customer_id: 100030, access_token: 'access-token-30-01', generated_at: new Date('2024-03-30T00:00:30.030Z'), expired_at: new Date('3000-01-30T00:00:00.000Z') },
+  { id: 140401, customer_id: 100004, access_token: 'access-token-04-01', session_key: 'session-key-04-01', generated_at: new Date('2024-03-04T00:00:04.004Z'), expired_at: new Date('3000-01-04T00:00:00.000Z') },
+  { id: 140501, customer_id: 100005, access_token: 'access-token-05-01', session_key: 'session-key-05-01', generated_at: new Date('2024-03-05T00:00:05.005Z'), expired_at: new Date('3000-01-05T00:00:00.000Z') },
+  { id: 140601, customer_id: 100006, access_token: 'access-token-06-01', session_key: 'session-key-06-01', generated_at: new Date('2024-03-06T00:00:06.006Z'), expired_at: new Date('3000-01-06T00:00:00.000Z') },
+  { id: 140701, customer_id: 100007, access_token: 'access-token-07-01', session_key: 'session-key-07-01', generated_at: new Date('2024-03-07T00:00:07.007Z'), expired_at: new Date('3000-01-07T00:00:00.000Z') },
+  { id: 140801, customer_id: 100008, access_token: 'access-token-08-01', session_key: 'session-key-08-01', generated_at: new Date('2024-03-08T00:00:08.008Z'), expired_at: new Date('3000-01-08T00:00:00.000Z') },
+  { id: 140901, customer_id: 100009, access_token: 'access-token-09-01', session_key: 'session-key-09-01', generated_at: new Date('2024-03-09T00:00:09.009Z'), expired_at: new Date('3000-01-09T00:00:00.000Z') },
+  { id: 141001, customer_id: 100010, access_token: 'access-token-10-01', session_key: 'session-key-10-01', generated_at: new Date('2024-03-10T00:00:10.010Z'), expired_at: new Date('3000-01-10T00:00:00.000Z') },
+  { id: 141101, customer_id: 100011, access_token: 'access-token-11-01', session_key: 'session-key-11-01', generated_at: new Date('2024-03-11T00:00:11.011Z'), expired_at: new Date('3000-01-11T00:00:00.000Z') },
+  { id: 141201, customer_id: 100012, access_token: 'access-token-12-01', session_key: 'session-key-12-01', generated_at: new Date('2024-03-12T00:00:12.012Z'), expired_at: new Date('3000-01-12T00:00:00.000Z') },
+  { id: 141301, customer_id: 100013, access_token: 'access-token-13-01', session_key: 'session-key-13-01', generated_at: new Date('2024-03-13T00:00:13.013Z'), expired_at: new Date('3000-01-13T00:00:00.000Z') },
+  { id: 141401, customer_id: 100014, access_token: 'access-token-14-01', session_key: 'session-key-14-01', generated_at: new Date('2024-03-14T00:00:14.014Z'), expired_at: new Date('3000-01-14T00:00:00.000Z') },
+  { id: 141501, customer_id: 100015, access_token: 'access-token-15-01', session_key: 'session-key-15-01', generated_at: new Date('2024-03-15T00:00:15.015Z'), expired_at: new Date('3000-01-15T00:00:00.000Z') },
+  { id: 141601, customer_id: 100016, access_token: 'access-token-16-01', session_key: 'session-key-16-01', generated_at: new Date('2024-03-16T00:00:16.016Z'), expired_at: new Date('3000-01-16T00:00:00.000Z') },
+  { id: 141701, customer_id: 100017, access_token: 'access-token-17-01', session_key: 'session-key-17-01', generated_at: new Date('2024-03-17T00:00:17.017Z'), expired_at: new Date('3000-01-17T00:00:00.000Z') },
+  { id: 141801, customer_id: 100018, access_token: 'access-token-18-01', session_key: 'session-key-18-01', generated_at: new Date('2024-03-18T00:00:18.018Z'), expired_at: new Date('3000-01-18T00:00:00.000Z') },
+  { id: 141901, customer_id: 100019, access_token: 'access-token-19-01', session_key: 'session-key-19-01', generated_at: new Date('2024-03-19T00:00:19.019Z'), expired_at: new Date('3000-01-19T00:00:00.000Z') },
+  { id: 142001, customer_id: 100020, access_token: 'access-token-20-01', session_key: 'session-key-20-01', generated_at: new Date('2024-03-20T00:00:20.020Z'), expired_at: new Date('3000-01-20T00:00:00.000Z') },
+  { id: 142101, customer_id: 100021, access_token: 'access-token-21-01', session_key: 'session-key-21-01', generated_at: new Date('2024-03-21T00:00:21.021Z'), expired_at: new Date('3000-01-21T00:00:00.000Z') },
+  { id: 142201, customer_id: 100022, access_token: 'access-token-22-01', session_key: 'session-key-22-01', generated_at: new Date('2024-03-22T00:00:22.022Z'), expired_at: new Date('3000-01-22T00:00:00.000Z') },
+  { id: 142301, customer_id: 100023, access_token: 'access-token-23-01', session_key: 'session-key-23-01', generated_at: new Date('2024-03-23T00:00:23.023Z'), expired_at: new Date('3000-01-23T00:00:00.000Z') },
+  { id: 142401, customer_id: 100024, access_token: 'access-token-24-01', session_key: 'session-key-24-01', generated_at: new Date('2024-03-24T00:00:24.024Z'), expired_at: new Date('3000-01-24T00:00:00.000Z') },
+  { id: 142501, customer_id: 100025, access_token: 'access-token-25-01', session_key: 'session-key-25-01', generated_at: new Date('2024-03-25T00:00:25.025Z'), expired_at: new Date('3000-01-25T00:00:00.000Z') },
+  { id: 142601, customer_id: 100026, access_token: 'access-token-26-01', session_key: 'session-key-26-01', generated_at: new Date('2024-03-26T00:00:26.026Z'), expired_at: new Date('3000-01-26T00:00:00.000Z') },
+  { id: 142701, customer_id: 100027, access_token: 'access-token-27-01', session_key: 'session-key-27-01', generated_at: new Date('2024-03-27T00:00:27.027Z'), expired_at: new Date('3000-01-27T00:00:00.000Z') },
+  { id: 142801, customer_id: 100028, access_token: 'access-token-28-01', session_key: 'session-key-28-01', generated_at: new Date('2024-03-28T00:00:28.028Z'), expired_at: new Date('3000-01-28T00:00:00.000Z') },
+  { id: 142901, customer_id: 100029, access_token: 'access-token-29-01', session_key: 'session-key-29-01', generated_at: new Date('2024-03-29T00:00:29.029Z'), expired_at: new Date('3000-01-29T00:00:00.000Z') },
+  { id: 143001, customer_id: 100030, access_token: 'access-token-30-01', session_key: 'session-key-30-01', generated_at: new Date('2024-03-30T00:00:30.030Z'), expired_at: new Date('3000-01-30T00:00:00.000Z') },
+
+  // Dedicated destructive-test series — deleted only by SessionRevoker tests, so no other test depends on them.
+  // series 91-01: two access tokens (deleteAccessTokensInSeries → 2)
+  { id: 148101, customer_id: 100001, access_token: 'access-token-91-01', session_key: 'session-key-91-01', generated_at: new Date('2024-09-01T00:00:01.001Z'), expired_at: new Date('3000-02-01T00:00:00.000Z') },
+  { id: 148102, customer_id: 100001, access_token: 'access-token-91-02', session_key: 'session-key-91-01', generated_at: new Date('2024-09-01T00:00:02.002Z'), expired_at: new Date('3000-02-02T00:00:00.000Z') },
+  // series 94-01: one access token (deleteAccessTokensInSeries → 1)
+  { id: 148401, customer_id: 100001, access_token: 'access-token-94-01', session_key: 'session-key-94-01', generated_at: new Date('2024-09-04T00:00:04.004Z'), expired_at: new Date('3000-02-04T00:00:00.000Z') },
+  // series 92-01: three access tokens (revokeSeries → deletedAccessTokenCount 3)
+  { id: 148201, customer_id: 100001, access_token: 'access-token-92-01', session_key: 'session-key-92-01', generated_at: new Date('2024-09-02T00:00:01.001Z'), expired_at: new Date('3000-02-05T00:00:00.000Z') },
+  { id: 148202, customer_id: 100001, access_token: 'access-token-92-02', session_key: 'session-key-92-01', generated_at: new Date('2024-09-02T00:00:02.002Z'), expired_at: new Date('3000-02-06T00:00:00.000Z') },
+  { id: 148203, customer_id: 100001, access_token: 'access-token-92-03', session_key: 'session-key-92-01', generated_at: new Date('2024-09-02T00:00:03.003Z'), expired_at: new Date('3000-02-07T00:00:00.000Z') },
+  // series 95-01: two access tokens (revokeSeries → deletedAccessTokenCount 2)
+  { id: 148501, customer_id: 100001, access_token: 'access-token-95-01', session_key: 'session-key-95-01', generated_at: new Date('2024-09-05T00:00:01.001Z'), expired_at: new Date('3000-02-08T00:00:00.000Z') },
+  { id: 148502, customer_id: 100001, access_token: 'access-token-95-02', session_key: 'session-key-95-01', generated_at: new Date('2024-09-05T00:00:02.002Z'), expired_at: new Date('3000-02-09T00:00:00.000Z') },
+  // series 96-01: three access tokens (RenewAccessTokenMutationResolver#revokeReusedSeries → deletedAccessTokenCount 3)
+  { id: 148601, customer_id: 100001, access_token: 'access-token-96-01', session_key: 'session-key-96-01', generated_at: new Date('2024-09-06T00:00:01.001Z'), expired_at: new Date('3000-02-10T00:00:00.000Z') },
+  { id: 148602, customer_id: 100001, access_token: 'access-token-96-02', session_key: 'session-key-96-01', generated_at: new Date('2024-09-06T00:00:02.002Z'), expired_at: new Date('3000-02-11T00:00:00.000Z') },
+  { id: 148603, customer_id: 100001, access_token: 'access-token-96-03', session_key: 'session-key-96-01', generated_at: new Date('2024-09-06T00:00:03.003Z'), expired_at: new Date('3000-02-12T00:00:00.000Z') },
+  // series 97-01: two access tokens (RenewAccessTokenMutationResolver#revokeReusedSeries → deletedAccessTokenCount 2)
+  { id: 148701, customer_id: 100001, access_token: 'access-token-97-01', session_key: 'session-key-97-01', generated_at: new Date('2024-09-07T00:00:01.001Z'), expired_at: new Date('3000-02-13T00:00:00.000Z') },
+  { id: 148702, customer_id: 100001, access_token: 'access-token-97-02', session_key: 'session-key-97-01', generated_at: new Date('2024-09-07T00:00:02.002Z'), expired_at: new Date('3000-02-14T00:00:00.000Z') },
+]
+
+/*
+ * for refresh token
+ *
+ * Only the SHA-256 digest is stored (production-faithful); tests present the plaintext
+ * `refresh-token-<cc>-<nn>` and the resolver hashes it to match. session_key matches the paired
+ * access token above (same sign-in series). States below: active / used / revoked / expired,
+ * with at least two of each so a test.each has distinct rows.
+ */
+const customerRefreshTokensSeeds = [
+  // active, never expires
+  { id: 144101, customer_id: 100001, token_hash: hashRefreshToken('refresh-token-01-01'), session_key: 'session-key-01-01', used_at: null, revoked_at: null, generated_at: new Date('2024-03-01T00:00:01.001Z'), expired_at: new Date('3000-01-01T00:00:00.000Z') },
+
+  // one already used (rotated), one active
+  { id: 144201, customer_id: 100002, token_hash: hashRefreshToken('refresh-token-02-01'), session_key: 'session-key-02-01', used_at: new Date('2024-03-02T09:00:02.002Z'), revoked_at: null, generated_at: new Date('2024-03-02T00:00:02.002Z'), expired_at: new Date('3000-01-02T00:00:00.000Z') },
+  { id: 144202, customer_id: 100002, token_hash: hashRefreshToken('refresh-token-02-02'), session_key: 'session-key-02-02', used_at: null, revoked_at: null, generated_at: new Date('2024-05-02T00:00:02.002Z'), expired_at: new Date('3000-01-02T00:00:00.000Z') },
+
+  // one revoked, one expired
+  { id: 144301, customer_id: 100003, token_hash: hashRefreshToken('refresh-token-03-01'), session_key: 'session-key-03-01', used_at: null, revoked_at: new Date('2024-03-04T03:03:03.003Z'), generated_at: new Date('2024-03-03T00:00:03.003Z'), expired_at: new Date('3000-01-03T00:00:00.000Z') },
+  { id: 144302, customer_id: 100003, token_hash: hashRefreshToken('refresh-token-03-02'), session_key: 'session-key-03-02', used_at: null, revoked_at: null, generated_at: new Date('2024-05-03T00:00:03.003Z'), expired_at: new Date('2024-05-04T03:03:03.003Z') },
+
+  // active, never expires — spare series for rotation / lookup / consume tests
+  { id: 144401, customer_id: 100004, token_hash: hashRefreshToken('refresh-token-04-01'), session_key: 'session-key-04-01', used_at: null, revoked_at: null, generated_at: new Date('2024-03-04T00:00:04.004Z'), expired_at: new Date('3000-01-04T00:00:00.000Z') },
+  { id: 144501, customer_id: 100005, token_hash: hashRefreshToken('refresh-token-05-01'), session_key: 'session-key-05-01', used_at: null, revoked_at: null, generated_at: new Date('2024-03-05T00:00:05.005Z'), expired_at: new Date('3000-01-05T00:00:00.000Z') },
+  { id: 144601, customer_id: 100006, token_hash: hashRefreshToken('refresh-token-06-01'), session_key: 'session-key-06-01', used_at: null, revoked_at: null, generated_at: new Date('2024-03-06T00:00:06.006Z'), expired_at: new Date('3000-01-06T00:00:00.000Z') },
+  { id: 144701, customer_id: 100007, token_hash: hashRefreshToken('refresh-token-07-01'), session_key: 'session-key-07-01', used_at: null, revoked_at: null, generated_at: new Date('2024-03-07T00:00:07.007Z'), expired_at: new Date('3000-01-07T00:00:00.000Z') },
+  { id: 144801, customer_id: 100008, token_hash: hashRefreshToken('refresh-token-08-01'), session_key: 'session-key-08-01', used_at: null, revoked_at: null, generated_at: new Date('2024-03-08T00:00:08.008Z'), expired_at: new Date('3000-01-08T00:00:00.000Z') },
+  { id: 144901, customer_id: 100009, token_hash: hashRefreshToken('refresh-token-09-01'), session_key: 'session-key-09-01', used_at: null, revoked_at: null, generated_at: new Date('2024-03-09T00:00:09.009Z'), expired_at: new Date('3000-01-09T00:00:00.000Z') },
+  { id: 145001, customer_id: 100010, token_hash: hashRefreshToken('refresh-token-10-01'), session_key: 'session-key-10-01', used_at: null, revoked_at: null, generated_at: new Date('2024-03-10T00:00:10.010Z'), expired_at: new Date('3000-01-10T00:00:00.000Z') },
+  { id: 145101, customer_id: 100011, token_hash: hashRefreshToken('refresh-token-11-01'), session_key: 'session-key-11-01', used_at: null, revoked_at: null, generated_at: new Date('2024-03-11T00:00:11.011Z'), expired_at: new Date('3000-01-11T00:00:00.000Z') },
+  { id: 145201, customer_id: 100012, token_hash: hashRefreshToken('refresh-token-12-01'), session_key: 'session-key-12-01', used_at: null, revoked_at: null, generated_at: new Date('2024-03-12T00:00:12.012Z'), expired_at: new Date('3000-01-12T00:00:00.000Z') },
+  { id: 145301, customer_id: 100013, token_hash: hashRefreshToken('refresh-token-13-01'), session_key: 'session-key-13-01', used_at: null, revoked_at: null, generated_at: new Date('2024-03-13T00:00:13.013Z'), expired_at: new Date('3000-01-13T00:00:00.000Z') },
+
+  // a second already-used token
+  { id: 145401, customer_id: 100014, token_hash: hashRefreshToken('refresh-token-14-01'), session_key: 'session-key-14-01', used_at: new Date('2024-03-14T09:00:14.014Z'), revoked_at: null, generated_at: new Date('2024-03-14T00:00:14.014Z'), expired_at: new Date('3000-01-14T00:00:00.000Z') },
+
+  // a second revoked token
+  { id: 145501, customer_id: 100015, token_hash: hashRefreshToken('refresh-token-15-01'), session_key: 'session-key-15-01', used_at: null, revoked_at: new Date('2024-03-16T03:03:15.015Z'), generated_at: new Date('2024-03-15T00:00:15.015Z'), expired_at: new Date('3000-01-15T00:00:00.000Z') },
+
+  // a second expired token
+  { id: 145601, customer_id: 100016, token_hash: hashRefreshToken('refresh-token-16-01'), session_key: 'session-key-16-01', used_at: null, revoked_at: null, generated_at: new Date('2024-03-16T00:00:16.016Z'), expired_at: new Date('2024-05-16T03:03:16.016Z') },
+
+  // Dedicated destructive-test series — revoked only by SessionRevoker tests, so no other test depends on them.
+  // series 90-01: two live + one already-revoked (revokeRefreshTokensInSeries → [2], filtered by revoked_at null)
+  { id: 149001, customer_id: 100001, token_hash: hashRefreshToken('refresh-token-90-01'), session_key: 'session-key-90-01', used_at: null, revoked_at: null, generated_at: new Date('2024-09-10T00:00:01.001Z'), expired_at: new Date('3000-03-01T00:00:00.000Z') },
+  { id: 149002, customer_id: 100001, token_hash: hashRefreshToken('refresh-token-90-02'), session_key: 'session-key-90-01', used_at: null, revoked_at: null, generated_at: new Date('2024-09-10T00:00:02.002Z'), expired_at: new Date('3000-03-02T00:00:00.000Z') },
+  { id: 149003, customer_id: 100001, token_hash: hashRefreshToken('refresh-token-90-03'), session_key: 'session-key-90-01', used_at: null, revoked_at: new Date('2024-09-11T00:00:03.003Z'), generated_at: new Date('2024-09-10T00:00:03.003Z'), expired_at: new Date('3000-03-03T00:00:00.000Z') },
+  // series 93-01: one live (revokeRefreshTokensInSeries → [1])
+  { id: 149301, customer_id: 100001, token_hash: hashRefreshToken('refresh-token-93-01'), session_key: 'session-key-93-01', used_at: null, revoked_at: null, generated_at: new Date('2024-09-13T00:00:01.001Z'), expired_at: new Date('3000-03-04T00:00:00.000Z') },
+  // series 92-01: two live + one already-revoked (revokeSeries → revokedRefreshTokenCount 2)
+  { id: 149201, customer_id: 100001, token_hash: hashRefreshToken('refresh-token-92-01'), session_key: 'session-key-92-01', used_at: null, revoked_at: null, generated_at: new Date('2024-09-12T00:00:01.001Z'), expired_at: new Date('3000-03-05T00:00:00.000Z') },
+  { id: 149202, customer_id: 100001, token_hash: hashRefreshToken('refresh-token-92-02'), session_key: 'session-key-92-01', used_at: null, revoked_at: null, generated_at: new Date('2024-09-12T00:00:02.002Z'), expired_at: new Date('3000-03-06T00:00:00.000Z') },
+  { id: 149203, customer_id: 100001, token_hash: hashRefreshToken('refresh-token-92-03'), session_key: 'session-key-92-01', used_at: null, revoked_at: new Date('2024-09-13T00:00:03.003Z'), generated_at: new Date('2024-09-12T00:00:03.003Z'), expired_at: new Date('3000-03-07T00:00:00.000Z') },
+  // series 95-01: one live + one already-revoked (revokeSeries → revokedRefreshTokenCount 1)
+  { id: 149501, customer_id: 100001, token_hash: hashRefreshToken('refresh-token-95-01'), session_key: 'session-key-95-01', used_at: null, revoked_at: null, generated_at: new Date('2024-09-15T00:00:01.001Z'), expired_at: new Date('3000-03-08T00:00:00.000Z') },
+  { id: 149502, customer_id: 100001, token_hash: hashRefreshToken('refresh-token-95-02'), session_key: 'session-key-95-01', used_at: null, revoked_at: new Date('2024-09-16T00:00:02.002Z'), generated_at: new Date('2024-09-15T00:00:02.002Z'), expired_at: new Date('3000-03-09T00:00:00.000Z') },
+  // series 96-01: two live + one already-revoked (RenewAccessTokenMutationResolver#revokeReusedSeries → revokedRefreshTokenCount 2)
+  { id: 149601, customer_id: 100001, token_hash: hashRefreshToken('refresh-token-96-01'), session_key: 'session-key-96-01', used_at: null, revoked_at: null, generated_at: new Date('2024-09-16T00:00:01.001Z'), expired_at: new Date('3000-03-10T00:00:00.000Z') },
+  { id: 149602, customer_id: 100001, token_hash: hashRefreshToken('refresh-token-96-02'), session_key: 'session-key-96-01', used_at: null, revoked_at: null, generated_at: new Date('2024-09-16T00:00:02.002Z'), expired_at: new Date('3000-03-11T00:00:00.000Z') },
+  { id: 149603, customer_id: 100001, token_hash: hashRefreshToken('refresh-token-96-03'), session_key: 'session-key-96-01', used_at: null, revoked_at: new Date('2024-09-17T00:00:03.003Z'), generated_at: new Date('2024-09-16T00:00:03.003Z'), expired_at: new Date('3000-03-12T00:00:00.000Z') },
+  // series 97-01: one live (RenewAccessTokenMutationResolver#revokeReusedSeries → revokedRefreshTokenCount 1)
+  { id: 149701, customer_id: 100001, token_hash: hashRefreshToken('refresh-token-97-01'), session_key: 'session-key-97-01', used_at: null, revoked_at: null, generated_at: new Date('2024-09-17T00:00:01.001Z'), expired_at: new Date('3000-03-13T00:00:00.000Z') },
 ]
 
 module.exports = {
@@ -242,9 +345,11 @@ module.exports = {
     await queryInterface.bulkInsert(TABLE_NAME.CUSTOMER_SECRETS, TimestampSeedsSupplier.supplyAll(customerSecretsSeeds), {})
     await queryInterface.bulkInsert(TABLE_NAME.CUSTOMER_PASSWORD_HASHES, TimestampSeedsSupplier.supplyAll(fulfilledCustomerPasswordHashes), {})
     await queryInterface.bulkInsert(TABLE_NAME.CUSTOMER_ACCESS_TOKENS, TimestampSeedsSupplier.supplyAll(customerAccessTokensSeeds), {})
+    await queryInterface.bulkInsert(TABLE_NAME.CUSTOMER_REFRESH_TOKENS, TimestampSeedsSupplier.supplyAll(customerRefreshTokensSeeds), {})
   },
 
   down: async (queryInterface, Sequelize) => {
+    await queryInterface.bulkDelete(TABLE_NAME.CUSTOMER_REFRESH_TOKENS, { id: customerRefreshTokensSeeds.map(it => it.id) })
     await queryInterface.bulkDelete(TABLE_NAME.CUSTOMER_ACCESS_TOKENS, { id: customerAccessTokensSeeds.map(it => it.id) })
     await queryInterface.bulkDelete(TABLE_NAME.CUSTOMER_PASSWORD_HASHES, { id: customerPasswordHashesSeeds.map(it => it.id) })
     await queryInterface.bulkDelete(TABLE_NAME.CUSTOMER_SECRETS, { id: customerSecretsSeeds.map(it => it.id) })
