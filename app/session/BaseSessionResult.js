@@ -53,7 +53,7 @@ export default class BaseSessionResult {
    * @returns {boolean} - True when an error was caught.
    */
   hasError () {
-    return this.error !== null
+    return this.error instanceof Error
   }
 
   /**

@@ -380,11 +380,15 @@ export default class SessionClerk {
     }
 
     try {
-      await this.spendRefreshToken({
+      const spentResult = await this.spendRefreshToken({
         tokenHash: refreshTokenEntity.tokenHash,
         now,
         transaction,
       })
+
+      if (spentResult[0] === 0) {
+        throw new Error('The refresh token was already spent')
+      }
 
       const credentialPair = await this.saveTokenPair({
         customerId: refreshTokenEntity.CustomerId,
