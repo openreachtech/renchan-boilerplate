@@ -3,7 +3,7 @@ import {
   ModelAttributeFactory,
 } from '@openreachtech/renchan-sequelize'
 
-import SessionCredentialClerk from '../../app/auth/SessionCredentialClerk.js'
+import SessionCredentialGenerator from '../../app/session/SessionCredentialGenerator.js'
 import {
   env,
 } from '../../app/globals/_.js'
@@ -151,9 +151,9 @@ export default class CustomerRefreshToken extends RenchanModel {
   static hashToken ({
     token,
   }) {
-    const credentialClerk = SessionCredentialClerk.create()
+    const credentialGenerator = SessionCredentialGenerator.create()
 
-    return credentialClerk.hashToken({
+    return credentialGenerator.hashToken({
       token,
     })
   }
