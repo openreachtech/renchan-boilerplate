@@ -17,11 +17,11 @@ const HASH_ALGORITHM = 'sha256'
  * on that. Access tokens are kept as-is — they are minutes from expiring, and hashing them would
  * cost a digest on every single request for a window that closes on its own.
  */
-export default class SessionCredentialClerk {
+export default class SessionCredentialGenerator {
   /**
    * Constructor.
    *
-   * @param {SessionCredentialClerkParams} params - Parameters.
+   * @param {SessionCredentialGeneratorParams} params - Parameters.
    */
   constructor ({
     tokenByteSize,
@@ -32,8 +32,8 @@ export default class SessionCredentialClerk {
   /**
    * Factory method.
    *
-   * @template {X extends typeof SessionCredentialClerk ? X : never} T, X
-   * @param {SessionCredentialClerkFactoryParams} [params] - Parameters.
+   * @template {X extends typeof SessionCredentialGenerator ? X : never} T, X
+   * @param {SessionCredentialGeneratorFactoryParams} [params] - Parameters.
    * @returns {InstanceType<T>} - Instance of this class.
    * @this {T}
    */
@@ -91,9 +91,9 @@ export default class SessionCredentialClerk {
 /**
  * @typedef {{
  *   tokenByteSize: number
- * }} SessionCredentialClerkParams
+ * }} SessionCredentialGeneratorParams
  */
 
 /**
- * @typedef {Partial<SessionCredentialClerkParams>} SessionCredentialClerkFactoryParams
+ * @typedef {Partial<SessionCredentialGeneratorParams>} SessionCredentialGeneratorFactoryParams
  */
