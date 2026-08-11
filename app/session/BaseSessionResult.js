@@ -1,8 +1,8 @@
 /**
- * The outcome of a session operation — the caught error (null on success) and the operation's
- * response (null on failure). Returned as an instance so the interface is a proper type, not a
- * loose plain object; a subclass fixes what `response` carries. The field is named generically, so
- * this result travels unchanged when the session clerk is later cut out as its own module.
+ * The outcome of a session operation — the operation's response (null on failure) and the caught
+ * error (null on success). Returned as an instance so the interface is a proper type, not a loose
+ * plain object; a subclass fixes what `response` carries. The field is named generically, so this
+ * result travels unchanged when the session clerk is later cut out as its own module.
  *
  * @template R
  */
@@ -10,14 +10,17 @@ export default class BaseSessionResult {
   /**
    * Constructor.
    *
-   * @param {BaseSessionResultParams<R>} params
+   * @param {{
+   *   response: R | null
+   *   error: Error | null
+   * }} params
    */
   constructor ({
-    error,
     response,
+    error,
   }) {
-    this.error = error
     this.response = response
+    this.error = error
   }
 
   /**
@@ -25,18 +28,21 @@ export default class BaseSessionResult {
    *
    * @template {X extends typeof BaseSessionResult ? X : never} T, X
    * @template R
-   * @param {BaseSessionResultParams<R>} params
+   * @param {{
+   *   response?: R | null
+   *   error?: Error | null
+   * }} params
    * @returns {InstanceType<T>}
    * @this {T}
    */
   static create ({
-    error,
-    response,
+    response = null,
+    error = null,
   }) {
     return /** @type {InstanceType<T>} */ (
       new this({
-        error,
         response,
+        error,
       })
     )
   }
@@ -59,11 +65,3 @@ export default class BaseSessionResult {
     return this.error.message
   }
 }
-
-/**
- * @typedef {{
- *   error: Error | null
- *   response: R | null
- * }} BaseSessionResultParams
- * @template R
- */

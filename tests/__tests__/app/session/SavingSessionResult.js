@@ -20,13 +20,11 @@ describe('SavingSessionResult', () => {
         {
           input: {
             error: new Error('saving-session-error-01'),
-            response: null,
           },
         },
         {
           input: {
             error: new Error('saving-session-error-02'),
-            response: null,
           },
         },
       ]
@@ -43,14 +41,14 @@ describe('SavingSessionResult', () => {
       const cases = [
         {
           tally: {
-            error: new Error('saving-session-error-03'),
             response: null,
+            error: new Error('saving-session-error-03'),
           },
         },
         {
           tally: {
-            error: new Error('saving-session-error-04'),
             response: null,
+            error: new Error('saving-session-error-04'),
           },
         },
       ]
@@ -85,7 +83,6 @@ describe('SavingSessionResult', () => {
 
       test.each(cases)('response: $tally.refreshToken', ({ tally }) => {
         const result = SavingSessionResult.create({
-          error: null,
           response: tally,
         })
 

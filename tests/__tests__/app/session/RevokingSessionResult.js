@@ -20,13 +20,11 @@ describe('RevokingSessionResult', () => {
         {
           input: {
             error: new Error('revoking-session-error-01'),
-            response: null,
           },
         },
         {
           input: {
             error: new Error('revoking-session-error-02'),
-            response: null,
           },
         },
       ]
@@ -43,14 +41,14 @@ describe('RevokingSessionResult', () => {
       const cases = [
         {
           tally: {
-            error: new Error('revoking-session-error-03'),
             response: null,
+            error: new Error('revoking-session-error-03'),
           },
         },
         {
           tally: {
-            error: new Error('revoking-session-error-04'),
             response: null,
+            error: new Error('revoking-session-error-04'),
           },
         },
       ]
@@ -87,7 +85,6 @@ describe('RevokingSessionResult', () => {
 
       test.each(cases)('response: $tally.revokedRefreshTokenCount', ({ tally }) => {
         const result = RevokingSessionResult.create({
-          error: null,
           response: tally,
         })
 

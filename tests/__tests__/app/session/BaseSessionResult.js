@@ -3,38 +3,6 @@ import BaseSessionResult from '../../../../app/session/BaseSessionResult.js'
 describe('BaseSessionResult', () => {
   describe('constructor', () => {
     describe('should keep property', () => {
-      describe('#error', () => {
-        const cases = [
-          {
-            input: {
-              error: new Error('base-session-error-01'),
-            },
-            expected: new Error('base-session-error-01'),
-          },
-          {
-            input: {
-              error: new Error('base-session-error-02'),
-            },
-            expected: new Error('base-session-error-02'),
-          },
-        ]
-
-        test.each(cases)('error: $input.error.message', ({
-          input,
-          expected,
-        }) => {
-          const args = {
-            error: input.error,
-            response: null,
-          }
-
-          const result = new BaseSessionResult(args)
-
-          expect(result)
-            .toHaveProperty('error', expected)
-        })
-      })
-
       describe('#response', () => {
         const cases = [
           {
@@ -64,14 +32,46 @@ describe('BaseSessionResult', () => {
           expected,
         }) => {
           const args = {
-            error: null,
             response: input.response,
+            error: null,
           }
 
           const result = new BaseSessionResult(args)
 
           expect(result)
             .toHaveProperty('response', expected)
+        })
+      })
+
+      describe('#error', () => {
+        const cases = [
+          {
+            input: {
+              error: new Error('base-session-error-01'),
+            },
+            expected: new Error('base-session-error-01'),
+          },
+          {
+            input: {
+              error: new Error('base-session-error-02'),
+            },
+            expected: new Error('base-session-error-02'),
+          },
+        ]
+
+        test.each(cases)('error: $input.error.message', ({
+          input,
+          expected,
+        }) => {
+          const args = {
+            response: null,
+            error: input.error,
+          }
+
+          const result = new BaseSessionResult(args)
+
+          expect(result)
+            .toHaveProperty('error', expected)
         })
       })
     })
@@ -85,13 +85,11 @@ describe('BaseSessionResult', () => {
         {
           input: {
             error: new Error('base-session-error-03'),
-            response: null,
           },
         },
         {
           input: {
             error: new Error('base-session-error-04'),
-            response: null,
           },
         },
       ]
@@ -108,14 +106,14 @@ describe('BaseSessionResult', () => {
       const cases = [
         {
           tally: {
-            error: new Error('base-session-error-05'),
             response: null,
+            error: new Error('base-session-error-05'),
           },
         },
         {
           tally: {
-            error: new Error('base-session-error-06'),
             response: null,
+            error: new Error('base-session-error-06'),
           },
         },
       ]
@@ -129,6 +127,22 @@ describe('BaseSessionResult', () => {
           .toHaveBeenCalledWith(tally)
       })
     })
+
+    describe('should fill default response and error', () => {
+      test('with no field passed', () => {
+        const expected = {
+          response: null,
+          error: null,
+        }
+
+        const SpyClass = globalThis.constructorSpy.spyOn(BaseSessionResult)
+
+        SpyClass.create({})
+
+        expect(SpyClass.__spy__)
+          .toHaveBeenCalledWith(expected)
+      })
+    })
   })
 })
 
@@ -139,13 +153,11 @@ describe('BaseSessionResult', () => {
         {
           input: {
             error: new Error('has-error-01'),
-            response: null,
           },
         },
         {
           input: {
             error: new Error('has-error-02'),
-            response: null,
           },
         },
       ]
@@ -164,7 +176,6 @@ describe('BaseSessionResult', () => {
       const cases = [
         {
           input: {
-            error: null,
             response: {
               label: 'no-error-response-01',
             },
@@ -172,7 +183,6 @@ describe('BaseSessionResult', () => {
         },
         {
           input: {
-            error: null,
             response: {
               label: 'no-error-response-02',
             },
@@ -199,14 +209,12 @@ describe('BaseSessionResult', () => {
         {
           input: {
             error: new Error('extract-message-01'),
-            response: null,
           },
           expected: 'extract-message-01',
         },
         {
           input: {
             error: new Error('extract-message-02'),
-            response: null,
           },
           expected: 'extract-message-02',
         },
