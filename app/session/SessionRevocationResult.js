@@ -21,7 +21,7 @@ export default class SessionRevocationResult {
    * Factory method.
    *
    * @template {X extends typeof SessionRevocationResult ? X : never} T, X
-   * @param {SessionRevocationResultParams} params
+   * @param {SessionRevocationResultFactoryParams} params
    * @returns {InstanceType<T>}
    * @this {T}
    */
@@ -71,4 +71,8 @@ export default class SessionRevocationResult {
  *   error: Error | null
  *   revocation: SessionRevocationCounts | null
  * }} SessionRevocationResultParams
+ */
+
+/**
+ * @typedef {SessionRevocationResultParams} SessionRevocationResultFactoryParams
  */

@@ -21,7 +21,7 @@ export default class SessionSavingResult {
    * Factory method.
    *
    * @template {X extends typeof SessionSavingResult ? X : never} T, X
-   * @param {SessionSavingResultParams} params
+   * @param {SessionSavingResultFactoryParams} params
    * @returns {InstanceType<T>}
    * @this {T}
    */
@@ -61,4 +61,8 @@ export default class SessionSavingResult {
  *   error: Error | null
  *   credentialPair: import('./SessionClerk.js').SessionCredentialPair | null
  * }} SessionSavingResultParams
+ */
+
+/**
+ * @typedef {SessionSavingResultParams} SessionSavingResultFactoryParams
  */
