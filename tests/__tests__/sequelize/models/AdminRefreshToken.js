@@ -1,4 +1,4 @@
-import SessionCredentialClerk from '../../../../app/auth/SessionCredentialClerk.js'
+import SessionCredentialGenerator from '../../../../app/session/SessionCredentialGenerator.js'
 import AdminRefreshToken from '../../../../sequelize/models/AdminRefreshToken.js'
 
 /**
@@ -70,13 +70,13 @@ describe('AdminRefreshToken', () => {
       })
     })
 
-    describe('to agree with the credential clerk', () => {
+    describe('to agree with the credential generator', () => {
       const cases = [
         {
           params: {
             token: 'refresh-token-0001',
           },
-          expected: SessionCredentialClerk.create()
+          expected: SessionCredentialGenerator.create()
             .hashToken({
               token: 'refresh-token-0001',
             }),
@@ -85,7 +85,7 @@ describe('AdminRefreshToken', () => {
           params: {
             token: 'refresh-token-0002',
           },
-          expected: SessionCredentialClerk.create()
+          expected: SessionCredentialGenerator.create()
             .hashToken({
               token: 'refresh-token-0002',
             }),
