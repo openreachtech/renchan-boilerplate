@@ -1,21 +1,21 @@
-import SessionCredentialClerk from '../../../../app/auth/SessionCredentialClerk.js'
+import SessionCredentialGenerator from '../../../../app/session/SessionCredentialGenerator.js'
 
 /**
  * 32 bytes rendered as hex.
  */
 const TOKEN_PATTERN = /^[0-9a-f]{64}$/u
 
-describe('SessionCredentialClerk', () => {
+describe('SessionCredentialGenerator', () => {
   describe('.create()', () => {
     test('should be an instance of own class', () => {
-      const actual = SessionCredentialClerk.create()
+      const actual = SessionCredentialGenerator.create()
 
       expect(actual)
-        .toBeInstanceOf(SessionCredentialClerk)
+        .toBeInstanceOf(SessionCredentialGenerator)
     })
 
     test('should default to 32 bytes', () => {
-      const actual = SessionCredentialClerk.create()
+      const actual = SessionCredentialGenerator.create()
 
       expect(actual)
         .toHaveProperty('tokenByteSize', 32)
@@ -28,7 +28,7 @@ describe('SessionCredentialClerk', () => {
       ]
 
       test.each(cases)('tokenByteSize: $factoryParams.tokenByteSize', ({ factoryParams }) => {
-        const actual = SessionCredentialClerk.create(factoryParams)
+        const actual = SessionCredentialGenerator.create(factoryParams)
 
         expect(actual)
           .toHaveProperty('tokenByteSize', factoryParams.tokenByteSize)
@@ -37,10 +37,10 @@ describe('SessionCredentialClerk', () => {
   })
 })
 
-describe('SessionCredentialClerk', () => {
+describe('SessionCredentialGenerator', () => {
   describe('#generateToken()', () => {
     test('should be 32 bytes of hex', () => {
-      const actual = SessionCredentialClerk.create()
+      const actual = SessionCredentialGenerator.create()
         .generateToken()
 
       expect(actual)
@@ -50,11 +50,11 @@ describe('SessionCredentialClerk', () => {
     })
 
     test('should not repeat itself', () => {
-      const clerk = SessionCredentialClerk.create()
+      const generator = SessionCredentialGenerator.create()
 
       const tokens = Array.from(
         { length: 1000 },
-        () => clerk.generateToken()
+        () => generator.generateToken()
       )
 
       expect(new Set(tokens).size)
@@ -68,7 +68,7 @@ describe('SessionCredentialClerk', () => {
       ]
 
       test.each(cases)('tokenByteSize: $factoryParams.tokenByteSize', ({ factoryParams, expected }) => {
-        const actual = SessionCredentialClerk.create(factoryParams)
+        const actual = SessionCredentialGenerator.create(factoryParams)
           .generateToken()
 
         expect(actual)
@@ -78,11 +78,11 @@ describe('SessionCredentialClerk', () => {
   })
 })
 
-describe('SessionCredentialClerk', () => {
+describe('SessionCredentialGenerator', () => {
   describe('#generateSessionKey()', () => {
     test('should be unguessable in the same way a token is', () => {
       // Knowing a series key must not let anyone name a series they do not hold.
-      const actual = SessionCredentialClerk.create()
+      const actual = SessionCredentialGenerator.create()
         .generateSessionKey()
 
       expect(actual)
@@ -91,7 +91,7 @@ describe('SessionCredentialClerk', () => {
   })
 })
 
-describe('SessionCredentialClerk', () => {
+describe('SessionCredentialGenerator', () => {
   describe('#hashToken()', () => {
     describe('should answer a SHA-256 digest', () => {
       const cases = [
@@ -100,7 +100,7 @@ describe('SessionCredentialClerk', () => {
       ]
 
       test.each(cases)('token: $params.token', ({ params }) => {
-        const actual = SessionCredentialClerk.create()
+        const actual = SessionCredentialGenerator.create()
           .hashToken(params)
 
         expect(actual)
@@ -117,7 +117,7 @@ describe('SessionCredentialClerk', () => {
       ]
 
       test.each(cases)('token: $params.token', ({ params }) => {
-        const actual = SessionCredentialClerk.create()
+        const actual = SessionCredentialGenerator.create()
           .hashToken(params)
 
         expect(actual)
@@ -131,20 +131,20 @@ describe('SessionCredentialClerk', () => {
 
     test('should answer the same digest for the same token', () => {
       // The lookup hashes what arrives and matches on it, so this has to be stable.
-      const clerk = SessionCredentialClerk.create()
+      const generator = SessionCredentialGenerator.create()
 
-      const first = clerk.hashToken({ token: 'token-0001' })
-      const second = clerk.hashToken({ token: 'token-0001' })
+      const first = generator.hashToken({ token: 'token-0001' })
+      const second = generator.hashToken({ token: 'token-0001' })
 
       expect(first)
         .toBe(second)
     })
 
     test('should answer different digests for different tokens', () => {
-      const clerk = SessionCredentialClerk.create()
+      const generator = SessionCredentialGenerator.create()
 
-      const first = clerk.hashToken({ token: 'token-0001' })
-      const second = clerk.hashToken({ token: 'token-0002' })
+      const first = generator.hashToken({ token: 'token-0001' })
+      const second = generator.hashToken({ token: 'token-0002' })
 
       expect(first)
         .not
