@@ -25,9 +25,15 @@ export default class SessionRevocationResult {
    * @returns {InstanceType<T>}
    * @this {T}
    */
-  static create (params) {
+  static create ({
+    error,
+    revocation,
+  }) {
     return /** @type {InstanceType<T>} */ (
-      new this(params)
+      new this({
+        error,
+        revocation,
+      })
     )
   }
 

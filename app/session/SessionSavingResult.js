@@ -25,9 +25,15 @@ export default class SessionSavingResult {
    * @returns {InstanceType<T>}
    * @this {T}
    */
-  static create (params) {
+  static create ({
+    error,
+    credentialPair,
+  }) {
     return /** @type {InstanceType<T>} */ (
-      new this(params)
+      new this({
+        error,
+        credentialPair,
+      })
     )
   }
 
