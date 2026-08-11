@@ -183,7 +183,7 @@ export default class RenewAccessTokenMutationResolver extends BaseMutationResolv
    *   context: import('../../../../contexts/CustomerGraphqlContext.js').default
    *   refreshTokenEntity: RefreshTokenEntity
    * }} params - Parameters.
-   * @returns {Promise<import('../../../../../../app/session/SessionRevocationResult.js').default>} - Outcome of revoking the reused session.
+   * @returns {Promise<import('../../../../../../app/session/RevokingSessionResult.js').default>} - Outcome of revoking the reused session.
    */
   async revokeReusedSession ({
     context,

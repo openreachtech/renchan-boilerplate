@@ -1,21 +1,21 @@
-import SessionSavingResult from '../../../../app/session/SessionSavingResult.js'
+import BaseSessionResult from '../../../../app/session/BaseSessionResult.js'
 
-describe('SessionSavingResult', () => {
+describe('BaseSessionResult', () => {
   describe('constructor', () => {
     describe('should keep property', () => {
       describe('#error', () => {
         const cases = [
           {
             input: {
-              error: new Error('session-saving-error-01'),
+              error: new Error('base-session-error-01'),
             },
-            expected: new Error('session-saving-error-01'),
+            expected: new Error('base-session-error-01'),
           },
           {
             input: {
-              error: new Error('session-saving-error-02'),
+              error: new Error('base-session-error-02'),
             },
-            expected: new Error('session-saving-error-02'),
+            expected: new Error('base-session-error-02'),
           },
         ]
 
@@ -25,82 +25,82 @@ describe('SessionSavingResult', () => {
         }) => {
           const args = {
             error: input.error,
-            credentialPair: null,
+            response: null,
           }
 
-          const result = new SessionSavingResult(args)
+          const result = new BaseSessionResult(args)
 
           expect(result)
             .toHaveProperty('error', expected)
         })
       })
 
-      describe('#credentialPair', () => {
+      describe('#response', () => {
         const cases = [
           {
             input: {
-              credentialPair: /** @type {*} */ ({
-                refreshToken: 'refresh-token-value-01',
-              }),
+              response: {
+                label: 'base-session-response-01',
+              },
             },
             expected: {
-              refreshToken: 'refresh-token-value-01',
+              label: 'base-session-response-01',
             },
           },
           {
             input: {
-              credentialPair: /** @type {*} */ ({
-                refreshToken: 'refresh-token-value-02',
-              }),
+              response: {
+                label: 'base-session-response-02',
+              },
             },
             expected: {
-              refreshToken: 'refresh-token-value-02',
+              label: 'base-session-response-02',
             },
           },
         ]
 
-        test.each(cases)('credentialPair: $input.credentialPair.refreshToken', ({
+        test.each(cases)('response: $input.response.label', ({
           input,
           expected,
         }) => {
           const args = {
             error: null,
-            credentialPair: input.credentialPair,
+            response: input.response,
           }
 
-          const result = new SessionSavingResult(args)
+          const result = new BaseSessionResult(args)
 
           expect(result)
-            .toHaveProperty('credentialPair', expected)
+            .toHaveProperty('response', expected)
         })
       })
     })
   })
 })
 
-describe('SessionSavingResult', () => {
+describe('BaseSessionResult', () => {
   describe('.create()', () => {
     describe('should be an instance of own class', () => {
       const cases = [
         {
           input: {
-            error: new Error('session-saving-error-03'),
-            credentialPair: null,
+            error: new Error('base-session-error-03'),
+            response: null,
           },
         },
         {
           input: {
-            error: new Error('session-saving-error-04'),
-            credentialPair: null,
+            error: new Error('base-session-error-04'),
+            response: null,
           },
         },
       ]
 
       test.each(cases)('error: $input.error.message', ({ input }) => {
-        const received = SessionSavingResult.create(input)
+        const received = BaseSessionResult.create(input)
 
         expect(received)
-          .toBeInstanceOf(SessionSavingResult)
+          .toBeInstanceOf(BaseSessionResult)
       })
     })
 
@@ -108,20 +108,20 @@ describe('SessionSavingResult', () => {
       const cases = [
         {
           tally: {
-            error: new Error('session-saving-error-05'),
-            credentialPair: null,
+            error: new Error('base-session-error-05'),
+            response: null,
           },
         },
         {
           tally: {
-            error: new Error('session-saving-error-06'),
-            credentialPair: null,
+            error: new Error('base-session-error-06'),
+            response: null,
           },
         },
       ]
 
       test.each(cases)('error: $tally.error.message', ({ tally }) => {
-        const SpyClass = globalThis.constructorSpy.spyOn(SessionSavingResult)
+        const SpyClass = globalThis.constructorSpy.spyOn(BaseSessionResult)
 
         SpyClass.create(tally)
 
@@ -132,26 +132,26 @@ describe('SessionSavingResult', () => {
   })
 })
 
-describe('SessionSavingResult', () => {
+describe('BaseSessionResult', () => {
   describe('#hasError()', () => {
     describe('should be truthy when an error is present', () => {
       const cases = [
         {
           input: {
             error: new Error('has-error-01'),
-            credentialPair: null,
+            response: null,
           },
         },
         {
           input: {
             error: new Error('has-error-02'),
-            credentialPair: null,
+            response: null,
           },
         },
       ]
 
       test.each(cases)('error: $input.error.message', ({ input }) => {
-        const result = SessionSavingResult.create(input)
+        const result = BaseSessionResult.create(input)
 
         const received = result.hasError()
 
@@ -165,23 +165,23 @@ describe('SessionSavingResult', () => {
         {
           input: {
             error: null,
-            credentialPair: /** @type {*} */ ({
-              refreshToken: 'refresh-token-value-07',
-            }),
+            response: {
+              label: 'no-error-response-01',
+            },
           },
         },
         {
           input: {
             error: null,
-            credentialPair: /** @type {*} */ ({
-              refreshToken: 'refresh-token-value-08',
-            }),
+            response: {
+              label: 'no-error-response-02',
+            },
           },
         },
       ]
 
-      test.each(cases)('credentialPair: $input.credentialPair.refreshToken', ({ input }) => {
-        const result = SessionSavingResult.create(input)
+      test.each(cases)('response: $input.response.label', ({ input }) => {
+        const result = BaseSessionResult.create(input)
 
         const received = result.hasError()
 
@@ -192,21 +192,21 @@ describe('SessionSavingResult', () => {
   })
 })
 
-describe('SessionSavingResult', () => {
+describe('BaseSessionResult', () => {
   describe('#extractErrorMessage()', () => {
     describe('should be the caught error message', () => {
       const cases = [
         {
           input: {
             error: new Error('extract-message-01'),
-            credentialPair: null,
+            response: null,
           },
           expected: 'extract-message-01',
         },
         {
           input: {
             error: new Error('extract-message-02'),
-            credentialPair: null,
+            response: null,
           },
           expected: 'extract-message-02',
         },
@@ -216,7 +216,7 @@ describe('SessionSavingResult', () => {
         input,
         expected,
       }) => {
-        const result = SessionSavingResult.create(input)
+        const result = BaseSessionResult.create(input)
 
         const received = result.extractErrorMessage()
 

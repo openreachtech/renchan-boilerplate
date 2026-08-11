@@ -1,6 +1,6 @@
 import SessionCredentialClerk from './SessionCredentialClerk.js'
-import SessionSavingResult from './SessionSavingResult.js'
-import SessionRevocationResult from './SessionRevocationResult.js'
+import SavingSessionResult from './SavingSessionResult.js'
+import RevokingSessionResult from './RevokingSessionResult.js'
 
 /**
  * The single window for a session's data — every find / save / update / delete across the tables a
@@ -52,6 +52,24 @@ export default class SessionClerk {
   }
 
   /**
+   * get: RevokingSessionResult class — a seam so tests can substitute it.
+   *
+   * @returns {typeof RevokingSessionResult} - The class.
+   */
+  static get RevokingSessionResultCtor () {
+    return RevokingSessionResult
+  }
+
+  /**
+   * get: SavingSessionResult class — a seam so tests can substitute it.
+   *
+   * @returns {typeof SavingSessionResult} - The class.
+   */
+  static get SavingSessionResultCtor () {
+    return SavingSessionResult
+  }
+
+  /**
    * get: SessionCredentialClerk class — a seam so tests can substitute it.
    *
    * @returns {typeof SessionCredentialClerk} - The class.
@@ -70,8 +88,55 @@ export default class SessionClerk {
   }
 
   /**
+   * Create a revoking-session result.
+   *
+   * @param {{
+   *   error: Error | null
+   *   response: import('./RevokingSessionResult.js').SessionRevocationCounts | null
+   * }} params
+   * @returns {RevokingSessionResult}
+   */
+  static createRevokingSessionResult ({
+    error,
+    response,
+  }) {
+    return this.RevokingSessionResultCtor.create({
+      error,
+      response,
+    })
+  }
+
+  /**
+   * Create a saving-session result.
+   *
+   * @param {{
+   *   error: Error | null
+   *   response: SessionCredentialPair | null
+   * }} params
+   * @returns {SavingSessionResult}
+   */
+  static createSavingSessionResult ({
+    error,
+    response,
+  }) {
+    return this.SavingSessionResultCtor.create({
+      error,
+      response,
+    })
+  }
+
+  /**
+   * get: Class itself — reach own statics through the instance.
+   *
+   * @returns {typeof SessionClerk} - The class.
+   */
+  get Ctor () {
+    return /** @type {typeof SessionClerk} */ (this.constructor)
+  }
+
+  /**
    * Start a session's token pair, in a series of its own. Never throws — the outcome is always a
-   * `SessionSavingResult`. Pass a `transaction` to join an outer one (the caller then decides
+   * `SavingSessionResult`. Pass a `transaction` to join an outer one (the caller then decides
    * rollback via `result.hasError()`); omit it to self-resolve a transaction here.
    *
    * @param {{
@@ -80,7 +145,7 @@ export default class SessionClerk {
    *   sessionKey?: string
    *   transaction?: Transaction | null
    * }} params - Parameters.
-   * @returns {Promise<SessionSavingResult>} - The error (null on success) and the saved pair.
+   * @returns {Promise<SavingSessionResult>} - The error (null on success) and the saved pair.
    * @public
    */
   async saveSession ({
@@ -105,14 +170,14 @@ export default class SessionClerk {
         transaction,
       })
 
-      return this.createSavingResult({
+      return this.Ctor.createSavingSessionResult({
         error: null,
-        credentialPair,
+        response: credentialPair,
       })
     } catch (error) {
-      return this.createSavingResult({
+      return this.Ctor.createSavingSessionResult({
         error,
-        credentialPair: null,
+        response: null,
       })
     }
   }
@@ -125,7 +190,7 @@ export default class SessionClerk {
    *   sessionKey: string
    *   now: Date
    * }} params - Parameters.
-   * @returns {Promise<SessionSavingResult>} - The error (null on success) and the saved pair.
+   * @returns {Promise<SavingSessionResult>} - The error (null on success) and the saved pair.
    */
   async invokeSaveSession ({
     customerId,
@@ -149,9 +214,9 @@ export default class SessionClerk {
           return result
         })
     } catch (error) {
-      return this.createSavingResult({
+      return this.Ctor.createSavingSessionResult({
         error,
-        credentialPair: null,
+        response: null,
       })
     }
   }
@@ -294,7 +359,7 @@ export default class SessionClerk {
 
   /**
    * Rotate a session: spend the presented refresh token and issue the next pair in the same series.
-   * Never throws — the outcome is always a `SessionSavingResult`. Pass a `transaction` to join an
+   * Never throws — the outcome is always a `SavingSessionResult`. Pass a `transaction` to join an
    * outer one (the caller then decides rollback via `result.hasError()`); omit it to self-resolve.
    *
    * @param {{
@@ -302,7 +367,7 @@ export default class SessionClerk {
    *   now: Date
    *   transaction?: Transaction | null
    * }} params - Parameters.
-   * @returns {Promise<SessionSavingResult>} - The error (null on success) and the next pair.
+   * @returns {Promise<SavingSessionResult>} - The error (null on success) and the next pair.
    * @public
    */
   async rotateSession ({
@@ -331,14 +396,14 @@ export default class SessionClerk {
         transaction,
       })
 
-      return this.createSavingResult({
+      return this.Ctor.createSavingSessionResult({
         error: null,
-        credentialPair,
+        response: credentialPair,
       })
     } catch (error) {
-      return this.createSavingResult({
+      return this.Ctor.createSavingSessionResult({
         error,
-        credentialPair: null,
+        response: null,
       })
     }
   }
@@ -350,7 +415,7 @@ export default class SessionClerk {
    *   refreshTokenEntity: RefreshTokenEntity
    *   now: Date
    * }} params - Parameters.
-   * @returns {Promise<SessionSavingResult>} - The error (null on success) and the next pair.
+   * @returns {Promise<SavingSessionResult>} - The error (null on success) and the next pair.
    */
   async invokeRotateSession ({
     refreshTokenEntity,
@@ -372,16 +437,17 @@ export default class SessionClerk {
           return result
         })
     } catch (error) {
-      return this.createSavingResult({
+      return this.Ctor.createSavingSessionResult({
         error,
-        credentialPair: null,
+        response: null,
       })
     }
   }
 
   /**
    * Mark a refresh token spent, so presenting it again is detectable. Keyed on the unique token
-   * digest, so it marks exactly the one row. Throwable; runs inside a caller-opened transaction.
+   * digest and guarded on `usedAt: null`, so it marks exactly the one still-unused row (re-spending
+   * updates nothing). Throwable; runs inside a caller-opened transaction.
    *
    * @param {{
    *   tokenHash: string
@@ -402,6 +468,7 @@ export default class SessionClerk {
       {
         where: {
           tokenHash,
+          usedAt: null,
         },
         transaction,
       }
@@ -410,7 +477,7 @@ export default class SessionClerk {
 
   /**
    * Revoke a whole session — every refresh token in it, and every access token it handed out.
-   * Never throws — the outcome is always a `SessionRevocationResult`. Pass a `transaction` to join
+   * Never throws — the outcome is always a `RevokingSessionResult`. Pass a `transaction` to join
    * an outer one (the caller then decides rollback via `result.hasError()`); omit it to self-resolve.
    *
    * @param {{
@@ -418,7 +485,7 @@ export default class SessionClerk {
    *   now: Date
    *   transaction?: Transaction | null
    * }} params - Parameters.
-   * @returns {Promise<SessionRevocationResult>} - The error (null on success) and the counts.
+   * @returns {Promise<RevokingSessionResult>} - The error (null on success) and the counts.
    * @public
    */
   async revokeSession ({
@@ -450,14 +517,14 @@ export default class SessionClerk {
         deletedAccessTokenCount,
       }
 
-      return this.createRevocationResult({
+      return this.Ctor.createRevokingSessionResult({
         error: null,
-        revocation,
+        response: revocation,
       })
     } catch (error) {
-      return this.createRevocationResult({
+      return this.Ctor.createRevokingSessionResult({
         error,
-        revocation: null,
+        response: null,
       })
     }
   }
@@ -469,7 +536,7 @@ export default class SessionClerk {
    *   sessionKey: string
    *   now: Date
    * }} params - Parameters.
-   * @returns {Promise<SessionRevocationResult>} - The error (null on success) and the counts.
+   * @returns {Promise<RevokingSessionResult>} - The error (null on success) and the counts.
    */
   async invokeRevokeSession ({
     sessionKey,
@@ -491,9 +558,9 @@ export default class SessionClerk {
           return result
         })
     } catch (error) {
-      return this.createRevocationResult({
+      return this.Ctor.createRevokingSessionResult({
         error,
-        revocation: null,
+        response: null,
       })
     }
   }
@@ -551,26 +618,6 @@ export default class SessionClerk {
       },
       transaction,
     })
-  }
-
-  /**
-   * Create a session saving result.
-   *
-   * @param {import('./SessionSavingResult.js').SessionSavingResultParams} params
-   * @returns {SessionSavingResult}
-   */
-  createSavingResult (params) {
-    return SessionSavingResult.create(params)
-  }
-
-  /**
-   * Create a session revocation result.
-   *
-   * @param {import('./SessionRevocationResult.js').SessionRevocationResultParams} params
-   * @returns {SessionRevocationResult}
-   */
-  createRevocationResult (params) {
-    return SessionRevocationResult.create(params)
   }
 }
 

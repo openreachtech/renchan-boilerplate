@@ -1,8 +1,8 @@
 import SessionClerk from '../../../../app/session/SessionClerk.js'
 
 import SessionCredentialClerk from '../../../../app/session/SessionCredentialClerk.js'
-import SessionSavingResult from '../../../../app/session/SessionSavingResult.js'
-import SessionRevocationResult from '../../../../app/session/SessionRevocationResult.js'
+import SavingSessionResult from '../../../../app/session/SavingSessionResult.js'
+import RevokingSessionResult from '../../../../app/session/RevokingSessionResult.js'
 
 import CustomerAccessToken from '../../../../sequelize/models/CustomerAccessToken.js'
 import CustomerRefreshToken from '../../../../sequelize/models/CustomerRefreshToken.js'
@@ -191,6 +191,50 @@ describe('SessionClerk', () => {
 })
 
 describe('SessionClerk', () => {
+  describe('.get:RevokingSessionResultCtor', () => {
+    describe('when called as is', () => {
+      test('should be fixed value', () => {
+        const received = SessionClerk.RevokingSessionResultCtor
+
+        expect(received)
+          .toBe(RevokingSessionResult) // same reference
+      })
+    })
+  })
+})
+
+describe('SessionClerk', () => {
+  describe('.get:SavingSessionResultCtor', () => {
+    describe('when called as is', () => {
+      test('should be fixed value', () => {
+        const received = SessionClerk.SavingSessionResultCtor
+
+        expect(received)
+          .toBe(SavingSessionResult) // same reference
+      })
+    })
+  })
+})
+
+describe('SessionClerk', () => {
+  describe('#get:Ctor', () => {
+    describe('when called as is', () => {
+      test('should be fixed value', () => {
+        const clerk = SessionClerk.create({
+          AccessTokenModel: CustomerAccessToken,
+          RefreshTokenModel: CustomerRefreshToken,
+        })
+
+        const received = clerk.Ctor
+
+        expect(received)
+          .toBe(SessionClerk) // same reference
+      })
+    })
+  })
+})
+
+describe('SessionClerk', () => {
   describe('.createCredentialClerk()', () => {
     describe('when called as is', () => {
       test('should be a session credential clerk', () => {
@@ -288,66 +332,56 @@ describe('SessionClerk', () => {
 })
 
 describe('SessionClerk', () => {
-  describe('#createSavingResult()', () => {
-    const clerk = SessionClerk.create({
-      AccessTokenModel: CustomerAccessToken,
-      RefreshTokenModel: CustomerRefreshToken,
-    })
-
-    describe('should be a session saving result', () => {
+  describe('.createSavingSessionResult()', () => {
+    describe('should be a saving-session result', () => {
       const cases = [
         {
           input: {
             error: new Error('saving-result-error-01'),
-            credentialPair: null,
+            response: null,
           },
         },
         {
           input: {
             error: new Error('saving-result-error-02'),
-            credentialPair: null,
+            response: null,
           },
         },
       ]
 
       test.each(cases)('error: $input.error.message', ({ input }) => {
-        const received = clerk.createSavingResult(input)
+        const received = SessionClerk.createSavingSessionResult(input)
 
         expect(received)
-          .toBeInstanceOf(SessionSavingResult)
+          .toBeInstanceOf(SavingSessionResult)
       })
     })
   })
 })
 
 describe('SessionClerk', () => {
-  describe('#createRevocationResult()', () => {
-    const clerk = SessionClerk.create({
-      AccessTokenModel: CustomerAccessToken,
-      RefreshTokenModel: CustomerRefreshToken,
-    })
-
-    describe('should be a session revocation result', () => {
+  describe('.createRevokingSessionResult()', () => {
+    describe('should be a revoking-session result', () => {
       const cases = [
         {
           input: {
             error: new Error('revocation-result-error-01'),
-            revocation: null,
+            response: null,
           },
         },
         {
           input: {
             error: new Error('revocation-result-error-02'),
-            revocation: null,
+            response: null,
           },
         },
       ]
 
       test.each(cases)('error: $input.error.message', ({ input }) => {
-        const received = clerk.createRevocationResult(input)
+        const received = SessionClerk.createRevokingSessionResult(input)
 
         expect(received)
-          .toBeInstanceOf(SessionRevocationResult)
+          .toBeInstanceOf(RevokingSessionResult)
       })
     })
   })
