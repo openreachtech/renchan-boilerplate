@@ -85,6 +85,7 @@ export default class CustomerAccessToken extends RenchanModel {
    *
    * @param {{
    *   customerId: number
+   *   sessionKey?: string | null
    *   generatedAt: Date
    *   expiredAt?: Date
    *   accessToken?: string
@@ -93,6 +94,7 @@ export default class CustomerAccessToken extends RenchanModel {
    */
   static buildWithGeneratedAttributes ({
     customerId,
+    sessionKey = null,
     generatedAt,
     expiredAt = this.createExpiredAt({
       generatedAt,
@@ -101,6 +103,7 @@ export default class CustomerAccessToken extends RenchanModel {
   }) {
     return this.build({
       CustomerId: customerId,
+      sessionKey,
       generatedAt,
       expiredAt,
       accessToken,
