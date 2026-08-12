@@ -6,6 +6,7 @@ const TABLE_NAME = 'customer_access_tokens'
 const COLUMN_NAME = {
   CUSTOMER_ID: 'customer_id',
   ACCESS_TOKEN: 'access_token',
+  SESSION_KEY: 'session_key',
   GENERATED_AT: 'generated_at',
   EXPIRED_AT: 'expired_at',
 }
@@ -29,6 +30,12 @@ module.exports = {
         type: Sequelize.STRING(191),
         field: COLUMN_NAME.ACCESS_TOKEN,
         allowNull: false,
+      },
+      sessionKey: {
+        type: Sequelize.STRING(191),
+        field: COLUMN_NAME.SESSION_KEY,
+        // TODO: tighten to allowNull: false once every access-token writer sets sessionKey (later PR).
+        allowNull: true,
       },
       generatedAt: {
         type: Sequelize.DATE(3),
@@ -59,6 +66,16 @@ module.exports = {
         name: [
           TABLE_NAME,
           COLUMN_NAME.ACCESS_TOKEN,
+          'unique',
+        ].join('_'),
+        unique: true,
+      }),
+      queryInterface.addIndex(TABLE_NAME, [
+        COLUMN_NAME.SESSION_KEY,
+      ], {
+        name: [
+          TABLE_NAME,
+          COLUMN_NAME.SESSION_KEY,
           'index',
         ].join('_'),
       }),
