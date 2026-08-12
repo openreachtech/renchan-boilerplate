@@ -1,84 +1,173 @@
 import SignInMutationResolver from '../../../../../../../../server/graphql/resolvers/customer/actual/mutations/SignInMutationResolver.js'
 
-import CustomerAccessToken from '../../../../../../../../sequelize/models/CustomerAccessToken.js'
+import SessionClerk from '../../../../../../../../app/session/SessionClerk.js'
+import RefreshTokenExpressCookieClerk from '../../../../../../../../server/graphql/contexts/tools/RefreshTokenExpressCookieClerk.js'
 
 describe('SignInMutationResolver', () => {
   describe('.get:schema', () => {
-    test('to be fixed value', () => {
-      const actual = SignInMutationResolver.schema
+    describe('when called as is', () => {
+      test('should be fixed value', () => {
+        const received = SignInMutationResolver.schema
 
-      expect(actual)
-        .toBe('signIn')
+        expect(received)
+          .toBe('signIn')
+      })
+    })
+  })
+})
+
+describe('SignInMutationResolver', () => {
+  describe('.get:errorCodeHash', () => {
+    describe('when called as is', () => {
+      test('should be fixed value', () => {
+        const expected = {
+          IncorrectSecret: '202.M002.001',
+        }
+
+        const received = SignInMutationResolver.errorCodeHash
+
+        expect(received)
+          .toEqual(expected)
+      })
+    })
+  })
+})
+
+describe('SignInMutationResolver', () => {
+  describe('#get:RefreshTokenExpressCookieClerkCtor', () => {
+    describe('when called as is', () => {
+      test('should be fixed value', () => {
+        const resolver = SignInMutationResolver.create()
+
+        const received = resolver.RefreshTokenExpressCookieClerkCtor
+
+        expect(received)
+          .toBe(RefreshTokenExpressCookieClerk) // same reference
+      })
+    })
+  })
+})
+
+describe('SignInMutationResolver', () => {
+  describe('#get:SessionClerkCtor', () => {
+    describe('when called as is', () => {
+      test('should be fixed value', () => {
+        const resolver = SignInMutationResolver.create()
+
+        const received = resolver.SessionClerkCtor
+
+        expect(received)
+          .toBe(SessionClerk) // same reference
+      })
+    })
+  })
+})
+
+describe('SignInMutationResolver', () => {
+  describe('#createSessionClerk()', () => {
+    describe('when called as is', () => {
+      test('should be a session clerk', () => {
+        const resolver = SignInMutationResolver.create()
+
+        const received = resolver.createSessionClerk()
+
+        expect(received)
+          .toBeInstanceOf(SessionClerk)
+      })
+    })
+  })
+})
+
+describe('SignInMutationResolver', () => {
+  describe('#createCookieClerk()', () => {
+    describe('should be a refresh-token cookie clerk', () => {
+      const resolver = SignInMutationResolver.create()
+
+      const cases = [
+        {
+          input: {
+            context: /** @type {*} */ ({
+              id: 'context-01',
+            }),
+          },
+        },
+        {
+          input: {
+            context: /** @type {*} */ ({
+              id: 'context-02',
+            }),
+          },
+        },
+      ]
+
+      test.each(cases)('context: $input.context.id', ({ input }) => {
+        const received = resolver.createCookieClerk(input)
+
+        expect(received)
+          .toBeInstanceOf(RefreshTokenExpressCookieClerk)
+      })
     })
   })
 })
 
 describe('SignInMutationResolver', () => {
   describe('#findPasswordHashByEmail()', () => {
-    describe('with existing email', () => {
-      const passwordHashExpected = expect.stringMatching(/^\$2b\$10\$.{53}$/u)
+    const resolver = SignInMutationResolver.create()
 
+    describe('with existing email', () => {
       const cases = [
         {
-          params: {
+          input: {
             email: 'customer.100001@example.com',
           },
-          expected: {
+          expected: expect.objectContaining({
             CustomerId: 100001,
-            passwordHash: passwordHashExpected,
+            passwordHash: expect.stringMatching(/^\$2b\$10\$.{53}$/u),
             savedAt: new Date('2024-01-01T00:00:01.001Z'),
-          },
+          }),
         },
         {
-          params: {
+          input: {
             email: 'customer.100002@example.com',
           },
-          expected: {
+          expected: expect.objectContaining({
             CustomerId: 100002,
-            passwordHash: passwordHashExpected,
+            passwordHash: expect.stringMatching(/^\$2b\$10\$.{53}$/u),
             savedAt: new Date('2024-01-02T00:00:02.002Z'),
-          },
+          }),
         },
       ]
 
-      test.each(cases)('email: $params.email', async ({ params, expected }) => {
-        const resolver = SignInMutationResolver.create()
+      test.each(cases)('email: $input.email', async ({
+        input,
+        expected,
+      }) => {
+        const PasswordHash = await resolver.findPasswordHashByEmail(input)
+        const received = PasswordHash.dataValues
 
-        const actual = await resolver.findPasswordHashByEmail(params)
-
-        expect(actual)
-          .toHaveProperty(
-            'dataValues',
-            expect.objectContaining(expected)
-          )
-
-        // NOTE: Below matcher will throw error:
-        // RangeError: Maximum call stack size exceeded
-        // expect(actual)
-        //   .toMatchObject(expected)
+        expect(received)
+          .toEqual(expected)
       })
     })
 
     describe('with non-existing email', () => {
       const cases = [
         {
-          params: {
+          input: {
             email: 'unknown.100001@example.com',
           },
         },
         {
-          params: {
+          input: {
             email: 'unknown.100002@example.com',
           },
         },
       ]
 
-      test.each(cases)('email: $params.email', async ({ params }) => {
-        const resolver = SignInMutationResolver.create()
+      test.each(cases)('email: $input.email', async ({ input }) => {
+        const received = await resolver.findPasswordHashByEmail(input)
 
-        const actual = await resolver.findPasswordHashByEmail(params)
-
-        expect(actual)
+        expect(received)
           .toBeNull()
       })
     })
@@ -87,53 +176,89 @@ describe('SignInMutationResolver', () => {
 
 describe('SignInMutationResolver', () => {
   describe('#formatResponse()', () => {
-    const resolver = SignInMutationResolver.create()
+    describe('should be the access token of the pair', () => {
+      const resolver = SignInMutationResolver.create()
 
-    describe('from access token entity', () => {
-      /**
-       * @type {Array<{
-       *   params: {
-       *     accessTokenEntity: import('../../../../../../../../sequelize/models/CustomerAccessToken.js').CustomerAccessTokenEntity
-       *   }
-       *   expected: {
-       *     accessToken: string
-       *   }
-       * }>}
-       */
-      const cases = /** @type {Array<*>} */ ([
+      const cases = [
         {
-          params: {
-            accessTokenEntity: CustomerAccessToken.build({
-              CustomerId: 100001,
-              accessToken: 'accessToken.100001',
-              generatedAt: new Date('2024-11-01T00:00:01.001Z'),
-              expiredAt: new Date('2024-11-02T00:00:01.001Z'),
-            }),
+          input: {
+            credentialPair: {
+              accessTokenEntity: /** @type {*} */ ({
+                accessToken: 'access-token-value-01',
+              }),
+            },
           },
           expected: {
-            accessToken: 'accessToken.100001',
+            accessToken: 'access-token-value-01',
           },
         },
         {
-          params: {
-            accessTokenEntity: CustomerAccessToken.build({
-              CustomerId: 100002,
-              accessToken: 'accessToken.100002',
-              generatedAt: new Date('2024-11-02T00:00:02.002Z'),
-              expiredAt: new Date('2024-11-03T00:00:02.002Z'),
-            }),
+          input: {
+            credentialPair: {
+              accessTokenEntity: /** @type {*} */ ({
+                accessToken: 'access-token-value-02',
+              }),
+            },
           },
           expected: {
-            accessToken: 'accessToken.100002',
+            accessToken: 'access-token-value-02',
           },
         },
-      ])
+      ]
 
-      test.each(cases)('CustomerId: $params.accessTokenEntity.CustomerId', async ({ params, expected }) => {
-        const actual = resolver.formatResponse(params)
+      test.each(cases)('accessToken: $input.credentialPair.accessTokenEntity.accessToken', ({
+        input,
+        expected,
+      }) => {
+        const received = resolver.formatResponse(input)
 
-        expect(actual)
+        expect(received)
           .toEqual(expected)
+      })
+    })
+  })
+})
+
+describe('SignInMutationResolver', () => {
+  describe('#resolve()', () => {
+    describe('should reject an incorrect credential', () => {
+      const resolver = SignInMutationResolver.create()
+
+      const cases = [
+        {
+          input: {
+            variables: {
+              input: {
+                email: 'customer.100001@example.com',
+                password: 'incorrect-password-value', // wrong password for a real account
+              },
+            },
+            context: /** @type {*} */ ({
+              now: new Date('2026-08-01T00:00:01.001Z'),
+            }),
+          },
+        },
+        {
+          input: {
+            variables: {
+              input: {
+                email: 'unmatched.email@example.com', // no account with this email
+                password: 'pAsswOrd$02',
+              },
+            },
+            context: /** @type {*} */ ({
+              now: new Date('2026-08-02T00:00:02.002Z'),
+            }),
+          },
+        },
+      ]
+
+      test.each(cases)('email: $input.variables.input.email', async ({ input }) => {
+        const actual = () => resolver.resolve(input)
+
+        await expect(actual)
+          .rejects
+          .toThrow('202.M002.001')
       })
     })
   })

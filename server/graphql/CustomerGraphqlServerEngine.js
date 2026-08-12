@@ -112,6 +112,7 @@ export default class CustomerGraphqlServerEngine extends BaseAppGraphqlServerEng
       'curriculums',
       'signUp',
       'signIn',
+      'renewAccessToken',
 
       'createChatRoom',
       'postNotification',
