@@ -34,8 +34,7 @@ module.exports = {
       sessionKey: {
         type: Sequelize.STRING(191),
         field: COLUMN_NAME.SESSION_KEY,
-        // TODO: tighten to allowNull: false once every access-token writer sets sessionKey (later PR).
-        allowNull: true,
+        allowNull: false,
       },
       generatedAt: {
         type: Sequelize.DATE(3),
