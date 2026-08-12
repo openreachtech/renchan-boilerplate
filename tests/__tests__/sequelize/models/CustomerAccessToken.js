@@ -138,6 +138,7 @@ describe('CustomerAccessToken', () => {
         {
           params: {
             customerId: 100001,
+            sessionKey: 'session-key-01',
             generatedAt: new Date('2024-01-21T00:00:01.000Z'),
             expiredAt: new Date('2024-01-22T00:00:01.000Z'),
             accessToken: 'accessTOKEN$01',
@@ -146,6 +147,7 @@ describe('CustomerAccessToken', () => {
         {
           params: {
             customerId: 100002,
+            sessionKey: 'session-key-02',
             generatedAt: new Date('2024-01-22T00:00:02.000Z'),
             expiredAt: new Date('2024-01-23T00:00:02.000Z'),
             // accessToken: 'accessTOKEN$02',
@@ -154,6 +156,7 @@ describe('CustomerAccessToken', () => {
         {
           params: {
             customerId: 100003,
+            sessionKey: 'session-key-03',
             generatedAt: new Date('2024-01-23T00:00:03.000Z'),
             // expiredAt: new Date('2024-01-24T00:00:03.000Z'),
             accessToken: 'accessTOKEN$03',
@@ -162,6 +165,7 @@ describe('CustomerAccessToken', () => {
         {
           params: {
             customerId: 100004,
+            sessionKey: 'session-key-04',
             generatedAt: new Date('2024-01-24T00:00:04.000Z'),
             // expiredAt: new Date('2024-01-25T00:00:04.000Z'),
             // accessToken: 'accessTOKEN$04',
@@ -182,13 +186,14 @@ describe('CustomerAccessToken', () => {
         {
           params: {
             customerId: 100001,
+            sessionKey: 'session-key-05',
             generatedAt: new Date('2024-01-21T00:00:01.000Z'),
             expiredAt: new Date('2024-01-22T00:00:01.000Z'),
             accessToken: 'accessTOKEN$01',
           },
           expected: {
             CustomerId: 100001,
-            sessionKey: null,
+            sessionKey: 'session-key-05',
             generatedAt: new Date('2024-01-21T00:00:01.000Z'),
             expiredAt: new Date('2024-01-22T00:00:01.000Z'),
             accessToken: 'accessTOKEN$01',
@@ -197,13 +202,14 @@ describe('CustomerAccessToken', () => {
         {
           params: {
             customerId: 100002,
+            sessionKey: 'session-key-06',
             generatedAt: new Date('2024-01-22T00:00:02.000Z'),
             expiredAt: new Date('2024-01-23T00:00:02.000Z'),
             // accessToken: 'accessTOKEN$02',
           },
           expected: {
             CustomerId: 100002,
-            sessionKey: null,
+            sessionKey: 'session-key-06',
             generatedAt: new Date('2024-01-22T00:00:02.000Z'),
             expiredAt: new Date('2024-01-23T00:00:02.000Z'),
             accessToken: expect.stringMatching(/^[a-zA-Z0-9]{10}$/u),
@@ -212,13 +218,14 @@ describe('CustomerAccessToken', () => {
         {
           params: {
             customerId: 100003,
+            sessionKey: 'session-key-07',
             generatedAt: new Date('2024-01-23T00:00:03.000Z'),
             // expiredAt: new Date('2024-01-24T00:00:03.000Z'),
             accessToken: 'accessTOKEN$03',
           },
           expected: {
             CustomerId: 100003,
-            sessionKey: null,
+            sessionKey: 'session-key-07',
             generatedAt: new Date('2024-01-23T00:00:03.000Z'),
             expiredAt: new Date('2024-01-24T00:00:03.000Z'),
             accessToken: 'accessTOKEN$03',
@@ -227,13 +234,14 @@ describe('CustomerAccessToken', () => {
         {
           params: {
             customerId: 100004,
+            sessionKey: 'session-key-08',
             generatedAt: new Date('2024-01-24T00:00:04.000Z'),
             // expiredAt: new Date('2024-01-25T00:00:04.000Z'),
             // accessToken: 'accessTOKEN$04',
           },
           expected: {
             CustomerId: 100004,
-            sessionKey: null,
+            sessionKey: 'session-key-08',
             generatedAt: new Date('2024-01-24T00:00:04.000Z'),
             expiredAt: new Date('2024-01-25T00:00:04.000Z'),
             accessToken: expect.stringMatching(/^[a-zA-Z0-9]{10}$/u),
