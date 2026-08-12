@@ -387,7 +387,9 @@ export default class SessionClerk {
       })
 
       if (updatedCount === 0) {
-        throw new Error('The refresh token was already spent')
+        return this.Ctor.createSavingSessionResult({
+          error: new Error('The refresh token was already spent'),
+        })
       }
 
       const credentialPair = await this.saveTokenPair({
