@@ -108,6 +108,7 @@ export default class CustomerGraphqlServerEngine extends BaseAppGraphqlServerEng
     return [
       'signUp',
       'signIn',
+      'renewAccessToken',
 
       'healthCheck',
     ]
