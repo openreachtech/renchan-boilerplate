@@ -188,6 +188,7 @@ describe('CustomerAccessToken', () => {
           },
           expected: {
             CustomerId: 100001,
+            sessionKey: null,
             generatedAt: new Date('2024-01-21T00:00:01.000Z'),
             expiredAt: new Date('2024-01-22T00:00:01.000Z'),
             accessToken: 'accessTOKEN$01',
@@ -202,6 +203,7 @@ describe('CustomerAccessToken', () => {
           },
           expected: {
             CustomerId: 100002,
+            sessionKey: null,
             generatedAt: new Date('2024-01-22T00:00:02.000Z'),
             expiredAt: new Date('2024-01-23T00:00:02.000Z'),
             accessToken: expect.stringMatching(/^[a-zA-Z0-9]{10}$/u),
@@ -216,6 +218,7 @@ describe('CustomerAccessToken', () => {
           },
           expected: {
             CustomerId: 100003,
+            sessionKey: null,
             generatedAt: new Date('2024-01-23T00:00:03.000Z'),
             expiredAt: new Date('2024-01-24T00:00:03.000Z'),
             accessToken: 'accessTOKEN$03',
@@ -230,6 +233,7 @@ describe('CustomerAccessToken', () => {
           },
           expected: {
             CustomerId: 100004,
+            sessionKey: null,
             generatedAt: new Date('2024-01-24T00:00:04.000Z'),
             expiredAt: new Date('2024-01-25T00:00:04.000Z'),
             accessToken: expect.stringMatching(/^[a-zA-Z0-9]{10}$/u),
