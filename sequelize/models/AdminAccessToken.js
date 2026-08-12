@@ -23,6 +23,11 @@ export default class AdminAccessToken extends RenchanModel {
         type: DataTypes.STRING(191),
         allowNull: false,
       },
+      sessionKey: {
+        type: DataTypes.STRING(191),
+        // TODO: tighten to allowNull: false once every access-token writer sets sessionKey (later PR).
+        allowNull: true,
+      },
       generatedAt: {
         type: DataTypes.DATE,
         allowNull: false,
