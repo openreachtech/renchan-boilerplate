@@ -136,13 +136,7 @@ export default class SignInMutationResolver extends BaseMutationResolver {
       return null
     }
 
-    const {
-      Admin: {
-        AdminPasswordHash: passwordHashEntity,
-      },
-    } = adminSecretEntity
-
-    return /** @type {AdminPasswordHashEntity} */ (passwordHashEntity)
+    return adminSecretEntity.Admin.AdminPasswordHash
   }
 
   /**
