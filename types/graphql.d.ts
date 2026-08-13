@@ -22,6 +22,10 @@ declare global {
       accessToken: string
     }
 
+    interface RenewAccessTokenResult {
+      accessToken: string
+    }
+
     interface SignOutResult {
       isSignedOut: boolean
     }
