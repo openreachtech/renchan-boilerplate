@@ -100,7 +100,7 @@ describe('CustomerAccessToken', () => {
       const cases = [
         {
           params: {
-            customerId: 100001,
+            userId: 100001,
             sessionKey: 'session-key-01',
             generatedAt: new Date('2024-01-21T00:00:01.000Z'),
             expiredAt: new Date('2024-01-21T00:15:01.000Z'),
@@ -109,7 +109,7 @@ describe('CustomerAccessToken', () => {
         },
         {
           params: {
-            customerId: 100002,
+            userId: 100002,
             sessionKey: 'session-key-02',
             generatedAt: new Date('2024-01-22T00:00:02.000Z'),
             expiredAt: new Date('2024-01-22T00:15:02.000Z'),
@@ -118,7 +118,7 @@ describe('CustomerAccessToken', () => {
         },
         {
           params: {
-            customerId: 100003,
+            userId: 100003,
             sessionKey: 'session-key-03',
             generatedAt: new Date('2024-01-23T00:00:03.000Z'),
             // expiredAt: defaults to generatedAt + fifteen minutes
@@ -127,7 +127,7 @@ describe('CustomerAccessToken', () => {
         },
         {
           params: {
-            customerId: 100004,
+            userId: 100004,
             sessionKey: 'session-key-04',
             generatedAt: new Date('2024-01-24T00:00:04.000Z'),
             // expiredAt: defaults to generatedAt + fifteen minutes
@@ -136,7 +136,7 @@ describe('CustomerAccessToken', () => {
         },
       ]
 
-      test.each(cases)('customerId: $params.customerId', ({ params }) => {
+      test.each(cases)('userId: $params.userId', ({ params }) => {
         const actual = CustomerAccessToken.buildWithGeneratedAttributes(params)
 
         expect(actual)
@@ -148,7 +148,7 @@ describe('CustomerAccessToken', () => {
       const cases = [
         {
           params: {
-            customerId: 100001,
+            userId: 100001,
             sessionKey: 'session-key-01',
             generatedAt: new Date('2024-01-21T00:00:01.000Z'),
             expiredAt: new Date('2024-01-21T00:15:01.000Z'),
@@ -164,7 +164,7 @@ describe('CustomerAccessToken', () => {
         },
         {
           params: {
-            customerId: 100002,
+            userId: 100002,
             sessionKey: 'session-key-02',
             generatedAt: new Date('2024-01-22T00:00:02.000Z'),
             expiredAt: new Date('2024-01-22T00:15:02.000Z'),
@@ -180,7 +180,7 @@ describe('CustomerAccessToken', () => {
         },
         {
           params: {
-            customerId: 100003,
+            userId: 100003,
             sessionKey: 'session-key-03',
             generatedAt: new Date('2024-01-23T00:00:03.000Z'),
             // expiredAt: defaults to generatedAt + fifteen minutes
@@ -196,7 +196,7 @@ describe('CustomerAccessToken', () => {
         },
         {
           params: {
-            customerId: 100004,
+            userId: 100004,
             sessionKey: 'session-key-04',
             generatedAt: new Date('2024-01-24T00:00:04.000Z'),
             // expiredAt: defaults to generatedAt + fifteen minutes
@@ -212,7 +212,7 @@ describe('CustomerAccessToken', () => {
         },
       ]
 
-      test.each(cases)('customerId: $params.customerId', ({ params, expected }) => {
+      test.each(cases)('userId: $params.userId', ({ params, expected }) => {
         const buildSpy = jest.spyOn(CustomerAccessToken, 'build')
 
         CustomerAccessToken.buildWithGeneratedAttributes(params)

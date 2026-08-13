@@ -108,7 +108,7 @@ describe('CustomerRefreshToken', () => {
       const cases = [
         {
           params: {
-            customerId: 100001,
+            userId: 100001,
             sessionKey: 'session-key-0001',
             refreshToken: 'refresh-token-0001',
             generatedAt: new Date('2026-08-01T00:00:01.000Z'),
@@ -116,7 +116,7 @@ describe('CustomerRefreshToken', () => {
         },
         {
           params: {
-            customerId: 100002,
+            userId: 100002,
             sessionKey: 'session-key-0002',
             refreshToken: 'refresh-token-0002',
             generatedAt: new Date('2026-08-02T00:00:02.000Z'),
@@ -124,7 +124,7 @@ describe('CustomerRefreshToken', () => {
         },
       ]
 
-      test.each(cases)('customerId: $params.customerId', ({ params }) => {
+      test.each(cases)('userId: $params.userId', ({ params }) => {
         const actual = CustomerRefreshToken.buildWithGeneratedAttributes(params)
 
         expect(actual)
@@ -136,7 +136,7 @@ describe('CustomerRefreshToken', () => {
       const cases = [
         {
           params: {
-            customerId: 100001,
+            userId: 100001,
             sessionKey: 'session-key-0001',
             refreshToken: 'refresh-token-0001',
             generatedAt: new Date('2026-08-01T00:00:01.000Z'),
@@ -153,7 +153,7 @@ describe('CustomerRefreshToken', () => {
         },
         {
           params: {
-            customerId: 100002,
+            userId: 100002,
             sessionKey: 'session-key-0002',
             refreshToken: 'refresh-token-0002',
             generatedAt: new Date('2026-08-02T00:00:02.000Z'),
@@ -170,7 +170,7 @@ describe('CustomerRefreshToken', () => {
         },
       ]
 
-      test.each(cases)('customerId: $params.customerId', ({ params, expected }) => {
+      test.each(cases)('userId: $params.userId', ({ params, expected }) => {
         const buildSpy = jest.spyOn(CustomerRefreshToken, 'build')
 
         CustomerRefreshToken.buildWithGeneratedAttributes(params)
@@ -525,6 +525,48 @@ describe('CustomerRefreshToken', () => {
 
         expect(actual)
           .toBeFalsy()
+      })
+    })
+  })
+})
+
+describe('CustomerRefreshToken', () => {
+  describe('#extractUserId()', () => {
+    describe('to be the customer id stored in CustomerId', () => {
+      const cases = [
+        {
+          params: {
+            CustomerId: 100001,
+            sessionKey: 'session-key-0001',
+            tokenHash: 'token-hash-0001',
+            usedAt: null,
+            revokedAt: null,
+            generatedAt: new Date('2026-08-01T00:00:01.000Z'),
+            expiredAt: new Date('2026-08-15T00:00:01.000Z'),
+          },
+          expected: 100001,
+        },
+        {
+          params: {
+            CustomerId: 100002,
+            sessionKey: 'session-key-0002',
+            tokenHash: 'token-hash-0002',
+            usedAt: null,
+            revokedAt: null,
+            generatedAt: new Date('2026-08-02T00:00:02.000Z'),
+            expiredAt: new Date('2026-08-16T00:00:02.000Z'),
+          },
+          expected: 100002,
+        },
+      ]
+
+      test.each(cases)('CustomerId: $params.CustomerId', ({ params, expected }) => {
+        const instance = CustomerRefreshToken.build(params)
+
+        const actual = instance.extractUserId()
+
+        expect(actual)
+          .toBe(expected)
       })
     })
   })
