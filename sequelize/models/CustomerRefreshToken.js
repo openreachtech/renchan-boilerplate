@@ -110,7 +110,7 @@ export default class CustomerRefreshToken extends RenchanModel {
    * to the browser, and only the digest belongs in this table.
    *
    * @param {{
-   *   customerId: number
+   *   userId: number
    *   sessionKey: string
    *   refreshToken: string
    *   generatedAt: Date
@@ -119,7 +119,7 @@ export default class CustomerRefreshToken extends RenchanModel {
    * @returns {CustomerRefreshToken} - Built entity, not saved yet.
    */
   static buildWithGeneratedAttributes ({
-    customerId,
+    userId,
     sessionKey,
     refreshToken,
     generatedAt,
@@ -128,7 +128,7 @@ export default class CustomerRefreshToken extends RenchanModel {
     }),
   }) {
     return this.build({
-      CustomerId: customerId,
+      CustomerId: userId,
       sessionKey,
       tokenHash: this.hashToken({
         token: refreshToken,
@@ -240,6 +240,22 @@ export default class CustomerRefreshToken extends RenchanModel {
       && !this.isExpired({
         pointsAt,
       })
+  }
+
+  /**
+   * Extract the user id this token belongs to.
+   *
+   * The audience-neutral read of the concrete foreign key, mirroring the `userId` input of
+   * {@link CustomerRefreshToken.buildWithGeneratedAttributes}. The shared `SessionClerk` holds this
+   * model as an audience-neutral collaborator and reads the principal id back through here without
+   * knowing whether the column is `CustomerId` or `AdminId`.
+   *
+   * @returns {number} - The user id (here, the customer id).
+   */
+  extractUserId () {
+    return /** @type {number} */ (
+      this.get('CustomerId')
+    )
   }
 }
 
