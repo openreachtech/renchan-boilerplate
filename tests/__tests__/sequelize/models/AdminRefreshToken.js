@@ -108,7 +108,7 @@ describe('AdminRefreshToken', () => {
       const cases = [
         {
           params: {
-            customerId: 100001,
+            userId: 100001,
             sessionKey: 'session-key-0001',
             refreshToken: 'refresh-token-0001',
             generatedAt: new Date('2026-08-01T00:00:01.000Z'),
@@ -116,7 +116,7 @@ describe('AdminRefreshToken', () => {
         },
         {
           params: {
-            customerId: 100002,
+            userId: 100002,
             sessionKey: 'session-key-0002',
             refreshToken: 'refresh-token-0002',
             generatedAt: new Date('2026-08-02T00:00:02.000Z'),
@@ -124,7 +124,7 @@ describe('AdminRefreshToken', () => {
         },
       ]
 
-      test.each(cases)('customerId: $params.customerId', ({ params }) => {
+      test.each(cases)('userId: $params.userId', ({ params }) => {
         const actual = AdminRefreshToken.buildWithGeneratedAttributes(params)
 
         expect(actual)
@@ -133,12 +133,12 @@ describe('AdminRefreshToken', () => {
     })
 
     describe('to call .build() with the digest, never the token', () => {
-      // The session clerk names the principal `customerId` for both audiences; here it is the id
+      // The session clerk names the principal `userId` for both audiences; here it is the id
       // of the admin, stored in `AdminId`.
       const cases = [
         {
           params: {
-            customerId: 100001,
+            userId: 100001,
             sessionKey: 'session-key-0001',
             refreshToken: 'refresh-token-0001',
             generatedAt: new Date('2026-08-01T00:00:01.000Z'),
@@ -155,7 +155,7 @@ describe('AdminRefreshToken', () => {
         },
         {
           params: {
-            customerId: 100002,
+            userId: 100002,
             sessionKey: 'session-key-0002',
             refreshToken: 'refresh-token-0002',
             generatedAt: new Date('2026-08-02T00:00:02.000Z'),
@@ -172,7 +172,7 @@ describe('AdminRefreshToken', () => {
         },
       ]
 
-      test.each(cases)('customerId: $params.customerId', ({ params, expected }) => {
+      test.each(cases)('userId: $params.userId', ({ params, expected }) => {
         const buildSpy = jest.spyOn(AdminRefreshToken, 'build')
 
         AdminRefreshToken.buildWithGeneratedAttributes(params)
@@ -527,6 +527,48 @@ describe('AdminRefreshToken', () => {
 
         expect(actual)
           .toBeFalsy()
+      })
+    })
+  })
+})
+
+describe('AdminRefreshToken', () => {
+  describe('#extractUserId()', () => {
+    describe('to be the admin id stored in AdminId', () => {
+      const cases = [
+        {
+          params: {
+            AdminId: 100001,
+            sessionKey: 'session-key-0001',
+            tokenHash: 'token-hash-0001',
+            usedAt: null,
+            revokedAt: null,
+            generatedAt: new Date('2026-08-01T00:00:01.000Z'),
+            expiredAt: new Date('2026-08-15T00:00:01.000Z'),
+          },
+          expected: 100001,
+        },
+        {
+          params: {
+            AdminId: 100002,
+            sessionKey: 'session-key-0002',
+            tokenHash: 'token-hash-0002',
+            usedAt: null,
+            revokedAt: null,
+            generatedAt: new Date('2026-08-02T00:00:02.000Z'),
+            expiredAt: new Date('2026-08-16T00:00:02.000Z'),
+          },
+          expected: 100002,
+        },
+      ]
+
+      test.each(cases)('AdminId: $params.AdminId', ({ params, expected }) => {
+        const instance = AdminRefreshToken.build(params)
+
+        const actual = instance.extractUserId()
+
+        expect(actual)
+          .toBe(expected)
       })
     })
   })
