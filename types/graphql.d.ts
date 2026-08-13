@@ -21,5 +21,9 @@ declare global {
     interface AuthResult {
       accessToken: string
     }
+
+    interface SignOutResult {
+      isSignedOut: boolean
+    }
   }
 }
