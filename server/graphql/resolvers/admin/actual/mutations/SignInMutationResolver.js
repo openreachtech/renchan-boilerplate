@@ -116,27 +116,25 @@ export default class SignInMutationResolver extends BaseMutationResolver {
   async findPasswordHashByEmail ({
     email,
   }) {
-    const adminSecretEntity = /** @type {AdminSecretWithPasswordHash} */ (
-      await AdminSecret.findOne({
-        where: {
-          email,
+    const adminSecretEntity = await AdminSecret.findOne({
+      where: {
+        email,
+      },
+      include: [
+        {
+          model: Admin,
+          include: [
+            AdminPasswordHash,
+          ],
         },
-        include: [
-          {
-            model: Admin,
-            include: [
-              AdminPasswordHash,
-            ],
-          },
-        ],
-      })
-    )
+      ],
+    })
 
     if (!adminSecretEntity) {
       return null
     }
 
-    return adminSecretEntity.Admin.AdminPasswordHash
+    return adminSecretEntity.passwordHashEntity
   }
 
   /**
@@ -187,14 +185,6 @@ export default class SignInMutationResolver extends BaseMutationResolver {
     }
   }
 }
-
-/**
- * @typedef {(AdminSecret & {
- *   Admin: Admin & {
- *     AdminPasswordHash: AdminPasswordHash
- *   }
- * }) | null} AdminSecretWithPasswordHash
- */
 
 /**
  * @typedef {import('../../../../../../sequelize/models/AdminPasswordHash.js').AdminPasswordHashEntity} AdminPasswordHashEntity
