@@ -30,7 +30,7 @@ type AuthResult {
 # for sign-in sample -----------------------------------------------------------
 
 type RenewAccessTokenResult {
-  accessToken: String # null: expired or not found
+  accessToken: String!
 
   # TODO: add here customer information (e.g. username, avatar, etc.)
 }

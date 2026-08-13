@@ -1,5 +1,7 @@
 'use strict'
 
+const crypto = require('crypto')
+
 const TimestampSeedsSupplier = require('@openreachtech/renchan-sequelize/lib/tools/TimestampSeedsSupplier.cjs')
 
 const {
@@ -8,12 +10,29 @@ const {
 
 const encipher = Encipher.create()
 
+/**
+ * Digest a refresh token the way AdminRefreshToken stores it (SHA-256 hex).
+ *
+ * Only the digest is stored, mirroring production; a test presents the plaintext, and the
+ * resolver hashes it to match this. Keep the plaintext readable as `refresh-token-<cc>-<nn>`.
+ *
+ * @param {string} token - Plain refresh token.
+ * @returns {string} - SHA-256 hex digest.
+ */
+function hashRefreshToken (token) {
+  return crypto
+    .createHash('sha256')
+    .update(token)
+    .digest('hex')
+}
+
 const TABLE_NAME = {
   ADMINS: 'admins',
   ADMIN_BASICS: 'admin_basics',
   ADMIN_SECRETS: 'admin_secrets',
   ADMIN_PASSWORD_HASHES: 'admin_password_hashes',
   ADMIN_ACCESS_TOKENS: 'admin_access_tokens',
+  ADMIN_REFRESH_TOKENS: 'admin_refresh_tokens',
 }
 
 const adminsSeeds = [
@@ -191,44 +210,117 @@ async function fulfillPasswordHash ({
  */
 const adminAccessTokensSeeds = [
   // expired_at: 3000-01-01T00:00:00.000Z means it never expires
-  { id: 140101, admin_id: 100001, access_token: 'access-token-01-01', generated_at: new Date('2024-03-01T00:00:01.001Z'), expired_at: new Date('3000-01-01T00:00:00.000Z') },
+  { id: 140101, admin_id: 100001, access_token: 'access-token-01-01', session_key: 'session-key-01-01', generated_at: new Date('2024-03-01T00:00:01.001Z'), expired_at: new Date('3000-01-01T00:00:00.000Z') },
 
   // one expired, and one unlimited
-  { id: 140201, admin_id: 100002, access_token: 'access-token-02-01', generated_at: new Date('2024-03-02T00:00:02.002Z'), expired_at: new Date('2024-03-03T02:02:02.002Z') },
-  { id: 140202, admin_id: 100002, access_token: 'access-token-02-02', generated_at: new Date('2024-05-02T00:00:02.002Z'), expired_at: new Date('3000-01-02T00:00:00.000Z') },
+  { id: 140201, admin_id: 100002, access_token: 'access-token-02-01', session_key: 'session-key-02-01', generated_at: new Date('2024-03-02T00:00:02.002Z'), expired_at: new Date('2024-03-03T02:02:02.002Z') },
+  { id: 140202, admin_id: 100002, access_token: 'access-token-02-02', session_key: 'session-key-02-02', generated_at: new Date('2024-05-02T00:00:02.002Z'), expired_at: new Date('3000-01-02T00:00:00.000Z') },
 
   // two expired
-  { id: 140301, admin_id: 100003, access_token: 'access-token-03-01', generated_at: new Date('2024-03-03T00:00:03.003Z'), expired_at: new Date('2024-03-04T03:03:03.003Z') },
-  { id: 140302, admin_id: 100003, access_token: 'access-token-03-02', generated_at: new Date('2024-05-03T00:00:03.003Z'), expired_at: new Date('2024-05-04T03:03:03.003Z') },
+  { id: 140301, admin_id: 100003, access_token: 'access-token-03-01', session_key: 'session-key-03-01', generated_at: new Date('2024-03-03T00:00:03.003Z'), expired_at: new Date('2024-03-04T03:03:03.003Z') },
+  { id: 140302, admin_id: 100003, access_token: 'access-token-03-02', session_key: 'session-key-03-02', generated_at: new Date('2024-05-03T00:00:03.003Z'), expired_at: new Date('2024-05-04T03:03:03.003Z') },
 
   // expired_at: 3000-01-01T00:00:00.000Z means it never expires
-  { id: 140104, admin_id: 100004, access_token: 'access-token-04-01', generated_at: new Date('2024-03-04T00:00:04.004Z'), expired_at: new Date('3000-01-04T00:00:00.000Z') },
-  { id: 140105, admin_id: 100005, access_token: 'access-token-05-01', generated_at: new Date('2024-03-05T00:00:05.005Z'), expired_at: new Date('3000-01-05T00:00:00.000Z') },
-  { id: 140106, admin_id: 100006, access_token: 'access-token-06-01', generated_at: new Date('2024-03-06T00:00:06.006Z'), expired_at: new Date('3000-01-06T00:00:00.000Z') },
-  { id: 140107, admin_id: 100007, access_token: 'access-token-07-01', generated_at: new Date('2024-03-07T00:00:07.007Z'), expired_at: new Date('3000-01-07T00:00:00.000Z') },
-  { id: 140108, admin_id: 100008, access_token: 'access-token-08-01', generated_at: new Date('2024-03-08T00:00:08.008Z'), expired_at: new Date('3000-01-08T00:00:00.000Z') },
-  { id: 140109, admin_id: 100009, access_token: 'access-token-09-01', generated_at: new Date('2024-03-09T00:00:09.009Z'), expired_at: new Date('3000-01-09T00:00:00.000Z') },
-  { id: 140110, admin_id: 100010, access_token: 'access-token-10-01', generated_at: new Date('2024-03-10T00:00:10.010Z'), expired_at: new Date('3000-01-10T00:00:00.000Z') },
-  { id: 140111, admin_id: 100011, access_token: 'access-token-11-01', generated_at: new Date('2024-03-11T00:00:11.011Z'), expired_at: new Date('3000-01-11T00:00:00.000Z') },
-  { id: 140112, admin_id: 100012, access_token: 'access-token-12-01', generated_at: new Date('2024-03-12T00:00:12.012Z'), expired_at: new Date('3000-01-12T00:00:00.000Z') },
-  { id: 140113, admin_id: 100013, access_token: 'access-token-13-01', generated_at: new Date('2024-03-13T00:00:13.013Z'), expired_at: new Date('3000-01-13T00:00:00.000Z') },
-  { id: 140114, admin_id: 100014, access_token: 'access-token-14-01', generated_at: new Date('2024-03-14T00:00:14.014Z'), expired_at: new Date('3000-01-14T00:00:00.000Z') },
-  { id: 140115, admin_id: 100015, access_token: 'access-token-15-01', generated_at: new Date('2024-03-15T00:00:15.015Z'), expired_at: new Date('3000-01-15T00:00:00.000Z') },
-  { id: 140116, admin_id: 100016, access_token: 'access-token-16-01', generated_at: new Date('2024-03-16T00:00:16.016Z'), expired_at: new Date('3000-01-16T00:00:00.000Z') },
-  { id: 140117, admin_id: 100017, access_token: 'access-token-17-01', generated_at: new Date('2024-03-17T00:00:17.017Z'), expired_at: new Date('3000-01-17T00:00:00.000Z') },
-  { id: 140118, admin_id: 100018, access_token: 'access-token-18-01', generated_at: new Date('2024-03-18T00:00:18.018Z'), expired_at: new Date('3000-01-18T00:00:00.000Z') },
-  { id: 140119, admin_id: 100019, access_token: 'access-token-19-01', generated_at: new Date('2024-03-19T00:00:19.019Z'), expired_at: new Date('3000-01-19T00:00:00.000Z') },
-  { id: 140120, admin_id: 100020, access_token: 'access-token-20-01', generated_at: new Date('2024-03-20T00:00:20.020Z'), expired_at: new Date('3000-01-20T00:00:00.000Z') },
-  { id: 140121, admin_id: 100021, access_token: 'access-token-21-01', generated_at: new Date('2024-03-21T00:00:21.021Z'), expired_at: new Date('3000-01-21T00:00:00.000Z') },
-  { id: 140122, admin_id: 100022, access_token: 'access-token-22-01', generated_at: new Date('2024-03-22T00:00:22.022Z'), expired_at: new Date('3000-01-22T00:00:00.000Z') },
-  { id: 140123, admin_id: 100023, access_token: 'access-token-23-01', generated_at: new Date('2024-03-23T00:00:23.023Z'), expired_at: new Date('3000-01-23T00:00:00.000Z') },
-  { id: 140124, admin_id: 100024, access_token: 'access-token-24-01', generated_at: new Date('2024-03-24T00:00:24.024Z'), expired_at: new Date('3000-01-24T00:00:00.000Z') },
-  { id: 140125, admin_id: 100025, access_token: 'access-token-25-01', generated_at: new Date('2024-03-25T00:00:25.025Z'), expired_at: new Date('3000-01-25T00:00:00.000Z') },
-  { id: 140126, admin_id: 100026, access_token: 'access-token-26-01', generated_at: new Date('2024-03-26T00:00:26.026Z'), expired_at: new Date('3000-01-26T00:00:00.000Z') },
-  { id: 140127, admin_id: 100027, access_token: 'access-token-27-01', generated_at: new Date('2024-03-27T00:00:27.027Z'), expired_at: new Date('3000-01-27T00:00:00.000Z') },
-  { id: 140128, admin_id: 100028, access_token: 'access-token-28-01', generated_at: new Date('2024-03-28T00:00:28.028Z'), expired_at: new Date('3000-01-28T00:00:00.000Z') },
-  { id: 140129, admin_id: 100029, access_token: 'access-token-29-01', generated_at: new Date('2024-03-29T00:00:29.029Z'), expired_at: new Date('3000-01-29T00:00:00.000Z') },
-  { id: 140130, admin_id: 100030, access_token: 'access-token-30-01', generated_at: new Date('2024-03-30T00:00:30.030Z'), expired_at: new Date('3000-01-30T00:00:00.000Z') },
+  { id: 140104, admin_id: 100004, access_token: 'access-token-04-01', session_key: 'session-key-04-01', generated_at: new Date('2024-03-04T00:00:04.004Z'), expired_at: new Date('3000-01-04T00:00:00.000Z') },
+  { id: 140105, admin_id: 100005, access_token: 'access-token-05-01', session_key: 'session-key-05-01', generated_at: new Date('2024-03-05T00:00:05.005Z'), expired_at: new Date('3000-01-05T00:00:00.000Z') },
+  { id: 140106, admin_id: 100006, access_token: 'access-token-06-01', session_key: 'session-key-06-01', generated_at: new Date('2024-03-06T00:00:06.006Z'), expired_at: new Date('3000-01-06T00:00:00.000Z') },
+  { id: 140107, admin_id: 100007, access_token: 'access-token-07-01', session_key: 'session-key-07-01', generated_at: new Date('2024-03-07T00:00:07.007Z'), expired_at: new Date('3000-01-07T00:00:00.000Z') },
+  { id: 140108, admin_id: 100008, access_token: 'access-token-08-01', session_key: 'session-key-08-01', generated_at: new Date('2024-03-08T00:00:08.008Z'), expired_at: new Date('3000-01-08T00:00:00.000Z') },
+  { id: 140109, admin_id: 100009, access_token: 'access-token-09-01', session_key: 'session-key-09-01', generated_at: new Date('2024-03-09T00:00:09.009Z'), expired_at: new Date('3000-01-09T00:00:00.000Z') },
+  { id: 140110, admin_id: 100010, access_token: 'access-token-10-01', session_key: 'session-key-10-01', generated_at: new Date('2024-03-10T00:00:10.010Z'), expired_at: new Date('3000-01-10T00:00:00.000Z') },
+  { id: 140111, admin_id: 100011, access_token: 'access-token-11-01', session_key: 'session-key-11-01', generated_at: new Date('2024-03-11T00:00:11.011Z'), expired_at: new Date('3000-01-11T00:00:00.000Z') },
+  { id: 140112, admin_id: 100012, access_token: 'access-token-12-01', session_key: 'session-key-12-01', generated_at: new Date('2024-03-12T00:00:12.012Z'), expired_at: new Date('3000-01-12T00:00:00.000Z') },
+  { id: 140113, admin_id: 100013, access_token: 'access-token-13-01', session_key: 'session-key-13-01', generated_at: new Date('2024-03-13T00:00:13.013Z'), expired_at: new Date('3000-01-13T00:00:00.000Z') },
+  { id: 140114, admin_id: 100014, access_token: 'access-token-14-01', session_key: 'session-key-14-01', generated_at: new Date('2024-03-14T00:00:14.014Z'), expired_at: new Date('3000-01-14T00:00:00.000Z') },
+  { id: 140115, admin_id: 100015, access_token: 'access-token-15-01', session_key: 'session-key-15-01', generated_at: new Date('2024-03-15T00:00:15.015Z'), expired_at: new Date('3000-01-15T00:00:00.000Z') },
+  { id: 140116, admin_id: 100016, access_token: 'access-token-16-01', session_key: 'session-key-16-01', generated_at: new Date('2024-03-16T00:00:16.016Z'), expired_at: new Date('3000-01-16T00:00:00.000Z') },
+  { id: 140117, admin_id: 100017, access_token: 'access-token-17-01', session_key: 'session-key-17-01', generated_at: new Date('2024-03-17T00:00:17.017Z'), expired_at: new Date('3000-01-17T00:00:00.000Z') },
+  { id: 140118, admin_id: 100018, access_token: 'access-token-18-01', session_key: 'session-key-18-01', generated_at: new Date('2024-03-18T00:00:18.018Z'), expired_at: new Date('3000-01-18T00:00:00.000Z') },
+  { id: 140119, admin_id: 100019, access_token: 'access-token-19-01', session_key: 'session-key-19-01', generated_at: new Date('2024-03-19T00:00:19.019Z'), expired_at: new Date('3000-01-19T00:00:00.000Z') },
+  { id: 140120, admin_id: 100020, access_token: 'access-token-20-01', session_key: 'session-key-20-01', generated_at: new Date('2024-03-20T00:00:20.020Z'), expired_at: new Date('3000-01-20T00:00:00.000Z') },
+  { id: 140121, admin_id: 100021, access_token: 'access-token-21-01', session_key: 'session-key-21-01', generated_at: new Date('2024-03-21T00:00:21.021Z'), expired_at: new Date('3000-01-21T00:00:00.000Z') },
+  { id: 140122, admin_id: 100022, access_token: 'access-token-22-01', session_key: 'session-key-22-01', generated_at: new Date('2024-03-22T00:00:22.022Z'), expired_at: new Date('3000-01-22T00:00:00.000Z') },
+  { id: 140123, admin_id: 100023, access_token: 'access-token-23-01', session_key: 'session-key-23-01', generated_at: new Date('2024-03-23T00:00:23.023Z'), expired_at: new Date('3000-01-23T00:00:00.000Z') },
+  { id: 140124, admin_id: 100024, access_token: 'access-token-24-01', session_key: 'session-key-24-01', generated_at: new Date('2024-03-24T00:00:24.024Z'), expired_at: new Date('3000-01-24T00:00:00.000Z') },
+  { id: 140125, admin_id: 100025, access_token: 'access-token-25-01', session_key: 'session-key-25-01', generated_at: new Date('2024-03-25T00:00:25.025Z'), expired_at: new Date('3000-01-25T00:00:00.000Z') },
+  { id: 140126, admin_id: 100026, access_token: 'access-token-26-01', session_key: 'session-key-26-01', generated_at: new Date('2024-03-26T00:00:26.026Z'), expired_at: new Date('3000-01-26T00:00:00.000Z') },
+  { id: 140127, admin_id: 100027, access_token: 'access-token-27-01', session_key: 'session-key-27-01', generated_at: new Date('2024-03-27T00:00:27.027Z'), expired_at: new Date('3000-01-27T00:00:00.000Z') },
+  { id: 140128, admin_id: 100028, access_token: 'access-token-28-01', session_key: 'session-key-28-01', generated_at: new Date('2024-03-28T00:00:28.028Z'), expired_at: new Date('3000-01-28T00:00:00.000Z') },
+  { id: 140129, admin_id: 100029, access_token: 'access-token-29-01', session_key: 'session-key-29-01', generated_at: new Date('2024-03-29T00:00:29.029Z'), expired_at: new Date('3000-01-29T00:00:00.000Z') },
+  { id: 140130, admin_id: 100030, access_token: 'access-token-30-01', session_key: 'session-key-30-01', generated_at: new Date('2024-03-30T00:00:30.030Z'), expired_at: new Date('3000-01-30T00:00:00.000Z') },
+
+  // Dedicated destructive-test series for admin Renew / SignOut resolvers — deleted only by those tests.
+  // series 96-01: three access tokens (RenewAccessTokenMutationResolver#revokeReusedSeries → deletedAccessTokenCount 3)
+  { id: 148601, admin_id: 100001, access_token: 'access-token-96-01', session_key: 'session-key-96-01', generated_at: new Date('2024-09-06T00:00:01.001Z'), expired_at: new Date('3000-02-10T00:00:00.000Z') },
+  { id: 148602, admin_id: 100001, access_token: 'access-token-96-02', session_key: 'session-key-96-01', generated_at: new Date('2024-09-06T00:00:02.002Z'), expired_at: new Date('3000-02-11T00:00:00.000Z') },
+  { id: 148603, admin_id: 100001, access_token: 'access-token-96-03', session_key: 'session-key-96-01', generated_at: new Date('2024-09-06T00:00:03.003Z'), expired_at: new Date('3000-02-12T00:00:00.000Z') },
+  // series 97-01: two access tokens (RenewAccessTokenMutationResolver#revokeReusedSeries → deletedAccessTokenCount 2)
+  { id: 148701, admin_id: 100001, access_token: 'access-token-97-01', session_key: 'session-key-97-01', generated_at: new Date('2024-09-07T00:00:01.001Z'), expired_at: new Date('3000-02-13T00:00:00.000Z') },
+  { id: 148702, admin_id: 100001, access_token: 'access-token-97-02', session_key: 'session-key-97-01', generated_at: new Date('2024-09-07T00:00:02.002Z'), expired_at: new Date('3000-02-14T00:00:00.000Z') },
+  // series 98-01: three access tokens (SignOutMutationResolver#revokeSeries → deletedAccessTokenCount 3)
+  { id: 148801, admin_id: 100001, access_token: 'access-token-98-01', session_key: 'session-key-98-01', generated_at: new Date('2024-09-08T00:00:01.001Z'), expired_at: new Date('3000-02-15T00:00:00.000Z') },
+  { id: 148802, admin_id: 100001, access_token: 'access-token-98-02', session_key: 'session-key-98-01', generated_at: new Date('2024-09-08T00:00:02.002Z'), expired_at: new Date('3000-02-16T00:00:00.000Z') },
+  { id: 148803, admin_id: 100001, access_token: 'access-token-98-03', session_key: 'session-key-98-01', generated_at: new Date('2024-09-08T00:00:03.003Z'), expired_at: new Date('3000-02-17T00:00:00.000Z') },
+  // series 99-01 / 99-02: one access token each (SignOutMutationResolver#resolve happy path)
+  { id: 148901, admin_id: 100001, access_token: 'access-token-99-01', session_key: 'session-key-99-01', generated_at: new Date('2024-09-09T00:00:01.001Z'), expired_at: new Date('3000-02-18T00:00:00.000Z') },
+  { id: 148902, admin_id: 100001, access_token: 'access-token-99-02', session_key: 'session-key-99-02', generated_at: new Date('2024-09-09T00:00:02.002Z'), expired_at: new Date('3000-02-19T00:00:00.000Z') },
+]
+
+/*
+ * for refresh token
+ *
+ * Only the SHA-256 digest is stored (production-faithful); tests present the plaintext
+ * `refresh-token-<cc>-<nn>` and the resolver hashes it to match. session_key matches the paired
+ * access token above (same sign-in series). States below: active / used / revoked / expired,
+ * with at least two of each so a test.each has distinct rows.
+ */
+const adminRefreshTokensSeeds = [
+  // active, never expires
+  { id: 144101, admin_id: 100001, token_hash: hashRefreshToken('refresh-token-01-01'), session_key: 'session-key-01-01', used_at: null, revoked_at: null, generated_at: new Date('2024-03-01T00:00:01.001Z'), expired_at: new Date('3000-01-01T00:00:00.000Z') },
+
+  // one already used (rotated), one active
+  { id: 144201, admin_id: 100002, token_hash: hashRefreshToken('refresh-token-02-01'), session_key: 'session-key-02-01', used_at: new Date('2024-03-02T09:00:02.002Z'), revoked_at: null, generated_at: new Date('2024-03-02T00:00:02.002Z'), expired_at: new Date('3000-01-02T00:00:00.000Z') },
+  { id: 144202, admin_id: 100002, token_hash: hashRefreshToken('refresh-token-02-02'), session_key: 'session-key-02-02', used_at: null, revoked_at: null, generated_at: new Date('2024-05-02T00:00:02.002Z'), expired_at: new Date('3000-01-02T00:00:00.000Z') },
+
+  // one revoked, one expired
+  { id: 144301, admin_id: 100003, token_hash: hashRefreshToken('refresh-token-03-01'), session_key: 'session-key-03-01', used_at: null, revoked_at: new Date('2024-03-04T03:03:03.003Z'), generated_at: new Date('2024-03-03T00:00:03.003Z'), expired_at: new Date('3000-01-03T00:00:00.000Z') },
+  { id: 144302, admin_id: 100003, token_hash: hashRefreshToken('refresh-token-03-02'), session_key: 'session-key-03-02', used_at: null, revoked_at: null, generated_at: new Date('2024-05-03T00:00:03.003Z'), expired_at: new Date('2024-05-04T03:03:03.003Z') },
+
+  // active, never expires — spare series for rotation / lookup / consume tests
+  { id: 144401, admin_id: 100004, token_hash: hashRefreshToken('refresh-token-04-01'), session_key: 'session-key-04-01', used_at: null, revoked_at: null, generated_at: new Date('2024-03-04T00:00:04.004Z'), expired_at: new Date('3000-01-04T00:00:00.000Z') },
+  { id: 144501, admin_id: 100005, token_hash: hashRefreshToken('refresh-token-05-01'), session_key: 'session-key-05-01', used_at: null, revoked_at: null, generated_at: new Date('2024-03-05T00:00:05.005Z'), expired_at: new Date('3000-01-05T00:00:00.000Z') },
+  { id: 144601, admin_id: 100006, token_hash: hashRefreshToken('refresh-token-06-01'), session_key: 'session-key-06-01', used_at: null, revoked_at: null, generated_at: new Date('2024-03-06T00:00:06.006Z'), expired_at: new Date('3000-01-06T00:00:00.000Z') },
+  { id: 144701, admin_id: 100007, token_hash: hashRefreshToken('refresh-token-07-01'), session_key: 'session-key-07-01', used_at: null, revoked_at: null, generated_at: new Date('2024-03-07T00:00:07.007Z'), expired_at: new Date('3000-01-07T00:00:00.000Z') },
+  { id: 144801, admin_id: 100008, token_hash: hashRefreshToken('refresh-token-08-01'), session_key: 'session-key-08-01', used_at: null, revoked_at: null, generated_at: new Date('2024-03-08T00:00:08.008Z'), expired_at: new Date('3000-01-08T00:00:00.000Z') },
+  { id: 144901, admin_id: 100009, token_hash: hashRefreshToken('refresh-token-09-01'), session_key: 'session-key-09-01', used_at: null, revoked_at: null, generated_at: new Date('2024-03-09T00:00:09.009Z'), expired_at: new Date('3000-01-09T00:00:00.000Z') },
+  { id: 145001, admin_id: 100010, token_hash: hashRefreshToken('refresh-token-10-01'), session_key: 'session-key-10-01', used_at: null, revoked_at: null, generated_at: new Date('2024-03-10T00:00:10.010Z'), expired_at: new Date('3000-01-10T00:00:00.000Z') },
+  { id: 145101, admin_id: 100011, token_hash: hashRefreshToken('refresh-token-11-01'), session_key: 'session-key-11-01', used_at: null, revoked_at: null, generated_at: new Date('2024-03-11T00:00:11.011Z'), expired_at: new Date('3000-01-11T00:00:00.000Z') },
+  { id: 145201, admin_id: 100012, token_hash: hashRefreshToken('refresh-token-12-01'), session_key: 'session-key-12-01', used_at: null, revoked_at: null, generated_at: new Date('2024-03-12T00:00:12.012Z'), expired_at: new Date('3000-01-12T00:00:00.000Z') },
+  { id: 145301, admin_id: 100013, token_hash: hashRefreshToken('refresh-token-13-01'), session_key: 'session-key-13-01', used_at: null, revoked_at: null, generated_at: new Date('2024-03-13T00:00:13.013Z'), expired_at: new Date('3000-01-13T00:00:00.000Z') },
+
+  // a second already-used token
+  { id: 145401, admin_id: 100014, token_hash: hashRefreshToken('refresh-token-14-01'), session_key: 'session-key-14-01', used_at: new Date('2024-03-14T09:00:14.014Z'), revoked_at: null, generated_at: new Date('2024-03-14T00:00:14.014Z'), expired_at: new Date('3000-01-14T00:00:00.000Z') },
+
+  // a second revoked token
+  { id: 145501, admin_id: 100015, token_hash: hashRefreshToken('refresh-token-15-01'), session_key: 'session-key-15-01', used_at: null, revoked_at: new Date('2024-03-16T03:03:15.015Z'), generated_at: new Date('2024-03-15T00:00:15.015Z'), expired_at: new Date('3000-01-15T00:00:00.000Z') },
+
+  // a second expired token
+  { id: 145601, admin_id: 100016, token_hash: hashRefreshToken('refresh-token-16-01'), session_key: 'session-key-16-01', used_at: null, revoked_at: null, generated_at: new Date('2024-03-16T00:00:16.016Z'), expired_at: new Date('2024-05-16T03:03:16.016Z') },
+
+  // Dedicated destructive-test series for admin Renew / SignOut resolvers — revoked only by those tests.
+  // series 96-01: two live + one already-revoked (RenewAccessTokenMutationResolver#revokeReusedSeries → revokedRefreshTokenCount 2)
+  { id: 149601, admin_id: 100001, token_hash: hashRefreshToken('refresh-token-96-01'), session_key: 'session-key-96-01', used_at: null, revoked_at: null, generated_at: new Date('2024-09-16T00:00:01.001Z'), expired_at: new Date('3000-03-10T00:00:00.000Z') },
+  { id: 149602, admin_id: 100001, token_hash: hashRefreshToken('refresh-token-96-02'), session_key: 'session-key-96-01', used_at: null, revoked_at: null, generated_at: new Date('2024-09-16T00:00:02.002Z'), expired_at: new Date('3000-03-11T00:00:00.000Z') },
+  { id: 149603, admin_id: 100001, token_hash: hashRefreshToken('refresh-token-96-03'), session_key: 'session-key-96-01', used_at: null, revoked_at: new Date('2024-09-17T00:00:03.003Z'), generated_at: new Date('2024-09-16T00:00:03.003Z'), expired_at: new Date('3000-03-12T00:00:00.000Z') },
+  // series 97-01: one live (RenewAccessTokenMutationResolver#revokeReusedSeries → revokedRefreshTokenCount 1)
+  { id: 149701, admin_id: 100001, token_hash: hashRefreshToken('refresh-token-97-01'), session_key: 'session-key-97-01', used_at: null, revoked_at: null, generated_at: new Date('2024-09-17T00:00:01.001Z'), expired_at: new Date('3000-03-13T00:00:00.000Z') },
+  // series 98-01: two live + one already-revoked (SignOutMutationResolver#revokeSeries → revokedRefreshTokenCount 2)
+  { id: 149801, admin_id: 100001, token_hash: hashRefreshToken('refresh-token-98-01'), session_key: 'session-key-98-01', used_at: null, revoked_at: null, generated_at: new Date('2024-09-18T00:00:01.001Z'), expired_at: new Date('3000-03-14T00:00:00.000Z') },
+  { id: 149802, admin_id: 100001, token_hash: hashRefreshToken('refresh-token-98-02'), session_key: 'session-key-98-01', used_at: null, revoked_at: null, generated_at: new Date('2024-09-18T00:00:02.002Z'), expired_at: new Date('3000-03-15T00:00:00.000Z') },
+  { id: 149803, admin_id: 100001, token_hash: hashRefreshToken('refresh-token-98-03'), session_key: 'session-key-98-01', used_at: null, revoked_at: new Date('2024-09-19T00:00:03.003Z'), generated_at: new Date('2024-09-18T00:00:03.003Z'), expired_at: new Date('3000-03-16T00:00:00.000Z') },
+  // series 99-01 / 99-02: one live each (SignOutMutationResolver#resolve happy path)
+  { id: 149901, admin_id: 100001, token_hash: hashRefreshToken('refresh-token-99-01'), session_key: 'session-key-99-01', used_at: null, revoked_at: null, generated_at: new Date('2024-09-19T00:00:01.001Z'), expired_at: new Date('3000-03-17T00:00:00.000Z') },
+  { id: 149902, admin_id: 100001, token_hash: hashRefreshToken('refresh-token-99-02'), session_key: 'session-key-99-02', used_at: null, revoked_at: null, generated_at: new Date('2024-09-19T00:00:02.002Z'), expired_at: new Date('3000-03-18T00:00:00.000Z') },
 ]
 
 module.exports = {
@@ -242,9 +334,11 @@ module.exports = {
     await queryInterface.bulkInsert(TABLE_NAME.ADMIN_SECRETS, TimestampSeedsSupplier.supplyAll(adminSecretsSeeds), {})
     await queryInterface.bulkInsert(TABLE_NAME.ADMIN_PASSWORD_HASHES, TimestampSeedsSupplier.supplyAll(fulfilledAdminPasswordHashes), {})
     await queryInterface.bulkInsert(TABLE_NAME.ADMIN_ACCESS_TOKENS, TimestampSeedsSupplier.supplyAll(adminAccessTokensSeeds), {})
+    await queryInterface.bulkInsert(TABLE_NAME.ADMIN_REFRESH_TOKENS, TimestampSeedsSupplier.supplyAll(adminRefreshTokensSeeds), {})
   },
 
   down: async (queryInterface, Sequelize) => {
+    await queryInterface.bulkDelete(TABLE_NAME.ADMIN_REFRESH_TOKENS, { id: adminRefreshTokensSeeds.map(it => it.id) })
     await queryInterface.bulkDelete(TABLE_NAME.ADMIN_ACCESS_TOKENS, { id: adminAccessTokensSeeds.map(it => it.id) })
     await queryInterface.bulkDelete(TABLE_NAME.ADMIN_PASSWORD_HASHES, { id: adminPasswordHashesSeeds.map(it => it.id) })
     await queryInterface.bulkDelete(TABLE_NAME.ADMIN_SECRETS, { id: adminSecretsSeeds.map(it => it.id) })
