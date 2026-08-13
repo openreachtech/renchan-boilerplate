@@ -19,7 +19,7 @@ describe('RenewAccessTokenMutationResolver', () => {
             now: new Date('2026-08-04T05:00:04.004Z'),
           },
           expected: {
-            accessToken: expect.stringMatching(/^[a-zA-Z0-9]{10}$/u),
+            accessToken: expect.stringMatching(/^[0-9a-f]{64}$/u),
           },
         },
         {
@@ -28,7 +28,7 @@ describe('RenewAccessTokenMutationResolver', () => {
             now: new Date('2026-08-05T05:00:05.005Z'),
           },
           expected: {
-            accessToken: expect.stringMatching(/^[a-zA-Z0-9]{10}$/u),
+            accessToken: expect.stringMatching(/^[0-9a-f]{64}$/u),
           },
         },
       ]
