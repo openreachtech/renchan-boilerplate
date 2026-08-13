@@ -3,14 +3,16 @@ import {
   ModelAttributeFactory,
 } from '@openreachtech/renchan-sequelize'
 
-import {
-  RandomTextGenerator,
-} from '@openreachtech/renchan-tools'
+import SessionCredentialGenerator from '../../app/session/SessionCredentialGenerator.js'
 
-const MILLISECONDS_PER_DAY = 60 * 60 * 24 * 1000 // milliseconds in a day
+const MILLISECONDS_PER_MINUTE = 60 * 1000
+const ACCESS_TOKEN_LIFETIME_MINUTES = 15
 
 /**
  * CustomerAccessToken model.
+ *
+ * The short-lived half of the credential pair. Held in client memory, carried on the
+ * `x-renchan-access-token` header, and tied to its refresh series by `sessionKey`.
  */
 export default class CustomerAccessToken extends RenchanModel {
   /** @override */
@@ -28,6 +30,7 @@ export default class CustomerAccessToken extends RenchanModel {
       accessToken: {
         type: DataTypes.STRING(191),
         allowNull: false,
+        unique: true,
       },
       sessionKey: {
         type: DataTypes.STRING(191),
@@ -121,7 +124,7 @@ export default class CustomerAccessToken extends RenchanModel {
     generatedAt,
   }) {
     const expiredAt = new Date(
-      generatedAt.getTime() + MILLISECONDS_PER_DAY
+      generatedAt.getTime() + (ACCESS_TOKEN_LIFETIME_MINUTES * MILLISECONDS_PER_MINUTE)
     )
 
     return expiredAt
@@ -130,17 +133,12 @@ export default class CustomerAccessToken extends RenchanModel {
   /**
    * Generate access token.
    *
-   * @param {{
-   *   length?: number
-   * }} [params] - Parameters.
    * @returns {string} - Access token.
    */
-  static generateAccessToken ({
-    length = 10,
-  } = {}) {
-    const generator = RandomTextGenerator.create()
+  static generateAccessToken () {
+    const credentialGenerator = SessionCredentialGenerator.create()
 
-    return generator.generate(length)
+    return credentialGenerator.generateToken()
   }
 
   /**
@@ -159,26 +157,6 @@ export default class CustomerAccessToken extends RenchanModel {
     )
 
     return expiredAt.getTime() <= pointsAt.getTime()
-  }
-
-  /**
-   * Has enough time until expired.
-   *
-   * @param {{
-   *   pointsAt: Date
-   * }} params - Parameters.
-   * @returns {boolean} - True if has enough time until expired.
-   */
-  hasEnoughTimeUntilExpired ({
-    pointsAt,
-  }) {
-    const expiredAt = /** @type {Date} */ (
-      this.get('expiredAt')
-    )
-
-    const MILLISECONDS_PER_HALF_DAY = MILLISECONDS_PER_DAY / 2
-
-    return expiredAt.getTime() - pointsAt.getTime() > MILLISECONDS_PER_HALF_DAY
   }
 }
 
