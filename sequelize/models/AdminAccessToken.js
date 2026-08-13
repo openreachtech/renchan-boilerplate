@@ -3,8 +3,16 @@ import {
   ModelAttributeFactory,
 } from '@openreachtech/renchan-sequelize'
 
+import SessionCredentialGenerator from '../../app/session/SessionCredentialGenerator.js'
+
+const MILLISECONDS_PER_MINUTE = 60 * 1000
+const ACCESS_TOKEN_LIFETIME_MINUTES = 15
+
 /**
  * AdminAccessToken model.
+ *
+ * The short-lived half of the credential pair. Held in client memory, carried on the
+ * `x-renchan-access-token` header, and tied to its refresh series by `sessionKey`.
  */
 export default class AdminAccessToken extends RenchanModel {
   /** @override */
@@ -22,6 +30,7 @@ export default class AdminAccessToken extends RenchanModel {
       accessToken: {
         type: DataTypes.STRING(191),
         allowNull: false,
+        unique: true,
       },
       sessionKey: {
         type: DataTypes.STRING(191),
@@ -73,12 +82,93 @@ export default class AdminAccessToken extends RenchanModel {
 
     // noop
   }
+
+  /**
+   * Build with generated attributes.
+   *
+   * The session clerk names the principal `userId` for both audiences; here it is the id of the
+   * admin the token belongs to, stored in `AdminId` — so one `SessionClerk` serves both audiences.
+   *
+   * @param {{
+   *   userId: number
+   *   sessionKey: string
+   *   generatedAt: Date
+   *   expiredAt?: Date
+   *   accessToken?: string
+   * }} params - Parameters.
+   * @returns {AdminAccessToken}
+   */
+  static buildWithGeneratedAttributes ({
+    userId,
+    sessionKey,
+    generatedAt,
+    expiredAt = this.createExpiredAt({
+      generatedAt,
+    }),
+    accessToken = this.generateAccessToken(),
+  }) {
+    return this.build({
+      AdminId: userId,
+      sessionKey,
+      generatedAt,
+      expiredAt,
+      accessToken,
+    })
+  }
+
+  /**
+   * Create expired at.
+   *
+   * @param {{
+   *   generatedAt: Date
+   * }} params - Parameters.
+   * @returns {Date} - Expired at.
+   */
+  static createExpiredAt ({
+    generatedAt,
+  }) {
+    const expiredAt = new Date(
+      generatedAt.getTime() + (ACCESS_TOKEN_LIFETIME_MINUTES * MILLISECONDS_PER_MINUTE)
+    )
+
+    return expiredAt
+  }
+
+  /**
+   * Generate access token.
+   *
+   * @returns {string} - Access token.
+   */
+  static generateAccessToken () {
+    const credentialGenerator = SessionCredentialGenerator.create()
+
+    return credentialGenerator.generateToken()
+  }
+
+  /**
+   * Check if access token is expired.
+   *
+   * @param {{
+   *   pointsAt: Date
+   * }} params - Parameters.
+   * @returns {boolean} - True if expired.
+   */
+  isExpired ({
+    pointsAt,
+  }) {
+    const expiredAt = /** @type {Date} */ (
+      this.get('expiredAt')
+    )
+
+    return expiredAt.getTime() <= pointsAt.getTime()
+  }
 }
 
 /**
  * @typedef {AdminAccessToken & {
  *   AdminId: number
  *   accessToken: string
+ *   sessionKey: string | null
  *   generatedAt: Date
  *   expiredAt: Date
  * }} AdminAccessTokenEntity
