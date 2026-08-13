@@ -86,11 +86,11 @@ export default class AdminAccessToken extends RenchanModel {
   /**
    * Build with generated attributes.
    *
-   * `customerId` is the principal id for both audiences; here it is the id of the admin the token
-   * belongs to, stored in `AdminId` — so one `SessionClerk` serves both audiences.
+   * The session clerk names the principal `userId` for both audiences; here it is the id of the
+   * admin the token belongs to, stored in `AdminId` — so one `SessionClerk` serves both audiences.
    *
    * @param {{
-   *   customerId: number
+   *   userId: number
    *   sessionKey: string
    *   generatedAt: Date
    *   expiredAt?: Date
@@ -99,7 +99,7 @@ export default class AdminAccessToken extends RenchanModel {
    * @returns {AdminAccessToken}
    */
   static buildWithGeneratedAttributes ({
-    customerId,
+    userId,
     sessionKey,
     generatedAt,
     expiredAt = this.createExpiredAt({
@@ -108,7 +108,7 @@ export default class AdminAccessToken extends RenchanModel {
     accessToken = this.generateAccessToken(),
   }) {
     return this.build({
-      AdminId: customerId,
+      AdminId: userId,
       sessionKey,
       generatedAt,
       expiredAt,

@@ -88,7 +88,7 @@ describe('AdminAccessToken', () => {
       const cases = [
         {
           params: {
-            customerId: 100001,
+            userId: 100001,
             sessionKey: 'session-key-01',
             generatedAt: new Date('2024-01-21T00:00:01.000Z'),
             expiredAt: new Date('2024-01-21T00:15:01.000Z'),
@@ -97,7 +97,7 @@ describe('AdminAccessToken', () => {
         },
         {
           params: {
-            customerId: 100002,
+            userId: 100002,
             sessionKey: 'session-key-02',
             generatedAt: new Date('2024-01-22T00:00:02.000Z'),
             // expiredAt: defaults to generatedAt + fifteen minutes
@@ -106,7 +106,7 @@ describe('AdminAccessToken', () => {
         },
       ]
 
-      test.each(cases)('customerId: $params.customerId', ({
+      test.each(cases)('userId: $params.userId', ({
         params,
       }) => {
         const received = AdminAccessToken.buildWithGeneratedAttributes(params)
@@ -120,7 +120,7 @@ describe('AdminAccessToken', () => {
       const cases = [
         {
           params: {
-            customerId: 100001,
+            userId: 100001,
             sessionKey: 'session-key-01',
             generatedAt: new Date('2024-01-21T00:00:01.000Z'),
             expiredAt: new Date('2024-01-21T00:15:01.000Z'),
@@ -136,7 +136,7 @@ describe('AdminAccessToken', () => {
         },
         {
           params: {
-            customerId: 100002,
+            userId: 100002,
             sessionKey: 'session-key-02',
             generatedAt: new Date('2024-01-22T00:00:02.000Z'),
             // expiredAt: defaults to generatedAt + fifteen minutes
@@ -152,7 +152,7 @@ describe('AdminAccessToken', () => {
         },
       ]
 
-      test.each(cases)('customerId: $params.customerId', ({
+      test.each(cases)('userId: $params.userId', ({
         params,
         expected,
       }) => {
