@@ -140,7 +140,7 @@ export default class SessionClerk {
    * rollback via `result.hasError()`); omit it to self-resolve a transaction here.
    *
    * @param {{
-   *   customerId: number
+   *   userId: number
    *   now: Date
    *   sessionKey?: string
    *   transaction?: Transaction | null
@@ -149,14 +149,14 @@ export default class SessionClerk {
    * @public
    */
   async saveSession ({
-    customerId,
+    userId,
     now,
     sessionKey = this.credentialGenerator.generateSessionKey(),
     transaction = null,
   }) {
     if (!transaction) {
       return this.invokeSaveSession({
-        customerId,
+        userId,
         sessionKey,
         now,
       })
@@ -164,7 +164,7 @@ export default class SessionClerk {
 
     try {
       const credentialPair = await this.saveTokenPair({
-        customerId,
+        userId,
         sessionKey,
         now,
         transaction,
@@ -184,14 +184,14 @@ export default class SessionClerk {
    * Invoke `saveSession` inside a transaction resolved here, rolling back on a reported error.
    *
    * @param {{
-   *   customerId: number
+   *   userId: number
    *   sessionKey: string
    *   now: Date
    * }} params - Parameters.
    * @returns {Promise<SavingSessionResult>} - The error (null on success) and the saved pair.
    */
   async invokeSaveSession ({
-    customerId,
+    userId,
     sessionKey,
     now,
   }) {
@@ -199,7 +199,7 @@ export default class SessionClerk {
       return await this.AccessTokenModel
         .beginTransaction(async transaction => {
           const result = await this.saveSession({
-            customerId,
+            userId,
             sessionKey,
             now,
             transaction,
@@ -222,7 +222,7 @@ export default class SessionClerk {
    * Save both halves of a pair within a series. Throwable; runs inside a caller-opened transaction.
    *
    * @param {{
-   *   customerId: number
+   *   userId: number
    *   sessionKey: string
    *   now: Date
    *   transaction: Transaction
@@ -230,7 +230,7 @@ export default class SessionClerk {
    * @returns {Promise<SessionCredentialPair>} - The saved pair, plus the plain refresh token.
    */
   async saveTokenPair ({
-    customerId,
+    userId,
     sessionKey,
     now,
     transaction,
@@ -238,14 +238,14 @@ export default class SessionClerk {
     const refreshToken = this.credentialGenerator.generateToken()
 
     const accessTokenEntity = await this.saveAccessToken({
-      customerId,
+      userId,
       sessionKey,
       now,
       transaction,
     })
 
     const refreshTokenEntity = await this.saveRefreshToken({
-      customerId,
+      userId,
       sessionKey,
       refreshToken,
       now,
@@ -263,7 +263,7 @@ export default class SessionClerk {
    * Save the access token half of a pair.
    *
    * @param {{
-   *   customerId: number
+   *   userId: number
    *   sessionKey: string
    *   now: Date
    *   transaction: Transaction
@@ -271,13 +271,13 @@ export default class SessionClerk {
    * @returns {Promise<AccessTokenEntity>} - The saved access token entity.
    */
   async saveAccessToken ({
-    customerId,
+    userId,
     sessionKey,
     now,
     transaction,
   }) {
     const accessTokenEntity = this.AccessTokenModel.buildWithGeneratedAttributes({
-      customerId,
+      userId,
       sessionKey,
       generatedAt: now,
     })
@@ -293,7 +293,7 @@ export default class SessionClerk {
    * Save the refresh token half of a pair.
    *
    * @param {{
-   *   customerId: number
+   *   userId: number
    *   sessionKey: string
    *   refreshToken: string
    *   now: Date
@@ -302,14 +302,14 @@ export default class SessionClerk {
    * @returns {Promise<RefreshTokenEntity>} - The saved refresh token entity.
    */
   async saveRefreshToken ({
-    customerId,
+    userId,
     sessionKey,
     refreshToken,
     now,
     transaction,
   }) {
     const refreshTokenEntity = this.RefreshTokenModel.buildWithGeneratedAttributes({
-      customerId,
+      userId,
       sessionKey,
       refreshToken,
       generatedAt: now,
@@ -393,7 +393,7 @@ export default class SessionClerk {
       }
 
       const credentialPair = await this.saveTokenPair({
-        customerId: refreshTokenEntity.CustomerId,
+        userId: refreshTokenEntity.extractUserId(),
         sessionKey: refreshTokenEntity.sessionKey,
         now,
         transaction,

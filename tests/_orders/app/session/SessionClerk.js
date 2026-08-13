@@ -16,7 +16,7 @@ describe('SessionClerk', () => {
       const cases = [
         {
           input: {
-            customerId: 950001,
+            userId: 950001,
             sessionKey: 'clerk-session-key-950001',
             now: new Date('2026-08-01T00:00:01.001Z'),
           },
@@ -30,7 +30,7 @@ describe('SessionClerk', () => {
         },
         {
           input: {
-            customerId: 950002,
+            userId: 950002,
             sessionKey: 'clerk-session-key-950002',
             now: new Date('2026-08-02T00:00:02.002Z'),
           },
@@ -44,12 +44,12 @@ describe('SessionClerk', () => {
         },
       ]
 
-      test.each(cases)('customerId: $input.customerId', async ({
+      test.each(cases)('userId: $input.userId', async ({
         input,
         expected,
       }) => {
         const args = {
-          customerId: input.customerId,
+          userId: input.userId,
           sessionKey: input.sessionKey,
           now: input.now,
         }
@@ -72,7 +72,7 @@ describe('SessionClerk', () => {
       const cases = [
         {
           input: {
-            customerId: 951001,
+            userId: 951001,
             now: new Date('2026-08-03T00:00:03.003Z'),
           },
           expected: SavingSessionResult.create({
@@ -85,7 +85,7 @@ describe('SessionClerk', () => {
         },
         {
           input: {
-            customerId: 951002,
+            userId: 951002,
             now: new Date('2026-08-04T00:00:04.004Z'),
           },
           expected: SavingSessionResult.create({
@@ -98,12 +98,12 @@ describe('SessionClerk', () => {
         },
       ]
 
-      test.each(cases)('customerId: $input.customerId', async ({
+      test.each(cases)('userId: $input.userId', async ({
         input,
         expected,
       }) => {
         const args = {
-          customerId: input.customerId,
+          userId: input.userId,
           now: input.now,
         }
 
@@ -125,23 +125,23 @@ describe('SessionClerk', () => {
       const cases = [
         {
           input: {
-            customerId: 955001,
+            userId: 955001,
             now: new Date('2026-08-15T06:00:15.015Z'),
           },
         },
         {
           input: {
-            customerId: 955002,
+            userId: 955002,
             now: new Date('2026-08-16T06:00:16.016Z'),
           },
         },
       ]
 
-      test.each(cases)('customerId: $input.customerId', async ({ input }) => {
+      test.each(cases)('userId: $input.userId', async ({ input }) => {
         jest.spyOn(clerk, 'saveTokenPair')
           .mockRejectedValue(new Error('Failed to save the session token pair'))
         const args = {
-          customerId: input.customerId,
+          userId: input.userId,
           now: input.now,
         }
         const expected = SavingSessionResult.create({
@@ -166,7 +166,7 @@ describe('SessionClerk', () => {
       const cases = [
         {
           input: {
-            customerId: 958001,
+            userId: 958001,
             now: new Date('2026-08-21T06:00:21.021Z'),
           },
           expected: SavingSessionResult.create({
@@ -179,7 +179,7 @@ describe('SessionClerk', () => {
         },
         {
           input: {
-            customerId: 958002,
+            userId: 958002,
             now: new Date('2026-08-22T06:00:22.022Z'),
           },
           expected: SavingSessionResult.create({
@@ -192,13 +192,13 @@ describe('SessionClerk', () => {
         },
       ]
 
-      test.each(cases)('customerId: $input.customerId', async ({
+      test.each(cases)('userId: $input.userId', async ({
         input,
         expected,
       }) => {
         const received = await CustomerAccessToken.beginTransaction(async transaction =>
           clerk.saveSession({
-            customerId: input.customerId,
+            userId: input.userId,
             now: input.now,
             transaction,
           })
@@ -224,7 +224,7 @@ describe('SessionClerk', () => {
       const cases = [
         {
           input: {
-            customerId: 952001,
+            userId: 952001,
             sessionKey: 'clerk-session-key-952001',
             refreshToken: 'spend-refresh-token-952001',
             generatedAt: new Date('2024-09-07T00:00:07.007Z'),
@@ -234,7 +234,7 @@ describe('SessionClerk', () => {
         },
         {
           input: {
-            customerId: 952002,
+            userId: 952002,
             sessionKey: 'clerk-session-key-952002',
             refreshToken: 'spend-refresh-token-952002',
             generatedAt: new Date('2024-09-08T00:00:08.008Z'),
@@ -249,7 +249,7 @@ describe('SessionClerk', () => {
         expected,
       }) => {
         const refreshTokenEntity = CustomerRefreshToken.buildWithGeneratedAttributes({
-          customerId: input.customerId,
+          userId: input.userId,
           sessionKey: input.sessionKey,
           refreshToken: input.refreshToken,
           generatedAt: input.generatedAt,
@@ -466,7 +466,7 @@ describe('SessionClerk', () => {
       const cases = [
         {
           input: {
-            customerId: 954001,
+            userId: 954001,
             sessionKey: 'clerk-session-key-954001',
             refreshToken: 'rotate-refresh-token-954001',
             generatedAt: new Date('2026-08-05T00:00:05.005Z'),
@@ -476,7 +476,7 @@ describe('SessionClerk', () => {
         },
         {
           input: {
-            customerId: 954002,
+            userId: 954002,
             sessionKey: 'clerk-session-key-954002',
             refreshToken: 'rotate-refresh-token-954002',
             generatedAt: new Date('2026-08-06T00:00:06.006Z'),
@@ -491,7 +491,7 @@ describe('SessionClerk', () => {
         expected,
       }) => {
         const refreshTokenEntity = CustomerRefreshToken.buildWithGeneratedAttributes({
-          customerId: input.customerId,
+          userId: input.userId,
           sessionKey: input.sessionKey,
           refreshToken: input.refreshToken,
           generatedAt: input.generatedAt,
@@ -521,7 +521,7 @@ describe('SessionClerk', () => {
       const cases = [
         {
           input: {
-            customerId: 956001,
+            userId: 956001,
             sessionKey: 'clerk-session-key-956001',
             refreshToken: 'rotate-refresh-token-956001',
             generatedAt: new Date('2026-08-19T00:00:19.019Z'),
@@ -530,7 +530,7 @@ describe('SessionClerk', () => {
         },
         {
           input: {
-            customerId: 956002,
+            userId: 956002,
             sessionKey: 'clerk-session-key-956002',
             refreshToken: 'rotate-refresh-token-956002',
             generatedAt: new Date('2026-08-20T00:00:20.020Z'),
@@ -541,7 +541,7 @@ describe('SessionClerk', () => {
 
       test.each(cases)('sessionKey: $input.sessionKey', async ({ input }) => {
         const refreshTokenEntity = CustomerRefreshToken.buildWithGeneratedAttributes({
-          customerId: input.customerId,
+          userId: input.userId,
           sessionKey: input.sessionKey,
           refreshToken: input.refreshToken,
           generatedAt: input.generatedAt,
@@ -574,7 +574,7 @@ describe('SessionClerk', () => {
       const cases = [
         {
           input: {
-            customerId: 959001,
+            userId: 959001,
             sessionKey: 'clerk-session-key-959001',
             refreshToken: 'rotate-spent-token-959001',
             generatedAt: new Date('2026-08-25T00:00:25.025Z'),
@@ -583,7 +583,7 @@ describe('SessionClerk', () => {
         },
         {
           input: {
-            customerId: 959002,
+            userId: 959002,
             sessionKey: 'clerk-session-key-959002',
             refreshToken: 'rotate-spent-token-959002',
             generatedAt: new Date('2026-08-26T00:00:26.026Z'),
@@ -594,7 +594,7 @@ describe('SessionClerk', () => {
 
       test.each(cases)('sessionKey: $input.sessionKey', async ({ input }) => {
         const refreshTokenEntity = CustomerRefreshToken.buildWithGeneratedAttributes({
-          customerId: input.customerId,
+          userId: input.userId,
           sessionKey: input.sessionKey,
           refreshToken: input.refreshToken,
           generatedAt: input.generatedAt,
