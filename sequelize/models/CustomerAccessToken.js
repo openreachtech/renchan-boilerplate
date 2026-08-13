@@ -31,8 +31,7 @@ export default class CustomerAccessToken extends RenchanModel {
       },
       sessionKey: {
         type: DataTypes.STRING(191),
-        // TODO: tighten to allowNull: false once every access-token writer sets sessionKey (later PR).
-        allowNull: true,
+        allowNull: false,
       },
       generatedAt: {
         type: DataTypes.DATE,
@@ -85,7 +84,7 @@ export default class CustomerAccessToken extends RenchanModel {
    *
    * @param {{
    *   customerId: number
-   *   sessionKey?: string | null
+   *   sessionKey: string
    *   generatedAt: Date
    *   expiredAt?: Date
    *   accessToken?: string
@@ -94,7 +93,7 @@ export default class CustomerAccessToken extends RenchanModel {
    */
   static buildWithGeneratedAttributes ({
     customerId,
-    sessionKey = null,
+    sessionKey,
     generatedAt,
     expiredAt = this.createExpiredAt({
       generatedAt,
@@ -187,6 +186,7 @@ export default class CustomerAccessToken extends RenchanModel {
  * @typedef {CustomerAccessToken & {
  *   CustomerId: number
  *   accessToken: string
+ *   sessionKey: string
  *   generatedAt: Date
  *   expiredAt: Date
  * }} CustomerAccessTokenEntity
