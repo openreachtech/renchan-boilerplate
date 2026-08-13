@@ -16,6 +16,7 @@ type Mutation {
 
   # for sign-in sample ---------------------------------------------------------
   renewAccessToken: RenewAccessTokenResult!
+  signOut: SignOutResult!
 }
 
 ################################################################################
@@ -32,6 +33,10 @@ type RenewAccessTokenResult {
   accessToken: String # null: expired or not found
 
   # TODO: add here customer information (e.g. username, avatar, etc.)
+}
+
+type SignOutResult {
+  isSignedOut: Boolean!
 }
 
 ################################################################################

@@ -269,6 +269,13 @@ const customerAccessTokensSeeds = [
   // series 97-01: two access tokens (RenewAccessTokenMutationResolver#revokeReusedSeries → deletedAccessTokenCount 2)
   { id: 148701, customer_id: 100001, access_token: 'access-token-97-01', session_key: 'session-key-97-01', generated_at: new Date('2024-09-07T00:00:01.001Z'), expired_at: new Date('3000-02-13T00:00:00.000Z') },
   { id: 148702, customer_id: 100001, access_token: 'access-token-97-02', session_key: 'session-key-97-01', generated_at: new Date('2024-09-07T00:00:02.002Z'), expired_at: new Date('3000-02-14T00:00:00.000Z') },
+  // series 98-01: three access tokens (SignOutMutationResolver#revokeSeries → deletedAccessTokenCount 3)
+  { id: 148801, customer_id: 100001, access_token: 'access-token-98-01', session_key: 'session-key-98-01', generated_at: new Date('2024-09-08T00:00:01.001Z'), expired_at: new Date('3000-02-15T00:00:00.000Z') },
+  { id: 148802, customer_id: 100001, access_token: 'access-token-98-02', session_key: 'session-key-98-01', generated_at: new Date('2024-09-08T00:00:02.002Z'), expired_at: new Date('3000-02-16T00:00:00.000Z') },
+  { id: 148803, customer_id: 100001, access_token: 'access-token-98-03', session_key: 'session-key-98-01', generated_at: new Date('2024-09-08T00:00:03.003Z'), expired_at: new Date('3000-02-17T00:00:00.000Z') },
+  // series 99-01 / 99-02: one access token each (SignOutMutationResolver#resolve happy path)
+  { id: 148901, customer_id: 100001, access_token: 'access-token-99-01', session_key: 'session-key-99-01', generated_at: new Date('2024-09-09T00:00:01.001Z'), expired_at: new Date('3000-02-18T00:00:00.000Z') },
+  { id: 148902, customer_id: 100001, access_token: 'access-token-99-02', session_key: 'session-key-99-02', generated_at: new Date('2024-09-09T00:00:02.002Z'), expired_at: new Date('3000-02-19T00:00:00.000Z') },
 ]
 
 /*
@@ -332,6 +339,13 @@ const customerRefreshTokensSeeds = [
   { id: 149603, customer_id: 100001, token_hash: hashRefreshToken('refresh-token-96-03'), session_key: 'session-key-96-01', used_at: null, revoked_at: new Date('2024-09-17T00:00:03.003Z'), generated_at: new Date('2024-09-16T00:00:03.003Z'), expired_at: new Date('3000-03-12T00:00:00.000Z') },
   // series 97-01: one live (RenewAccessTokenMutationResolver#revokeReusedSeries → revokedRefreshTokenCount 1)
   { id: 149701, customer_id: 100001, token_hash: hashRefreshToken('refresh-token-97-01'), session_key: 'session-key-97-01', used_at: null, revoked_at: null, generated_at: new Date('2024-09-17T00:00:01.001Z'), expired_at: new Date('3000-03-13T00:00:00.000Z') },
+  // series 98-01: two live + one already-revoked (SignOutMutationResolver#revokeSeries → revokedRefreshTokenCount 2)
+  { id: 149801, customer_id: 100001, token_hash: hashRefreshToken('refresh-token-98-01'), session_key: 'session-key-98-01', used_at: null, revoked_at: null, generated_at: new Date('2024-09-18T00:00:01.001Z'), expired_at: new Date('3000-03-14T00:00:00.000Z') },
+  { id: 149802, customer_id: 100001, token_hash: hashRefreshToken('refresh-token-98-02'), session_key: 'session-key-98-01', used_at: null, revoked_at: null, generated_at: new Date('2024-09-18T00:00:02.002Z'), expired_at: new Date('3000-03-15T00:00:00.000Z') },
+  { id: 149803, customer_id: 100001, token_hash: hashRefreshToken('refresh-token-98-03'), session_key: 'session-key-98-01', used_at: null, revoked_at: new Date('2024-09-19T00:00:03.003Z'), generated_at: new Date('2024-09-18T00:00:03.003Z'), expired_at: new Date('3000-03-16T00:00:00.000Z') },
+  // series 99-01 / 99-02: one live each (SignOutMutationResolver#resolve happy path)
+  { id: 149901, customer_id: 100001, token_hash: hashRefreshToken('refresh-token-99-01'), session_key: 'session-key-99-01', used_at: null, revoked_at: null, generated_at: new Date('2024-09-19T00:00:01.001Z'), expired_at: new Date('3000-03-17T00:00:00.000Z') },
+  { id: 149902, customer_id: 100001, token_hash: hashRefreshToken('refresh-token-99-02'), session_key: 'session-key-99-02', used_at: null, revoked_at: null, generated_at: new Date('2024-09-19T00:00:02.002Z'), expired_at: new Date('3000-03-18T00:00:00.000Z') },
 ]
 
 module.exports = {
