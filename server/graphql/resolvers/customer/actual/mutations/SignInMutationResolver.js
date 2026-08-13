@@ -81,7 +81,7 @@ export default class SignInMutationResolver extends BaseMutationResolver {
     const sessionClerk = this.createSessionClerk()
 
     const result = await sessionClerk.saveSession({
-      customerId: passwordHashEntity.CustomerId,
+      userId: passwordHashEntity.CustomerId,
       now: context.now,
     })
 
