@@ -23,7 +23,7 @@ describe('SignInMutationResolver', () => {
             }),
           },
           expected: {
-            accessToken: expect.stringMatching(/^[a-zA-Z0-9]{10}$/u),
+            accessToken: expect.stringMatching(/^[0-9a-f]{64}$/u),
           },
         },
         {
@@ -39,7 +39,7 @@ describe('SignInMutationResolver', () => {
             }),
           },
           expected: {
-            accessToken: expect.stringMatching(/^[a-zA-Z0-9]{10}$/u),
+            accessToken: expect.stringMatching(/^[0-9a-f]{64}$/u),
           },
         },
       ]
