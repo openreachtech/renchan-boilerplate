@@ -85,14 +85,14 @@ describe('SignInMutationResolver', () => {
 
       const cases = [
         {
-          input: {
+          params: {
             context: /** @type {*} */ ({
               id: 'context-01',
             }),
           },
         },
         {
-          input: {
+          params: {
             context: /** @type {*} */ ({
               id: 'context-02',
             }),
@@ -100,8 +100,8 @@ describe('SignInMutationResolver', () => {
         },
       ]
 
-      test.each(cases)('context: $input.context.id', ({ input }) => {
-        const received = resolver.createCookieClerk(input)
+      test.each(cases)('context: $params.context.id', ({ params }) => {
+        const received = resolver.createCookieClerk(params)
 
         expect(received)
           .toBeInstanceOf(RefreshTokenExpressCookieClerk)
@@ -117,7 +117,7 @@ describe('SignInMutationResolver', () => {
     describe('with existing email', () => {
       const cases = [
         {
-          input: {
+          params: {
             email: 'admin.100001@example.com',
           },
           expected: expect.objectContaining({
@@ -127,7 +127,7 @@ describe('SignInMutationResolver', () => {
           }),
         },
         {
-          input: {
+          params: {
             email: 'admin.100002@example.com',
           },
           expected: expect.objectContaining({
@@ -138,11 +138,11 @@ describe('SignInMutationResolver', () => {
         },
       ]
 
-      test.each(cases)('email: $input.email', async ({
-        input,
+      test.each(cases)('email: $params.email', async ({
+        params,
         expected,
       }) => {
-        const PasswordHash = await resolver.findPasswordHashByEmail(input)
+        const PasswordHash = await resolver.findPasswordHashByEmail(params)
         const received = PasswordHash.dataValues
 
         expect(received)
@@ -153,19 +153,19 @@ describe('SignInMutationResolver', () => {
     describe('with non-existing email', () => {
       const cases = [
         {
-          input: {
+          params: {
             email: 'unknown.100001@example.com',
           },
         },
         {
-          input: {
+          params: {
             email: 'unknown.100002@example.com',
           },
         },
       ]
 
-      test.each(cases)('email: $input.email', async ({ input }) => {
-        const received = await resolver.findPasswordHashByEmail(input)
+      test.each(cases)('email: $params.email', async ({ params }) => {
+        const received = await resolver.findPasswordHashByEmail(params)
 
         expect(received)
           .toBeNull()
@@ -181,7 +181,7 @@ describe('SignInMutationResolver', () => {
 
       const cases = [
         {
-          input: {
+          params: {
             credentialPair: {
               accessTokenEntity: /** @type {*} */ ({
                 accessToken: 'access-token-value-01',
@@ -193,7 +193,7 @@ describe('SignInMutationResolver', () => {
           },
         },
         {
-          input: {
+          params: {
             credentialPair: {
               accessTokenEntity: /** @type {*} */ ({
                 accessToken: 'access-token-value-02',
@@ -206,11 +206,11 @@ describe('SignInMutationResolver', () => {
         },
       ]
 
-      test.each(cases)('accessToken: $input.credentialPair.accessTokenEntity.accessToken', ({
-        input,
+      test.each(cases)('accessToken: $params.credentialPair.accessTokenEntity.accessToken', ({
+        params,
         expected,
       }) => {
-        const received = resolver.formatResponse(input)
+        const received = resolver.formatResponse(params)
 
         expect(received)
           .toEqual(expected)
@@ -226,7 +226,7 @@ describe('SignInMutationResolver', () => {
 
       const cases = [
         {
-          input: {
+          params: {
             variables: {
               input: {
                 email: 'admin.100001@example.com',
@@ -239,7 +239,7 @@ describe('SignInMutationResolver', () => {
           },
         },
         {
-          input: {
+          params: {
             variables: {
               input: {
                 email: 'unmatched.email@example.com', // no account with this email
@@ -253,8 +253,8 @@ describe('SignInMutationResolver', () => {
         },
       ]
 
-      test.each(cases)('email: $input.variables.input.email', async ({ input }) => {
-        const actual = () => resolver.resolve(input)
+      test.each(cases)('email: $params.variables.input.email', async ({ params }) => {
+        const actual = () => resolver.resolve(params)
 
         await expect(actual)
           .rejects

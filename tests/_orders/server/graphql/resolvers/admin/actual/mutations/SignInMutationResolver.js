@@ -11,7 +11,7 @@ describe('SignInMutationResolver', () => {
     describe('with existing email and correct password', () => {
       const cases = [
         {
-          input: {
+          params: {
             variables: {
               input: {
                 email: 'admin.100001@example.com',
@@ -27,7 +27,7 @@ describe('SignInMutationResolver', () => {
           },
         },
         {
-          input: {
+          params: {
             variables: {
               input: {
                 email: 'admin.100002@example.com',
@@ -44,11 +44,11 @@ describe('SignInMutationResolver', () => {
         },
       ]
 
-      test.each(cases)('email: $input.variables.input.email', async ({
-        input,
+      test.each(cases)('email: $params.variables.input.email', async ({
+        params,
         expected,
       }) => {
-        const received = await resolver.resolve(input)
+        const received = await resolver.resolve(params)
 
         expect(received)
           .toEqual(expected)
@@ -58,7 +58,7 @@ describe('SignInMutationResolver', () => {
     describe('should hand the refresh token to the browser as a cookie', () => {
       const cases = [
         {
-          input: {
+          params: {
             variables: {
               input: {
                 email: 'admin.100003@example.com',
@@ -74,7 +74,7 @@ describe('SignInMutationResolver', () => {
           },
         },
         {
-          input: {
+          params: {
             variables: {
               input: {
                 email: 'admin.100004@example.com',
@@ -91,13 +91,13 @@ describe('SignInMutationResolver', () => {
         },
       ]
 
-      test.each(cases)('email: $input.variables.input.email', async ({
-        input,
+      test.each(cases)('email: $params.variables.input.email', async ({
+        params,
         expected,
       }) => {
         const saveRefreshTokenCookieSpy = jest.spyOn(RefreshTokenExpressCookieClerk.prototype, 'saveRefreshTokenCookie')
 
-        await resolver.resolve(input)
+        await resolver.resolve(params)
 
         expect(saveRefreshTokenCookieSpy)
           .toHaveBeenCalledWith(expected)
@@ -107,7 +107,7 @@ describe('SignInMutationResolver', () => {
     describe('should reject when saving the session fails', () => {
       const cases = [
         {
-          input: {
+          params: {
             variables: {
               input: {
                 email: 'admin.100001@example.com',
@@ -120,7 +120,7 @@ describe('SignInMutationResolver', () => {
           },
         },
         {
-          input: {
+          params: {
             variables: {
               input: {
                 email: 'admin.100002@example.com',
@@ -134,13 +134,13 @@ describe('SignInMutationResolver', () => {
         },
       ]
 
-      test.each(cases)('email: $input.variables.input.email', async ({ input }) => {
+      test.each(cases)('email: $params.variables.input.email', async ({ params }) => {
         jest.spyOn(SessionClerk.prototype, 'saveSession')
           .mockResolvedValue(SavingSessionResult.create({
             error: new Error('Failed to save the session token pair'),
           }))
 
-        const actual = () => resolver.resolve(input)
+        const actual = () => resolver.resolve(params)
 
         await expect(actual)
           .rejects
