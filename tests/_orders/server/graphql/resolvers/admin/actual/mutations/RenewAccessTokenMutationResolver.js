@@ -14,18 +14,22 @@ describe('RenewAccessTokenMutationResolver', () => {
     describe('should renew the access token from a valid refresh cookie', () => {
       const cases = [
         {
-          input: {
-            presentedRefreshToken: 'refresh-token-04-01', // seeded: active
-            now: new Date('2026-08-04T05:00:04.004Z'),
+          mockPresentedRefreshToken: 'refresh-token-04-01', // seeded: active
+          params: {
+            context: /** @type {*} */ ({
+              now: new Date('2026-08-04T05:00:04.004Z'),
+            }),
           },
           expected: {
             accessToken: expect.stringMatching(/^[0-9a-f]{64}$/u),
           },
         },
         {
-          input: {
-            presentedRefreshToken: 'refresh-token-05-01', // seeded: active
-            now: new Date('2026-08-05T05:00:05.005Z'),
+          mockPresentedRefreshToken: 'refresh-token-05-01', // seeded: active
+          params: {
+            context: /** @type {*} */ ({
+              now: new Date('2026-08-05T05:00:05.005Z'),
+            }),
           },
           expected: {
             accessToken: expect.stringMatching(/^[0-9a-f]{64}$/u),
@@ -33,19 +37,15 @@ describe('RenewAccessTokenMutationResolver', () => {
         },
       ]
 
-      test.each(cases)('presentedRefreshToken: $input.presentedRefreshToken', async ({
-        input,
+      test.each(cases)('now: $params.context.now', async ({
+        mockPresentedRefreshToken,
+        params,
         expected,
       }) => {
         jest.spyOn(RefreshTokenExpressCookieClerk.prototype, 'extractRefreshToken')
-          .mockReturnValue(input.presentedRefreshToken)
-        const args = {
-          context: /** @type {*} */ ({
-            now: input.now,
-          }),
-        }
+          .mockReturnValue(mockPresentedRefreshToken)
 
-        const received = await resolver.resolve(args)
+        const received = await resolver.resolve(params)
 
         expect(received)
           .toEqual(expected)
@@ -55,18 +55,22 @@ describe('RenewAccessTokenMutationResolver', () => {
     describe('should hand a new refresh token to the browser as a cookie', () => {
       const cases = [
         {
-          input: {
-            presentedRefreshToken: 'refresh-token-06-01', // seeded: active
-            now: new Date('2026-08-06T05:00:06.006Z'),
+          mockPresentedRefreshToken: 'refresh-token-06-01', // seeded: active
+          params: {
+            context: /** @type {*} */ ({
+              now: new Date('2026-08-06T05:00:06.006Z'),
+            }),
           },
           expected: {
             refreshToken: expect.stringMatching(/^[0-9a-f]{64}$/u),
           },
         },
         {
-          input: {
-            presentedRefreshToken: 'refresh-token-07-01', // seeded: active
-            now: new Date('2026-08-07T05:00:07.007Z'),
+          mockPresentedRefreshToken: 'refresh-token-07-01', // seeded: active
+          params: {
+            context: /** @type {*} */ ({
+              now: new Date('2026-08-07T05:00:07.007Z'),
+            }),
           },
           expected: {
             refreshToken: expect.stringMatching(/^[0-9a-f]{64}$/u),
@@ -74,20 +78,16 @@ describe('RenewAccessTokenMutationResolver', () => {
         },
       ]
 
-      test.each(cases)('presentedRefreshToken: $input.presentedRefreshToken', async ({
-        input,
+      test.each(cases)('now: $params.context.now', async ({
+        mockPresentedRefreshToken,
+        params,
         expected,
       }) => {
         jest.spyOn(RefreshTokenExpressCookieClerk.prototype, 'extractRefreshToken')
-          .mockReturnValue(input.presentedRefreshToken)
+          .mockReturnValue(mockPresentedRefreshToken)
         const saveRefreshTokenCookieSpy = jest.spyOn(RefreshTokenExpressCookieClerk.prototype, 'saveRefreshTokenCookie')
-        const args = {
-          context: /** @type {*} */ ({
-            now: input.now,
-          }),
-        }
 
-        await resolver.resolve(args)
+        await resolver.resolve(params)
 
         expect(saveRefreshTokenCookieSpy)
           .toHaveBeenCalledWith(expected)
@@ -97,30 +97,32 @@ describe('RenewAccessTokenMutationResolver', () => {
     describe('should refuse a refresh token that was already exchanged', () => {
       const cases = [
         {
-          input: {
-            presentedRefreshToken: 'refresh-token-02-01', // seeded: used
-            now: new Date('2026-08-02T05:00:02.002Z'),
+          mockPresentedRefreshToken: 'refresh-token-02-01', // seeded: used
+          params: {
+            context: /** @type {*} */ ({
+              now: new Date('2026-08-02T05:00:02.002Z'),
+            }),
           },
         },
         {
-          input: {
-            presentedRefreshToken: 'refresh-token-14-01', // seeded: used
-            now: new Date('2026-08-14T05:00:14.014Z'),
+          mockPresentedRefreshToken: 'refresh-token-14-01', // seeded: used
+          params: {
+            context: /** @type {*} */ ({
+              now: new Date('2026-08-14T05:00:14.014Z'),
+            }),
           },
         },
       ]
 
-      test.each(cases)('presentedRefreshToken: $input.presentedRefreshToken', async ({ input }) => {
+      test.each(cases)('now: $params.context.now', async ({
+        mockPresentedRefreshToken,
+        params,
+      }) => {
         jest.spyOn(RefreshTokenExpressCookieClerk.prototype, 'extractRefreshToken')
-          .mockReturnValue(input.presentedRefreshToken)
+          .mockReturnValue(mockPresentedRefreshToken)
         const clearRefreshTokenCookieSpy = jest.spyOn(RefreshTokenExpressCookieClerk.prototype, 'clearRefreshTokenCookie')
-        const args = {
-          context: /** @type {*} */ ({
-            now: input.now,
-          }),
-        }
 
-        const actual = () => resolver.resolve(args)
+        const actual = () => resolver.resolve(params)
 
         await expect(actual)
           .rejects
@@ -133,33 +135,35 @@ describe('RenewAccessTokenMutationResolver', () => {
     describe('should reject when rotating the session fails', () => {
       const cases = [
         {
-          input: {
-            presentedRefreshToken: 'refresh-token-08-01', // seeded: active
-            now: new Date('2026-08-08T05:00:08.008Z'),
+          mockPresentedRefreshToken: 'refresh-token-08-01', // seeded: active
+          params: {
+            context: /** @type {*} */ ({
+              now: new Date('2026-08-08T05:00:08.008Z'),
+            }),
           },
         },
         {
-          input: {
-            presentedRefreshToken: 'refresh-token-09-01', // seeded: active
-            now: new Date('2026-08-09T05:00:09.009Z'),
+          mockPresentedRefreshToken: 'refresh-token-09-01', // seeded: active
+          params: {
+            context: /** @type {*} */ ({
+              now: new Date('2026-08-09T05:00:09.009Z'),
+            }),
           },
         },
       ]
 
-      test.each(cases)('presentedRefreshToken: $input.presentedRefreshToken', async ({ input }) => {
+      test.each(cases)('now: $params.context.now', async ({
+        mockPresentedRefreshToken,
+        params,
+      }) => {
         jest.spyOn(RefreshTokenExpressCookieClerk.prototype, 'extractRefreshToken')
-          .mockReturnValue(input.presentedRefreshToken)
+          .mockReturnValue(mockPresentedRefreshToken)
         jest.spyOn(SessionClerk.prototype, 'rotateSession')
           .mockResolvedValue(SavingSessionResult.create({
             error: new Error('Failed to rotate the session'),
           }))
-        const args = {
-          context: /** @type {*} */ ({
-            now: input.now,
-          }),
-        }
 
-        const actual = () => resolver.resolve(args)
+        const actual = () => resolver.resolve(params)
 
         await expect(actual)
           .rejects
@@ -178,33 +182,34 @@ describe('RenewAccessTokenMutationResolver', () => {
         {
           // No live rows on this series — the reuse response still runs revoke (a real no-op here),
           // clears the cookie, and throws. The real revoke effect is asserted in #revokeReusedSession().
-          input: {
+          params: {
             sessionKey: 'session-key-960001',
             now: new Date('2026-08-22T06:00:22.022Z'),
           },
         },
         {
-          input: {
+          params: {
             sessionKey: 'session-key-960002',
             now: new Date('2026-08-23T06:00:23.023Z'),
           },
         },
       ]
 
-      test.each(cases)('sessionKey: $input.sessionKey', async ({ input }) => {
+      test.each(cases)('sessionKey: $params.sessionKey', async ({ params }) => {
         const clearRefreshTokenCookieSpy = jest.spyOn(RefreshTokenExpressCookieClerk.prototype, 'clearRefreshTokenCookie')
-        const args = {
-          context: /** @type {*} */ ({
-            now: input.now,
-          }),
-          refreshTokenEntity: /** @type {*} */ (
-            AdminRefreshToken.build({
-              sessionKey: input.sessionKey,
-            })
-          ),
-        }
+        const refreshTokenEntity = /** @type {*} */ (
+          AdminRefreshToken.build({
+            sessionKey: params.sessionKey,
+          })
+        )
+        const context = /** @type {*} */ ({
+          now: params.now,
+        })
 
-        const actual = () => resolver.handleReusedToken(args)
+        const actual = () => resolver.handleReusedToken({
+          context,
+          refreshTokenEntity,
+        })
 
         await expect(actual)
           .rejects
@@ -223,7 +228,7 @@ describe('RenewAccessTokenMutationResolver', () => {
 
       const cases = [
         {
-          input: {
+          params: {
             sessionKey: 'session-key-96-01', // seeded: 2 live (+1 revoked) refresh, 3 access
             now: new Date('2026-08-24T06:00:24.024Z'),
           },
@@ -235,7 +240,7 @@ describe('RenewAccessTokenMutationResolver', () => {
           }),
         },
         {
-          input: {
+          params: {
             sessionKey: 'session-key-97-01', // seeded: 1 live refresh, 2 access
             now: new Date('2026-08-25T06:00:25.025Z'),
           },
@@ -248,22 +253,23 @@ describe('RenewAccessTokenMutationResolver', () => {
         },
       ]
 
-      test.each(cases)('sessionKey: $input.sessionKey', async ({
-        input,
+      test.each(cases)('sessionKey: $params.sessionKey', async ({
+        params,
         expected,
       }) => {
-        const args = {
-          context: /** @type {*} */ ({
-            now: input.now,
-          }),
-          refreshTokenEntity: /** @type {*} */ (
-            AdminRefreshToken.build({
-              sessionKey: input.sessionKey,
-            })
-          ),
-        }
+        const refreshTokenEntity = /** @type {*} */ (
+          AdminRefreshToken.build({
+            sessionKey: params.sessionKey,
+          })
+        )
+        const context = /** @type {*} */ ({
+          now: params.now,
+        })
 
-        const received = await resolver.revokeReusedSession(args)
+        const received = await resolver.revokeReusedSession({
+          context,
+          refreshTokenEntity,
+        })
 
         expect(received)
           .toEqual(expected)

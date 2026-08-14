@@ -86,14 +86,14 @@ describe('RenewAccessTokenMutationResolver', () => {
 
       const cases = [
         {
-          input: {
+          params: {
             context: /** @type {*} */ ({
               cookieHeader: 'cookie-header-0001',
             }),
           },
         },
         {
-          input: {
+          params: {
             context: /** @type {*} */ ({
               cookieHeader: 'cookie-header-0002',
             }),
@@ -101,8 +101,8 @@ describe('RenewAccessTokenMutationResolver', () => {
         },
       ]
 
-      test.each(cases)('context: $input.context.cookieHeader', ({ input }) => {
-        const received = resolver.createCookieClerk(input)
+      test.each(cases)('context: $params.context.cookieHeader', ({ params }) => {
+        const received = resolver.createCookieClerk(params)
 
         expect(received)
           .toBeInstanceOf(RefreshTokenExpressCookieClerk)
@@ -118,7 +118,7 @@ describe('RenewAccessTokenMutationResolver', () => {
 
       const cases = [
         {
-          input: {
+          params: {
             credentialPair: {
               accessTokenEntity: /** @type {*} */ ({
                 accessToken: 'access-token-value-0001',
@@ -130,7 +130,7 @@ describe('RenewAccessTokenMutationResolver', () => {
           },
         },
         {
-          input: {
+          params: {
             credentialPair: {
               accessTokenEntity: /** @type {*} */ ({
                 accessToken: 'access-token-value-0002',
@@ -143,11 +143,11 @@ describe('RenewAccessTokenMutationResolver', () => {
         },
       ]
 
-      test.each(cases)('accessToken: $input.credentialPair.accessTokenEntity.accessToken', ({
-        input,
+      test.each(cases)('accessToken: $params.credentialPair.accessTokenEntity.accessToken', ({
+        params,
         expected,
       }) => {
-        const received = resolver.formatResponse(input)
+        const received = resolver.formatResponse(params)
 
         expect(received)
           .toEqual(expected)
@@ -163,30 +163,32 @@ describe('RenewAccessTokenMutationResolver', () => {
     describe('should refuse a cookie that matches nothing', () => {
       const cases = [
         {
-          input: {
-            presentedRefreshToken: null,
-            now: new Date('2026-08-05T05:00:05.005Z'),
+          mockPresentedRefreshToken: null,
+          params: {
+            context: /** @type {*} */ ({
+              now: new Date('2026-08-05T05:00:05.005Z'),
+            }),
           },
         },
         {
-          input: {
-            presentedRefreshToken: 'unmatched-refresh-token-value-0006',
-            now: new Date('2026-08-06T05:00:06.006Z'),
+          mockPresentedRefreshToken: 'unmatched-refresh-token-value-0006',
+          params: {
+            context: /** @type {*} */ ({
+              now: new Date('2026-08-06T05:00:06.006Z'),
+            }),
           },
         },
       ]
 
-      test.each(cases)('presentedRefreshToken: $input.presentedRefreshToken', async ({ input }) => {
+      test.each(cases)('now: $params.context.now', async ({
+        mockPresentedRefreshToken,
+        params,
+      }) => {
         jest.spyOn(RefreshTokenExpressCookieClerk.prototype, 'extractRefreshToken')
-          .mockReturnValue(input.presentedRefreshToken)
+          .mockReturnValue(mockPresentedRefreshToken)
         const clearRefreshTokenCookieSpy = jest.spyOn(RefreshTokenExpressCookieClerk.prototype, 'clearRefreshTokenCookie')
-        const args = {
-          context: /** @type {*} */ ({
-            now: input.now,
-          }),
-        }
 
-        const actual = () => resolver.resolve(args)
+        const actual = () => resolver.resolve(params)
 
         await expect(actual)
           .rejects
@@ -199,30 +201,32 @@ describe('RenewAccessTokenMutationResolver', () => {
     describe('should refuse a refresh token that is no longer available', () => {
       const cases = [
         {
-          input: {
-            presentedRefreshToken: 'refresh-token-03-01', // seeded: revoked
-            now: new Date('2026-08-07T05:00:07.007Z'),
+          mockPresentedRefreshToken: 'refresh-token-03-01', // seeded: revoked
+          params: {
+            context: /** @type {*} */ ({
+              now: new Date('2026-08-07T05:00:07.007Z'),
+            }),
           },
         },
         {
-          input: {
-            presentedRefreshToken: 'refresh-token-16-01', // seeded: expired
-            now: new Date('2026-08-08T05:00:08.008Z'),
+          mockPresentedRefreshToken: 'refresh-token-16-01', // seeded: expired
+          params: {
+            context: /** @type {*} */ ({
+              now: new Date('2026-08-08T05:00:08.008Z'),
+            }),
           },
         },
       ]
 
-      test.each(cases)('presentedRefreshToken: $input.presentedRefreshToken', async ({ input }) => {
+      test.each(cases)('now: $params.context.now', async ({
+        mockPresentedRefreshToken,
+        params,
+      }) => {
         jest.spyOn(RefreshTokenExpressCookieClerk.prototype, 'extractRefreshToken')
-          .mockReturnValue(input.presentedRefreshToken)
+          .mockReturnValue(mockPresentedRefreshToken)
         const clearRefreshTokenCookieSpy = jest.spyOn(RefreshTokenExpressCookieClerk.prototype, 'clearRefreshTokenCookie')
-        const args = {
-          context: /** @type {*} */ ({
-            now: input.now,
-          }),
-        }
 
-        const actual = () => resolver.resolve(args)
+        const actual = () => resolver.resolve(params)
 
         await expect(actual)
           .rejects
