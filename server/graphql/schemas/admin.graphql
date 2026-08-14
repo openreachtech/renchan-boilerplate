@@ -14,6 +14,7 @@ type Mutation {
   signIn(input: SignInInput): AuthResult!
   signUp(input: SignUpInput): AuthResult!
   renewAccessToken: RenewAccessTokenResult!
+  signOut: SignOutResult!
 }
 
 ################################################################################
@@ -32,6 +33,10 @@ type AuthResult {
 
 type RenewAccessTokenResult {
   accessToken: String!
+}
+
+type SignOutResult {
+  isSignedOut: Boolean!
 }
 
 ################################################################################
