@@ -623,44 +623,37 @@ export default class SessionClerk {
  */
 
 /*
- * SessionClerk is a general module: it depends on the *shape* of a token model, not on any concrete
- * app model. These duck-typed contracts describe only the members the clerk actually calls, so any
- * app can inject a model (customer, admin, …) that fits — the clerk never names them.
+ * SessionClerk is a general module: it depends on the `RenchanModel` base plus the few custom members
+ * it calls — not on any concrete app model. Existing base members (`save` / `findOne` / `update` /
+ * `destroy` / `beginTransaction`) come from `RenchanModel` and are never re-declared here.
  */
 
 /**
- * @typedef {{
- *   save: (options: {
- *     transaction?: Transaction | null
- *   }) => Promise<AccessTokenEntity>
+ * @typedef {import('@openreachtech/renchan-sequelize').RenchanModel & {
+ *   accessToken: string
  * }} AccessTokenEntity
  */
 
 /**
- * @typedef {{
+ * @typedef {import('@openreachtech/renchan-sequelize').RenchanModel & {
  *   tokenHash: string
  *   sessionKey: string
  *   extractUserId: () => number
- *   save: (options: {
- *     transaction?: Transaction | null
- *   }) => Promise<RefreshTokenEntity>
  * }} RefreshTokenEntity
  */
 
 /**
- * @typedef {{
+ * @typedef {typeof import('@openreachtech/renchan-sequelize').RenchanModel & {
  *   buildWithGeneratedAttributes: (params: {
  *     userId: number
  *     sessionKey: string
  *     generatedAt: Date
  *   }) => AccessTokenEntity
- *   destroy: (options: *) => Promise<number>
- *   beginTransaction: (callback: (transaction: Transaction) => Promise<*>) => Promise<*>
  * }} AccessTokenModelClass
  */
 
 /**
- * @typedef {{
+ * @typedef {typeof import('@openreachtech/renchan-sequelize').RenchanModel & {
  *   buildWithGeneratedAttributes: (params: {
  *     userId: number
  *     sessionKey: string
@@ -670,8 +663,6 @@ export default class SessionClerk {
  *   hashToken: (params: {
  *     token: string
  *   }) => string
- *   findOne: (options: *) => Promise<RefreshTokenEntity | null>
- *   update: (values: *, options: *) => Promise<[number]>
  * }} RefreshTokenModelClass
  */
 
