@@ -40,7 +40,7 @@ export default class SignInMutationResolver extends BaseMutationResolver {
    *
    * @returns {typeof RefreshTokenExpressCookieClerk} - The class.
    */
-  get RefreshTokenExpressCookieClerkCtor () {
+  static get RefreshTokenExpressCookieClerkCtor () {
     return RefreshTokenExpressCookieClerk
   }
 
@@ -49,8 +49,17 @@ export default class SignInMutationResolver extends BaseMutationResolver {
    *
    * @returns {typeof SessionClerk} - The class.
    */
-  get SessionClerkCtor () {
+  static get SessionClerkCtor () {
     return SessionClerk
+  }
+
+  /**
+   * get: Class itself — reach own statics through the instance.
+   *
+   * @returns {typeof SignInMutationResolver} - The class.
+   */
+  get Ctor () {
+    return /** @type {typeof SignInMutationResolver} */ (this.constructor)
   }
 
   /** @override */
@@ -79,9 +88,7 @@ export default class SignInMutationResolver extends BaseMutationResolver {
       throw this.errorHash.IncorrectSecret.create()
     }
 
-    const sessionClerk = this.createSessionClerk()
-
-    const result = await sessionClerk.saveSession({
+    const result = await this.saveSession({
       userId: passwordHashEntity.AdminId,
       now: context.now,
     })
@@ -138,12 +145,33 @@ export default class SignInMutationResolver extends BaseMutationResolver {
   }
 
   /**
+   * Save a new session pair for the admin.
+   *
+   * @param {{
+   *   userId: number
+   *   now: Date
+   * }} params - Parameters.
+   * @returns {Promise<import('../../../../../../app/session/SavingSessionResult.js').default>} - The save outcome.
+   */
+  async saveSession ({
+    userId,
+    now,
+  }) {
+    const sessionClerk = this.createSessionClerk()
+
+    return sessionClerk.saveSession({
+      userId,
+      now,
+    })
+  }
+
+  /**
    * Create session clerk bound to the admin tables.
    *
    * @returns {SessionClerk} - Session clerk.
    */
   createSessionClerk () {
-    return this.SessionClerkCtor.create({
+    return this.Ctor.SessionClerkCtor.create({
       AccessTokenModel: AdminAccessToken,
       RefreshTokenModel: AdminRefreshToken,
     })
@@ -160,7 +188,7 @@ export default class SignInMutationResolver extends BaseMutationResolver {
   createCookieClerk ({
     context,
   }) {
-    return this.RefreshTokenExpressCookieClerkCtor.create({
+    return this.Ctor.RefreshTokenExpressCookieClerkCtor.create({
       context,
     })
   }
