@@ -622,20 +622,48 @@ export default class SessionClerk {
  * @typedef {import('sequelize').Transaction} Transaction
  */
 
-/**
- * @typedef {typeof import('../../sequelize/models/CustomerAccessToken.js').default} AccessTokenModelClass
+/*
+ * SessionClerk is a general module: it depends on the `RenchanModel` base plus the few custom members
+ * it calls — not on any concrete app model. Existing base members (`save` / `findOne` / `update` /
+ * `destroy` / `beginTransaction`) come from `RenchanModel` and are never re-declared here.
  */
 
 /**
- * @typedef {typeof import('../../sequelize/models/CustomerRefreshToken.js').default} RefreshTokenModelClass
+ * @typedef {import('@openreachtech/renchan-sequelize').RenchanModel & {
+ *   accessToken: string
+ * }} AccessTokenEntity
  */
 
 /**
- * @typedef {import('../../sequelize/models/CustomerAccessToken.js').CustomerAccessTokenEntity} AccessTokenEntity
+ * @typedef {import('@openreachtech/renchan-sequelize').RenchanModel & {
+ *   tokenHash: string
+ *   sessionKey: string
+ *   extractUserId: () => number
+ * }} RefreshTokenEntity
  */
 
 /**
- * @typedef {import('../../sequelize/models/CustomerRefreshToken.js').CustomerRefreshTokenEntity} RefreshTokenEntity
+ * @typedef {typeof import('@openreachtech/renchan-sequelize').RenchanModel & {
+ *   buildWithGeneratedAttributes: (params: {
+ *     userId: number
+ *     sessionKey: string
+ *     generatedAt: Date
+ *   }) => AccessTokenEntity
+ * }} AccessTokenModelClass
+ */
+
+/**
+ * @typedef {typeof import('@openreachtech/renchan-sequelize').RenchanModel & {
+ *   buildWithGeneratedAttributes: (params: {
+ *     userId: number
+ *     sessionKey: string
+ *     refreshToken: string
+ *     generatedAt: Date
+ *   }) => RefreshTokenEntity
+ *   hashToken: (params: {
+ *     token: string
+ *   }) => string
+ * }} RefreshTokenModelClass
  */
 
 /**
