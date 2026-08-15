@@ -5,10 +5,6 @@ import {
   BaseRestfulApiServerEngine,
 } from '@openreachtech/renchan'
 
-import {
-  env,
-} from '../../app/globals/_.js'
-
 import rootPath from '../../app/globals/root-path.js'
 
 import AppRestfulApiShare from './contexts/AppRestfulApiShare.js'
@@ -24,36 +20,6 @@ export default class AppRestfulApiServerEngine extends BaseRestfulApiServerEngin
       pathPrefix: '/v1', // nul: none
       renderersPath: rootPath.to('server/restfulapi/renderers/v1/'),
       staticPath: rootPath.to('public/'),
-    }
-  }
-
-  /**
-   * get: Browser origins allowed to send credentialed requests.
-   *
-   * Parsed from the comma-separated `CORS_ALLOWED_ORIGINS`. A missing or empty variable yields an
-   * empty allowlist, which blocks every cross-origin browser request — the safe default.
-   *
-   * @returns {Array<string>} - Allowlisted origins.
-   */
-  static get corsAllowedOrigins () {
-    return (env.CORS_ALLOWED_ORIGINS ?? '')
-      .split(',')
-      .map(origin => origin.trim())
-      .filter(origin => origin !== '')
-  }
-
-  /**
-   * Build CORS options that reflect only the allowlisted origins and allow credentials.
-   *
-   * `credentials: true` lets the browser send the refresh-token cookie, and it cannot combine with
-   * a `*` origin — so the origin is the explicit allowlist, never a wildcard.
-   *
-   * @returns {CorsOptions} - CORS options.
-   */
-  static buildCorsOptions () {
-    return {
-      origin: this.corsAllowedOrigins,
-      credentials: true,
     }
   }
 
@@ -162,7 +128,7 @@ export default class AppRestfulApiServerEngine extends BaseRestfulApiServerEngin
 
     return [
       cors(
-        this.Ctor.buildCorsOptions()
+        this.buildCorsOptions()
       ),
 
       express.static(
@@ -179,6 +145,39 @@ export default class AppRestfulApiServerEngine extends BaseRestfulApiServerEngin
         verify: keepRawBody,
       }),
     ]
+  }
+
+  /**
+   * Build CORS options that reflect only the allowlisted origins and allow credentials.
+   *
+   * `credentials: true` lets the browser send the refresh-token cookie, and it cannot combine with
+   * a `*` origin — so the origin is the explicit allowlist, never a wildcard.
+   *
+   * @returns {CorsOptions} - CORS options.
+   */
+  buildCorsOptions () {
+    const origin = this.extractCorsAllowedOrigins()
+
+    return {
+      origin,
+      credentials: true,
+    }
+  }
+
+  /**
+   * Extract the browser origins allowed to send credentialed requests.
+   *
+   * Parsed from the comma-separated `CORS_ALLOWED_ORIGINS` (read via the engine's share, not a
+   * direct env import). A missing or empty variable yields an empty allowlist, which blocks every
+   * cross-origin browser request — the safe default.
+   *
+   * @returns {Array<string>} - Allowlisted origins.
+   */
+  extractCorsAllowedOrigins () {
+    return (this.env.CORS_ALLOWED_ORIGINS ?? '')
+      .split(',')
+      .map(origin => origin.trim())
+      .filter(origin => origin !== '')
   }
 
   /**
