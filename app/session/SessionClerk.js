@@ -622,20 +622,37 @@ export default class SessionClerk {
  * @typedef {import('sequelize').Transaction} Transaction
  */
 
-/**
- * @typedef {typeof import('../../sequelize/models/CustomerAccessToken.js').default} AccessTokenModelClass
+/*
+ * The token models are injected, and both audiences share this one clerk — so the model-class and
+ * entity types are the union of the customer and admin models, not either audience alone.
  */
 
 /**
- * @typedef {typeof import('../../sequelize/models/CustomerRefreshToken.js').default} RefreshTokenModelClass
+ * @typedef {
+ *   typeof import('../../sequelize/models/CustomerAccessToken.js').default
+ *   | typeof import('../../sequelize/models/AdminAccessToken.js').default
+ * } AccessTokenModelClass
  */
 
 /**
- * @typedef {import('../../sequelize/models/CustomerAccessToken.js').CustomerAccessTokenEntity} AccessTokenEntity
+ * @typedef {
+ *   typeof import('../../sequelize/models/CustomerRefreshToken.js').default
+ *   | typeof import('../../sequelize/models/AdminRefreshToken.js').default
+ * } RefreshTokenModelClass
  */
 
 /**
- * @typedef {import('../../sequelize/models/CustomerRefreshToken.js').CustomerRefreshTokenEntity} RefreshTokenEntity
+ * @typedef {
+ *   import('../../sequelize/models/CustomerAccessToken.js').CustomerAccessTokenEntity
+ *   | import('../../sequelize/models/AdminAccessToken.js').AdminAccessTokenEntity
+ * } AccessTokenEntity
+ */
+
+/**
+ * @typedef {
+ *   import('../../sequelize/models/CustomerRefreshToken.js').CustomerRefreshTokenEntity
+ *   | import('../../sequelize/models/AdminRefreshToken.js').AdminRefreshTokenEntity
+ * } RefreshTokenEntity
  */
 
 /**
