@@ -80,6 +80,20 @@ export default class AdminSecret extends RenchanModel {
   static get BackupModel () {
     return this._.AdminSecretsBk
   }
+
+  /**
+   * get: Admin password hash entity, reached through the Admin association.
+   *
+   * Encapsulates the `Admin → AdminPasswordHash` chain so a caller need not know it. Returns null
+   * when the association was not eager-loaded (queried without the `include`).
+   *
+   * @returns {import('./AdminPasswordHash.js').AdminPasswordHashEntity | null} - Password hash, or null.
+   */
+  get passwordHashEntity () {
+    return this.Admin
+      ?.AdminPasswordHash
+      ?? null
+  }
 }
 
 /**
