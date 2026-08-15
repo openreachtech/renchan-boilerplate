@@ -622,20 +622,57 @@ export default class SessionClerk {
  * @typedef {import('sequelize').Transaction} Transaction
  */
 
-/**
- * @typedef {typeof import('../../sequelize/models/CustomerAccessToken.js').default} AccessTokenModelClass
+/*
+ * SessionClerk is a general module: it depends on the *shape* of a token model, not on any concrete
+ * app model. These duck-typed contracts describe only the members the clerk actually calls, so any
+ * app can inject a model (customer, admin, …) that fits — the clerk never names them.
  */
 
 /**
- * @typedef {typeof import('../../sequelize/models/CustomerRefreshToken.js').default} RefreshTokenModelClass
+ * @typedef {{
+ *   save: (options: {
+ *     transaction?: Transaction | null
+ *   }) => Promise<AccessTokenEntity>
+ * }} AccessTokenEntity
  */
 
 /**
- * @typedef {import('../../sequelize/models/CustomerAccessToken.js').CustomerAccessTokenEntity} AccessTokenEntity
+ * @typedef {{
+ *   tokenHash: string
+ *   sessionKey: string
+ *   extractUserId: () => number
+ *   save: (options: {
+ *     transaction?: Transaction | null
+ *   }) => Promise<RefreshTokenEntity>
+ * }} RefreshTokenEntity
  */
 
 /**
- * @typedef {import('../../sequelize/models/CustomerRefreshToken.js').CustomerRefreshTokenEntity} RefreshTokenEntity
+ * @typedef {{
+ *   buildWithGeneratedAttributes: (params: {
+ *     userId: number
+ *     sessionKey: string
+ *     generatedAt: Date
+ *   }) => AccessTokenEntity
+ *   destroy: (options: *) => Promise<number>
+ *   beginTransaction: (callback: (transaction: Transaction) => Promise<*>) => Promise<*>
+ * }} AccessTokenModelClass
+ */
+
+/**
+ * @typedef {{
+ *   buildWithGeneratedAttributes: (params: {
+ *     userId: number
+ *     sessionKey: string
+ *     refreshToken: string
+ *     generatedAt: Date
+ *   }) => RefreshTokenEntity
+ *   hashToken: (params: {
+ *     token: string
+ *   }) => string
+ *   findOne: (options: *) => Promise<RefreshTokenEntity | null>
+ *   update: (values: *, options: *) => Promise<[number]>
+ * }} RefreshTokenModelClass
  */
 
 /**
