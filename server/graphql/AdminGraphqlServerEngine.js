@@ -110,6 +110,7 @@ export default class AdminGraphqlServerEngine extends BaseAppGraphqlServerEngine
       'signUp',
       'signIn',
       'renewAccessToken',
+      'signOut',
     ]
   }
 
