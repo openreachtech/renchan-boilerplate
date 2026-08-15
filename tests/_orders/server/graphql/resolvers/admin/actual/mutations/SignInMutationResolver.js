@@ -4,6 +4,9 @@ import SessionClerk from '../../../../../../../../app/session/SessionClerk.js'
 import SavingSessionResult from '../../../../../../../../app/session/SavingSessionResult.js'
 import RefreshTokenExpressCookieClerk from '../../../../../../../../server/graphql/contexts/tools/RefreshTokenExpressCookieClerk.js'
 
+import AdminAccessToken from '../../../../../../../../sequelize/models/AdminAccessToken.js'
+import AdminRefreshToken from '../../../../../../../../sequelize/models/AdminRefreshToken.js'
+
 describe('SignInMutationResolver', () => {
   describe('#resolve()', () => {
     const resolver = SignInMutationResolver.create()
@@ -145,6 +148,55 @@ describe('SignInMutationResolver', () => {
         await expect(actual)
           .rejects
           .toThrow('Failed to save the session token pair')
+      })
+    })
+  })
+})
+
+describe('SignInMutationResolver', () => {
+  describe('#saveSession()', () => {
+    const resolver = SignInMutationResolver.create()
+
+    describe('should save a session pair for the admin', () => {
+      const cases = [
+        {
+          params: {
+            userId: 100005,
+            now: new Date('2026-08-11T00:00:11.011Z'),
+          },
+          expected: SavingSessionResult.create({
+            response: {
+              accessTokenEntity: expect.any(AdminAccessToken),
+              refreshTokenEntity: expect.any(AdminRefreshToken),
+              refreshToken: expect.stringMatching(/^[0-9a-f]{64}$/u),
+            },
+          }),
+        },
+        {
+          params: {
+            userId: 100006,
+            now: new Date('2026-08-12T00:00:12.012Z'),
+          },
+          expected: SavingSessionResult.create({
+            response: {
+              accessTokenEntity: expect.any(AdminAccessToken),
+              refreshTokenEntity: expect.any(AdminRefreshToken),
+              refreshToken: expect.stringMatching(/^[0-9a-f]{64}$/u),
+            },
+          }),
+        },
+      ]
+
+      test.each(cases)('userId: $params.userId', async ({
+        params,
+        expected,
+      }) => {
+        const received = await resolver.saveSession(params)
+
+        expect(received)
+          .toEqual(expected)
+        expect(received)
+          .toBeInstanceOf(SavingSessionResult)
       })
     })
   })

@@ -34,12 +34,10 @@ describe('SignInMutationResolver', () => {
 })
 
 describe('SignInMutationResolver', () => {
-  describe('#get:RefreshTokenExpressCookieClerkCtor', () => {
+  describe('.get:RefreshTokenExpressCookieClerkCtor', () => {
     describe('when called as is', () => {
       test('should be fixed value', () => {
-        const resolver = SignInMutationResolver.create()
-
-        const received = resolver.RefreshTokenExpressCookieClerkCtor
+        const received = SignInMutationResolver.RefreshTokenExpressCookieClerkCtor
 
         expect(received)
           .toBe(RefreshTokenExpressCookieClerk) // same reference
@@ -49,15 +47,28 @@ describe('SignInMutationResolver', () => {
 })
 
 describe('SignInMutationResolver', () => {
-  describe('#get:SessionClerkCtor', () => {
+  describe('.get:SessionClerkCtor', () => {
     describe('when called as is', () => {
       test('should be fixed value', () => {
-        const resolver = SignInMutationResolver.create()
-
-        const received = resolver.SessionClerkCtor
+        const received = SignInMutationResolver.SessionClerkCtor
 
         expect(received)
           .toBe(SessionClerk) // same reference
+      })
+    })
+  })
+})
+
+describe('SignInMutationResolver', () => {
+  describe('#get:Ctor', () => {
+    describe('when called as is', () => {
+      test('should be own class', () => {
+        const resolver = SignInMutationResolver.create()
+
+        const received = resolver.Ctor
+
+        expect(received)
+          .toBe(SignInMutationResolver) // same reference
       })
     })
   })
