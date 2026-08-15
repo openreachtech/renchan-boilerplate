@@ -76,9 +76,9 @@ export default class AdminGraphqlServerEngine extends BaseAppGraphqlServerEngine
   /** @override */
   collectMiddleware () {
     return [
-      cors({
-        origin: '*',
-      }),
+      cors(
+        this.Ctor.buildCorsOptions()
+      ),
 
       express.json({
         limit: '10mb',
