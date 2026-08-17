@@ -34,12 +34,6 @@ export default class Admin extends RenchanModel {
 
     this.hasOne(this._.AdminSecret)
     this.hasOne(this._.AdminPasswordHash)
-
-    this.hasMany(this._.AdminRoleAssignment)
-
-    this.belongsToMany(this._.AdminRole, {
-      through: this._.AdminRoleAssignment,
-    })
   }
 
   /** @override */
