@@ -2,10 +2,6 @@ import {
   BaseGraphqlContext,
 } from '@openreachtech/renchan'
 
-import Customer from '../../../sequelize/models/Customer.js'
-import CustomerBasic from '../../../sequelize/models/CustomerBasic.js'
-import CustomerAccessToken from '../../../sequelize/models/CustomerAccessToken.js'
-
 /**
  * Customer GraphQL context.
  *
@@ -46,54 +42,12 @@ export default class CustomerGraphqlContext extends BaseGraphqlContext {
     accessToken,
     requestedAt,
   }) {
-    const customerAccessTokenEntity = await this.findCustomerAccessToken({
+    // TODO: Must fulfill this method.
+    return super.findUser({
+      expressRequest,
       accessToken,
+      requestedAt,
     })
-
-    if (!customerAccessTokenEntity) {
-      return null
-    }
-
-    if (customerAccessTokenEntity.isExpired({
-      pointsAt: requestedAt,
-    })) {
-      return null
-    }
-
-    return customerAccessTokenEntity.Customer
-      ?? null
-  }
-
-  /**
-   * Find customer access token.
-   *
-   * @param {{
-   *   accessToken: string
-   * }} params - Parameters.
-   * @returns {Promise<import('../../../sequelize/models/CustomerAccessToken').CustomerAccessTokenAssociatedEntity | null>} - Customer access token.
-   */
-  static async findCustomerAccessToken ({
-    accessToken,
-  }) {
-    /** @type {import('../../../sequelize/models/CustomerAccessToken').CustomerAccessTokenAssociatedEntity | null} */
-    const customerAccessTokenEntity = /** @type {*} */ (
-      await CustomerAccessToken.findOne({
-        where: {
-          accessToken,
-        },
-        include: [
-          {
-            model: Customer,
-            include: [
-              CustomerBasic,
-            ],
-          },
-        ],
-      })
-    )
-
-    return customerAccessTokenEntity
-      ?? null
   }
 
   /**
