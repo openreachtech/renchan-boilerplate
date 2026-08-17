@@ -1,7 +1,5 @@
 import {
   BaseGraphqlServerEngine,
-  BigNumberScalar,
-  DateTimeScalar,
 } from '@openreachtech/renchan'
 
 import {
@@ -320,10 +318,7 @@ describe('CustomerGraphqlServerEngine', () => {
     test('to be fixed value', async () => {
       const engine = await CustomerGraphqlServerEngine.createAsync()
 
-      const expected = [
-        BigNumberScalar,
-        DateTimeScalar,
-      ]
+      const expected = []
 
       const actual = await engine.collectScalars()
 
