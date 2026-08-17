@@ -3,8 +3,6 @@ import cors from 'cors'
 
 import {
   BaseGraphqlServerEngine,
-  BigNumberScalar,
-  DateTimeScalar,
   graphqlUploadExpressWithResolvingContentType,
 } from '@openreachtech/renchan'
 
@@ -179,9 +177,6 @@ export default class CustomerGraphqlServerEngine extends BaseGraphqlServerEngine
 
   /** @override */
   async collectScalars () {
-    return [
-      BigNumberScalar,
-      DateTimeScalar,
-    ]
+    return []
   }
 }
