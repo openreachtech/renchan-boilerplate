@@ -7,7 +7,6 @@ scalar Upload
 
 type Query {
   customers: [Customer!]!
-  assets: [Asset!]!
 }
 
 ################################################################################
@@ -27,12 +26,6 @@ type Customer {
   id: Int!
   name: String!
   inviteCode: String!
-}
-
-type Asset {
-  customerId: Int!
-  stakedAmount: String!
-  rewardsAmount: String!
 }
 
 type AuthResult {
