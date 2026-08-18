@@ -3,8 +3,6 @@ import cors from 'cors'
 
 import {
   BaseGraphqlServerEngine,
-  BigNumberScalar,
-  DateTimeScalar,
   graphqlUploadExpressWithResolvingContentType,
 } from '@openreachtech/renchan'
 
@@ -88,21 +86,10 @@ export default class CustomerGraphqlServerEngine extends BaseGraphqlServerEngine
   /** @override */
   get schemasToSkipFiltering () {
     return [
-      'companySponsors',
-      'curriculums',
       'signUp',
       'signIn',
 
-      'createChatRoom',
-      'postNotification',
-      'sendChatMessage',
-      'chatMessages',
-      'chatRooms',
-
-      'onObserveChatStates',
-      'onReceiveMessage',
-      'onUpdateChatRooms',
-      'onBroadcastNotifications',
+      'healthCheck',
     ]
   }
 
@@ -190,9 +177,6 @@ export default class CustomerGraphqlServerEngine extends BaseGraphqlServerEngine
 
   /** @override */
   async collectScalars () {
-    return [
-      BigNumberScalar,
-      DateTimeScalar,
-    ]
+    return []
   }
 }
