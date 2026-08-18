@@ -1,6 +1,5 @@
 import {
   BaseGraphqlServerEngine,
-  DateTimeScalar,
 } from '@openreachtech/renchan'
 
 import {
@@ -319,9 +318,7 @@ describe('AdminGraphqlServerEngine', () => {
     test('to be fixed value', async () => {
       const engine = await AdminGraphqlServerEngine.createAsync()
 
-      const expected = [
-        DateTimeScalar,
-      ]
+      const expected = []
 
       const actual = await engine.collectScalars()
 
