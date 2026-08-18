@@ -78,9 +78,9 @@ export default class CustomerGraphqlServerEngine extends BaseAppGraphqlServerEng
   /** @override */
   collectMiddleware () {
     return [
-      cors(
-        this.Ctor.buildCorsOptions()
-      ),
+      cors({
+        origin: '*',
+      }),
 
       express.json({
         limit: '10mb',
