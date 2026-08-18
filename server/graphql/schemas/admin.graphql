@@ -13,6 +13,8 @@ type Query {
 type Mutation {
   signIn(input: SignInInput): AuthResult!
   signUp(input: SignUpInput): AuthResult!
+  renewAccessToken: RenewAccessTokenResult!
+  signOut: SignOutResult!
 }
 
 ################################################################################
@@ -27,6 +29,14 @@ type Customer {
 
 type AuthResult {
   accessToken: String!
+}
+
+type RenewAccessTokenResult {
+  accessToken: String!
+}
+
+type SignOutResult {
+  isSignedOut: Boolean!
 }
 
 ################################################################################

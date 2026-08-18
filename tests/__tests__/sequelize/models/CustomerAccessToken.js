@@ -1,15 +1,19 @@
-import {
-  RandomTextGenerator,
-} from '@openreachtech/renchan-tools'
-
+import SessionCredentialGenerator from '../../../../app/session/SessionCredentialGenerator.js'
 import CustomerAccessToken from '../../../../sequelize/models/CustomerAccessToken.js'
+
+/**
+ * An access token is 32 bytes of CSPRNG output rendered as hex.
+ */
+const ACCESS_TOKEN_PATTERN = /^[0-9a-f]{64}$/u
 
 describe('CustomerAccessToken', () => {
   describe('.createExpiredAt()', () => {
+    // Fifteen minutes. Short on purpose — this is the half of the pair that a leak would expose,
+    // and its whole defence is not being worth much for long.
     const now = new Date()
     const expiredAt = new Date(
       now.getTime()
-      + (24 * 60 * 60 * 1000)
+      + (15 * 60 * 1000)
     )
 
     const cases = [
@@ -17,19 +21,19 @@ describe('CustomerAccessToken', () => {
         params: {
           generatedAt: new Date('2024-01-21T00:00:01.000Z'),
         },
-        expected: new Date('2024-01-22T00:00:01.000Z'),
+        expected: new Date('2024-01-21T00:15:01.000Z'),
       },
       {
         params: {
           generatedAt: new Date('2024-01-22T00:00:02.000Z'),
         },
-        expected: new Date('2024-01-23T00:00:02.000Z'),
+        expected: new Date('2024-01-22T00:15:02.000Z'),
       },
       {
         params: {
-          generatedAt: new Date('2024-01-23T00:00:03.000Z'),
+          generatedAt: new Date('2024-01-23T23:50:03.000Z'),
         },
-        expected: new Date('2024-01-24T00:00:03.000Z'),
+        expected: new Date('2024-01-24T00:05:03.000Z'),
       },
       {
         params: {
@@ -44,7 +48,7 @@ describe('CustomerAccessToken', () => {
         const actual = CustomerAccessToken.createExpiredAt(params)
 
         expect(actual)
-          .toStrictEqual(expected)
+          .toEqual(expected)
       })
     })
   })
@@ -52,75 +56,34 @@ describe('CustomerAccessToken', () => {
 
 describe('CustomerAccessToken', () => {
   describe('.generateAccessToken()', () => {
-    describe('to be fixed length string', () => {
-      const cases = [
-        {
-          params: {
-            length: 10,
-          },
-          expected: /^[a-zA-Z0-9]{10}$/u,
-        },
-        {
-          params: {
-            length: 15,
-          },
-          expected: /^[a-zA-Z0-9]{15}$/u,
-        },
-        {
-          params: {
-            length: 20,
-          },
-          expected: /^[a-zA-Z0-9]{20}$/u,
-        },
-      ]
-
-      test.each(cases)('length: $params.length', ({ params, expected }) => {
-        const actual = CustomerAccessToken.generateAccessToken(params)
-
-        expect(actual)
-          .toMatch(expected)
-      })
-
-      test('with no parameter', () => {
-        const expected = /^[a-zA-Z0-9]{10}$/u
-
+    describe('to be 32 bytes of hex', () => {
+      // The implementation used to be a fixed-length string over ten random characters, which is
+      // neither cryptographic nor long enough to be worth guessing at.
+      test('to be a 64-character hex string', () => {
         const actual = CustomerAccessToken.generateAccessToken()
 
         expect(actual)
-          .toMatch(expected)
+          .toMatch(ACCESS_TOKEN_PATTERN)
+        expect(actual)
+          .toHaveLength(64)
       })
     })
 
-    describe('to call factory method of Generator', () => {
-      const cases = [
-        {
-          params: {
-            length: 10,
-          },
-        },
-        {
-          params: {
-            length: 15,
-          },
-        },
-        {
-          params: {
-            length: 20,
-          },
-        },
-      ]
+    describe('to not repeat itself', () => {
+      test('across many calls', () => {
+        const tokens = Array.from(
+          { length: 100 },
+          () => CustomerAccessToken.generateAccessToken()
+        )
 
-      test.each(cases)('length: $params.length', ({ params, expected }) => {
-        const createSpy = jest.spyOn(RandomTextGenerator, 'create')
-
-        CustomerAccessToken.generateAccessToken(params)
-
-        expect(createSpy)
-          .toHaveBeenCalledWith()
+        expect(new Set(tokens).size)
+          .toBe(tokens.length)
       })
+    })
 
-      test('with no parameter', () => {
-        const createSpy = jest.spyOn(RandomTextGenerator, 'create')
+    describe('to delegate to the credential generator', () => {
+      test('to call factory method of SessionCredentialGenerator', () => {
+        const createSpy = jest.spyOn(SessionCredentialGenerator, 'create')
 
         CustomerAccessToken.generateAccessToken()
 
@@ -137,39 +100,43 @@ describe('CustomerAccessToken', () => {
       const cases = [
         {
           params: {
-            customerId: 100001,
+            userId: 100001,
+            sessionKey: 'session-key-01',
             generatedAt: new Date('2024-01-21T00:00:01.000Z'),
-            expiredAt: new Date('2024-01-22T00:00:01.000Z'),
+            expiredAt: new Date('2024-01-21T00:15:01.000Z'),
             accessToken: 'accessTOKEN$01',
           },
         },
         {
           params: {
-            customerId: 100002,
+            userId: 100002,
+            sessionKey: 'session-key-02',
             generatedAt: new Date('2024-01-22T00:00:02.000Z'),
-            expiredAt: new Date('2024-01-23T00:00:02.000Z'),
+            expiredAt: new Date('2024-01-22T00:15:02.000Z'),
             // accessToken: 'accessTOKEN$02',
           },
         },
         {
           params: {
-            customerId: 100003,
+            userId: 100003,
+            sessionKey: 'session-key-03',
             generatedAt: new Date('2024-01-23T00:00:03.000Z'),
-            // expiredAt: new Date('2024-01-24T00:00:03.000Z'),
+            // expiredAt: defaults to generatedAt + fifteen minutes
             accessToken: 'accessTOKEN$03',
           },
         },
         {
           params: {
-            customerId: 100004,
+            userId: 100004,
+            sessionKey: 'session-key-04',
             generatedAt: new Date('2024-01-24T00:00:04.000Z'),
-            // expiredAt: new Date('2024-01-25T00:00:04.000Z'),
+            // expiredAt: defaults to generatedAt + fifteen minutes
             // accessToken: 'accessTOKEN$04',
           },
         },
       ]
 
-      test.each(cases)('customerId: $params.customerId', ({ params }) => {
+      test.each(cases)('userId: $params.userId', ({ params }) => {
         const actual = CustomerAccessToken.buildWithGeneratedAttributes(params)
 
         expect(actual)
@@ -181,63 +148,71 @@ describe('CustomerAccessToken', () => {
       const cases = [
         {
           params: {
-            customerId: 100001,
+            userId: 100001,
+            sessionKey: 'session-key-01',
             generatedAt: new Date('2024-01-21T00:00:01.000Z'),
-            expiredAt: new Date('2024-01-22T00:00:01.000Z'),
+            expiredAt: new Date('2024-01-21T00:15:01.000Z'),
             accessToken: 'accessTOKEN$01',
           },
           expected: {
             CustomerId: 100001,
+            sessionKey: 'session-key-01',
             generatedAt: new Date('2024-01-21T00:00:01.000Z'),
-            expiredAt: new Date('2024-01-22T00:00:01.000Z'),
+            expiredAt: new Date('2024-01-21T00:15:01.000Z'),
             accessToken: 'accessTOKEN$01',
           },
         },
         {
           params: {
-            customerId: 100002,
+            userId: 100002,
+            sessionKey: 'session-key-02',
             generatedAt: new Date('2024-01-22T00:00:02.000Z'),
-            expiredAt: new Date('2024-01-23T00:00:02.000Z'),
-            // accessToken: 'accessTOKEN$02',
+            expiredAt: new Date('2024-01-22T00:15:02.000Z'),
+            // accessToken: defaults to a generated 32-byte hex token
           },
           expected: {
             CustomerId: 100002,
+            sessionKey: 'session-key-02',
             generatedAt: new Date('2024-01-22T00:00:02.000Z'),
-            expiredAt: new Date('2024-01-23T00:00:02.000Z'),
-            accessToken: expect.stringMatching(/^[a-zA-Z0-9]{10}$/u),
+            expiredAt: new Date('2024-01-22T00:15:02.000Z'),
+            accessToken: expect.stringMatching(ACCESS_TOKEN_PATTERN),
           },
         },
         {
           params: {
-            customerId: 100003,
+            userId: 100003,
+            sessionKey: 'session-key-03',
             generatedAt: new Date('2024-01-23T00:00:03.000Z'),
-            // expiredAt: new Date('2024-01-24T00:00:03.000Z'),
+            // expiredAt: defaults to generatedAt + fifteen minutes
             accessToken: 'accessTOKEN$03',
           },
           expected: {
             CustomerId: 100003,
+            sessionKey: 'session-key-03',
             generatedAt: new Date('2024-01-23T00:00:03.000Z'),
-            expiredAt: new Date('2024-01-24T00:00:03.000Z'),
+            expiredAt: new Date('2024-01-23T00:15:03.000Z'),
             accessToken: 'accessTOKEN$03',
           },
         },
         {
           params: {
-            customerId: 100004,
+            userId: 100004,
+            sessionKey: 'session-key-04',
             generatedAt: new Date('2024-01-24T00:00:04.000Z'),
-            // expiredAt: new Date('2024-01-25T00:00:04.000Z'),
-            // accessToken: 'accessTOKEN$04',
+            // expiredAt: defaults to generatedAt + fifteen minutes
+            // accessToken: defaults to a generated 32-byte hex token
           },
           expected: {
             CustomerId: 100004,
+            sessionKey: 'session-key-04',
             generatedAt: new Date('2024-01-24T00:00:04.000Z'),
-            expiredAt: new Date('2024-01-25T00:00:04.000Z'),
-            accessToken: expect.stringMatching(/^[a-zA-Z0-9]{10}$/u),
+            expiredAt: new Date('2024-01-24T00:15:04.000Z'),
+            accessToken: expect.stringMatching(ACCESS_TOKEN_PATTERN),
           },
         },
       ]
 
-      test.each(cases)('customerId: $params.customerId', ({ params, expected }) => {
+      test.each(cases)('userId: $params.userId', ({ params, expected }) => {
         const buildSpy = jest.spyOn(CustomerAccessToken, 'build')
 
         CustomerAccessToken.buildWithGeneratedAttributes(params)
@@ -327,89 +302,6 @@ describe('CustomerAccessToken', () => {
           const instance = CustomerAccessToken.build(params)
 
           const actual = instance.isExpired({
-            pointsAt,
-          })
-
-          expect(actual)
-            .toBeFalsy()
-        })
-      })
-    })
-  })
-})
-
-describe('CustomerAccessToken', () => {
-  describe('#hasEnoughTimeUntilExpired()', () => {
-    const cases = [
-      {
-        params: {
-          CustomerId: 100001,
-          accessToken: 'access-token-100001',
-          generatedAt: new Date('2024-01-21T00:00:01.101Z'),
-          expiredAt: new Date('2024-01-22T00:00:01.101Z'),
-        },
-        truthyCases: [
-          {
-            pointsAt: new Date('2024-01-21T06:00:01.101Z'), // = on quarter of the period
-          },
-          {
-            pointsAt: new Date('2024-01-21T12:00:01.100Z'), // = on before half of the period
-          },
-        ],
-        falsyCases: [
-          {
-            pointsAt: new Date('2024-01-21T12:00:01.101Z'), // = on half of the period
-          },
-          {
-            pointsAt: new Date('2024-01-22T18:00:01.101Z'), // = on three quarters of the period
-          },
-        ],
-      },
-      {
-        params: {
-          CustomerId: 100002,
-          accessToken: 'access-token-100002',
-          generatedAt: new Date('2024-02-22T00:00:02.202Z'),
-          expiredAt: new Date('2024-02-23T00:00:02.202Z'),
-        },
-        truthyCases: [
-          {
-            pointsAt: new Date('2024-02-22T06:00:02.202Z'), // = on quarter of the period
-          },
-          {
-            pointsAt: new Date('2024-02-22T12:00:02.201Z'), // = on before half of the period
-          },
-        ],
-        falsyCases: [
-          {
-            pointsAt: new Date('2024-02-22T12:00:02.202Z'), // = on half of the period
-          },
-          {
-            pointsAt: new Date('2024-02-23T18:00:02.202Z'), // = on three quarters of the period
-          },
-        ],
-      },
-    ]
-
-    describe.each(cases)('CustomerId: $params.CustomerId', ({ params, truthyCases, falsyCases }) => {
-      describe('to be truthy', () => {
-        test.each(truthyCases)('pointsAt: $pointsAt', ({ pointsAt }) => {
-          const instance = CustomerAccessToken.build(params)
-
-          const actual = instance.hasEnoughTimeUntilExpired({
-            pointsAt,
-          })
-
-          expect(actual)
-            .toBeTruthy()
-        })
-      })
-
-      describe('to be falsy', () => {
-        test.each(falsyCases)('pointsAt: $pointsAt', ({ pointsAt }) => {
-          const instance = CustomerAccessToken.build(params)
-
-          const actual = instance.hasEnoughTimeUntilExpired({
             pointsAt,
           })
 

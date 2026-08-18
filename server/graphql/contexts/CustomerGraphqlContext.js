@@ -1,13 +1,11 @@
-import {
-  BaseGraphqlContext,
-} from '@openreachtech/renchan'
+import BaseAppGraphqlContext from './BaseAppGraphqlContext.js'
 
 /**
  * Customer GraphQL context.
  *
- * @extends {BaseGraphqlContext}
+ * @extends {BaseAppGraphqlContext}
  */
-export default class CustomerGraphqlContext extends BaseGraphqlContext {
+export default class CustomerGraphqlContext extends BaseAppGraphqlContext {
   /**
    * Find user.
    *

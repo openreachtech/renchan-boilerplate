@@ -2,7 +2,6 @@ import express from 'express'
 import cors from 'cors'
 
 import {
-  BaseGraphqlServerEngine,
   graphqlUploadExpressWithResolvingContentType,
 } from '@openreachtech/renchan'
 
@@ -10,17 +9,26 @@ import {
   rootPath,
 } from '../../app/globals/_.js'
 
+import AUTH_CONSTANT_HASH from '../../app/constants/authConstants.js'
+
+import BaseAppGraphqlServerEngine from './BaseAppGraphqlServerEngine.js'
+
 import AdminGraphqlShare from './contexts/AdminGraphqlShare.js'
 import AdminGraphqlContext from './contexts/AdminGraphqlContext.js'
+
+const {
+  REFRESH_TOKEN_COOKIE,
+} = AUTH_CONSTANT_HASH
 
 /**
  * Renchan server engine for admin.
  */
-export default class AdminGraphqlServerEngine extends BaseGraphqlServerEngine {
+export default class AdminGraphqlServerEngine extends BaseAppGraphqlServerEngine {
   /** @override */
   static get config () {
     return {
       graphqlEndpoint: '/graphql-admin',
+      refreshTokenCookie: this.buildRefreshTokenCookieConfig(),
       staticPath: rootPath.to('public/'),
       schemaPath: rootPath.to('server/graphql/schemas/admin.graphql'),
       actualResolversPath: rootPath.to('server/graphql/resolvers/admin/actual/'),
@@ -36,6 +44,18 @@ export default class AdminGraphqlServerEngine extends BaseGraphqlServerEngine {
       //   host: 'localhost',
       //   port: 6379,
       // },
+    }
+  }
+
+  /**
+   * Build the refresh-token cookie config for this audience.
+   *
+   * @returns {import('./contexts/tools/RefreshTokenExpressCookieClerk.js').RefreshTokenCookieConfig} - Cookie config.
+   */
+  static buildRefreshTokenCookieConfig () {
+    return {
+      ...this.refreshTokenCookieConfig,
+      name: REFRESH_TOKEN_COOKIE.ADMIN.NAME,
     }
   }
 
@@ -88,6 +108,8 @@ export default class AdminGraphqlServerEngine extends BaseGraphqlServerEngine {
     return [
       'signUp',
       'signIn',
+      'renewAccessToken',
+      'signOut',
     ]
   }
 

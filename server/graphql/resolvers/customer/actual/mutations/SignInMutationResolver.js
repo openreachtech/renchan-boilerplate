@@ -2,11 +2,23 @@ import {
   BaseMutationResolver,
 } from '@openreachtech/renchan'
 
+import SessionClerk from '../../../../../../app/session/SessionClerk.js'
+import RefreshTokenExpressCookieClerk from '../../../../contexts/tools/RefreshTokenExpressCookieClerk.js'
+
 import Customer from '../../../../../../sequelize/models/Customer.js'
 import CustomerPasswordHash from '../../../../../../sequelize/models/CustomerPasswordHash.js'
 import CustomerSecret from '../../../../../../sequelize/models/CustomerSecret.js'
 import CustomerAccessToken from '../../../../../../sequelize/models/CustomerAccessToken.js'
+import CustomerRefreshToken from '../../../../../../sequelize/models/CustomerRefreshToken.js'
 
+/**
+ * Resolve the signIn mutation.
+ *
+ * Issues the session pair: the access token in the response body, the refresh token only as an
+ * `HttpOnly` cookie — never in the body, so no page script can read it.
+ *
+ * @extends {BaseMutationResolver}
+ */
 export default class SignInMutationResolver extends BaseMutationResolver {
   /** @override */
   static get schema () {
@@ -20,6 +32,24 @@ export default class SignInMutationResolver extends BaseMutationResolver {
 
       IncorrectSecret: '202.M002.001',
     }
+  }
+
+  /**
+   * get: RefreshTokenExpressCookieClerk class — a seam so tests can substitute it.
+   *
+   * @returns {typeof RefreshTokenExpressCookieClerk} - The class.
+   */
+  get RefreshTokenExpressCookieClerkCtor () {
+    return RefreshTokenExpressCookieClerk
+  }
+
+  /**
+   * get: SessionClerk class — a seam so tests can substitute it.
+   *
+   * @returns {typeof SessionClerk} - The class.
+   */
+  get SessionClerkCtor () {
+    return SessionClerk
   }
 
   /** @override */
@@ -48,35 +78,44 @@ export default class SignInMutationResolver extends BaseMutationResolver {
       throw this.errorHash.IncorrectSecret.create()
     }
 
-    const accessTokenEntity = await this.saveAccessToken({
+    const sessionClerk = this.createSessionClerk()
+
+    const result = await sessionClerk.saveSession({
+      userId: passwordHashEntity.CustomerId,
+      now: context.now,
+    })
+
+    if (result.hasError()) {
+      throw new Error(result.extractErrorMessage())
+    }
+
+    // Only after the transaction committed: a cookie for a session that was rolled back would
+    // leave the client holding a refresh token no row backs.
+    const cookieClerk = this.createCookieClerk({
       context,
-      customerId: passwordHashEntity.CustomerId,
+    })
+
+    cookieClerk.saveRefreshTokenCookie({
+      refreshToken: result.credentialPair.refreshToken,
     })
 
     return this.formatResponse({
-      accessTokenEntity,
+      credentialPair: result.credentialPair,
     })
   }
 
   /**
-   * Find password customer by email.
+   * Find password hash by email.
    *
    * @param {{
    *   email: string
-   * }} params
-   * @returns {Promise<import('../../../../../../sequelize/models/CustomerPasswordHash.js').CustomerPasswordHashEntity | null>}
+   * }} params - Parameters.
+   * @returns {Promise<CustomerPasswordHashEntity | null>}
    */
   async findPasswordHashByEmail ({
     email,
   }) {
-    /**
-     * @type {CustomerSecret & {
-     *   Customer: Customer & {
-     *     CustomerPasswordHash: CustomerPasswordHash
-     *   }
-     * } | null}
-     */
-    const customerSecretEntity = /** @type {*} */ (
+    const customerSecretEntity = /** @type {CustomerSecretWithPasswordHash} */ (
       await CustomerSecret.findOne({
         where: {
           email,
@@ -102,73 +141,66 @@ export default class SignInMutationResolver extends BaseMutationResolver {
       },
     } = customerSecretEntity
 
-    return /** @type {*} */ (passwordHashEntity)
+    return /** @type {CustomerPasswordHashEntity} */ (passwordHashEntity)
   }
 
   /**
-   * Save access token.
+   * Create session clerk bound to the customer tables.
+   *
+   * @returns {SessionClerk} - Session clerk.
+   */
+  createSessionClerk () {
+    return this.SessionClerkCtor.create({
+      AccessTokenModel: CustomerAccessToken,
+      RefreshTokenModel: CustomerRefreshToken,
+    })
+  }
+
+  /**
+   * Create refresh-token cookie clerk from the request context.
    *
    * @param {{
    *   context: import('../../../../contexts/CustomerGraphqlContext.js').default
-   *   customerId: number
    * }} params - Parameters.
-   * @returns {Promise<import('../../../../../../sequelize/models/CustomerAccessToken.js').CustomerAccessTokenEntity>}
-   * @throws {Error} - Throws error if transaction fails.
+   * @returns {RefreshTokenExpressCookieClerk} - Cookie clerk.
    */
-  async saveAccessToken ({
+  createCookieClerk ({
     context,
-    customerId,
   }) {
-    const transactionCallback = this.generateTransactionCallback({
-      customerId,
-      now: context.now,
+    return this.RefreshTokenExpressCookieClerkCtor.create({
+      context,
     })
-
-    return CustomerAccessToken.beginTransaction(transactionCallback)
-  }
-
-  /**
-   * Generate transaction callback.
-   *
-   * @param {{
-   *   customerId: number
-   *   now,
-   * }} params
-   * @returns {function(): Promise<import('../../../../../../sequelize/models/CustomerAccessToken.js').CustomerAccessTokenEntity>}
-   */
-  generateTransactionCallback ({
-    customerId,
-    now,
-  }) {
-    const accessTokenEntity = CustomerAccessToken.buildWithGeneratedAttributes({
-      generatedAt: now,
-      customerId,
-    })
-
-    return async transaction => /** @type {*} */ (
-      accessTokenEntity.save({
-        transaction,
-      })
-    )
   }
 
   /**
    * Format response.
    *
    * @param {{
-   *   accessTokenEntity: import('../../../../../../sequelize/models/CustomerAccessToken.js').CustomerAccessTokenEntity
+   *   credentialPair: import('../../../../../../app/session/SessionClerk.js').SessionCredentialPair
    * }} params - Parameters.
    * @returns {{
    *   accessToken: string
    * }}
    */
   formatResponse ({
-    accessTokenEntity: {
-      accessToken,
+    credentialPair: {
+      accessTokenEntity,
     },
   }) {
     return {
-      accessToken,
+      accessToken: accessTokenEntity.accessToken,
     }
   }
 }
+
+/**
+ * @typedef {(CustomerSecret & {
+ *   Customer: Customer & {
+ *     CustomerPasswordHash: CustomerPasswordHash
+ *   }
+ * }) | null} CustomerSecretWithPasswordHash
+ */
+
+/**
+ * @typedef {import('../../../../../../sequelize/models/CustomerPasswordHash.js').CustomerPasswordHashEntity} CustomerPasswordHashEntity
+ */
