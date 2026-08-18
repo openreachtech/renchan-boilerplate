@@ -60,34 +60,3 @@ describe('BaseAppGraphqlServerEngine', () => {
     })
   })
 })
-
-describe('BaseAppGraphqlServerEngine', () => {
-  describe('.get:corsAllowedOrigins', () => {
-    describe('to be an empty allowlist when the env value is unset', () => {
-      test('should have no origins', () => {
-        const actual = BaseAppGraphqlServerEngine.corsAllowedOrigins
-
-        expect(actual)
-          .toHaveLength(0)
-      })
-    })
-  })
-})
-
-describe('BaseAppGraphqlServerEngine', () => {
-  describe('.buildCorsOptions()', () => {
-    describe('to allow credentials with the allowlisted origins', () => {
-      test('should be the default cors options', () => {
-        const expected = {
-          origin: [],
-          credentials: true,
-        }
-
-        const actual = BaseAppGraphqlServerEngine.buildCorsOptions()
-
-        expect(actual)
-          .toEqual(expected)
-      })
-    })
-  })
-})

@@ -25,8 +25,5 @@ export default /** @type {*} */ (
  *   AUTH_COOKIE_SAME_SITE: string
  *   AUTH_COOKIE_PATH: string
  *   AUTH_COOKIE_DOMAIN: string
- *   AUTH_RATE_LIMIT_WINDOW_MS: string
- *   AUTH_RATE_LIMIT_MAX: string
- *   CORS_ALLOWED_ORIGINS: string
  * }} EnvType
  */
