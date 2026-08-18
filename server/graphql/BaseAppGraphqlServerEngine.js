@@ -20,21 +20,6 @@ const DEFAULT_REFRESH_TOKEN_LIFETIME_DAYS = 14
  */
 export default class BaseAppGraphqlServerEngine extends BaseGraphqlServerEngine {
   /**
-   * get: Browser origins allowed to send credentialed requests.
-   *
-   * Parsed from the comma-separated `CORS_ALLOWED_ORIGINS`. A missing or empty variable yields an
-   * empty allowlist, which blocks every cross-origin browser request — the safe default.
-   *
-   * @returns {Array<string>} - Allowlisted origins.
-   */
-  static get corsAllowedOrigins () {
-    return (env.CORS_ALLOWED_ORIGINS ?? '')
-      .split(',')
-      .map(origin => origin.trim())
-      .filter(origin => origin !== '')
-  }
-
-  /**
    * get: Shared refresh-token cookie configuration.
    *
    * @returns {RefreshTokenCookieBaseConfig} - Shared config; the name is added per audience.
@@ -74,21 +59,6 @@ export default class BaseAppGraphqlServerEngine extends BaseGraphqlServerEngine 
   static get usesSecureRefreshTokenCookie () {
     return env.AUTH_COOKIE_SECURE !== 'false'
   }
-
-  /**
-   * Build CORS options that reflect only the allowlisted origins and allow credentials.
-   *
-   * `credentials: true` lets the browser send the refresh-token cookie, and it cannot combine with
-   * a `*` origin — so the origin is the explicit allowlist, never a wildcard.
-   *
-   * @returns {CorsOptions} - CORS options.
-   */
-  static buildCorsOptions () {
-    return {
-      origin: this.corsAllowedOrigins,
-      credentials: true,
-    }
-  }
 }
 
 /**
@@ -98,11 +68,4 @@ export default class BaseAppGraphqlServerEngine extends BaseGraphqlServerEngine 
  *   sameSite: 'lax'
  *   httpOnly: boolean
  * }} RefreshTokenCookieBaseConfig
- */
-
-/**
- * @typedef {{
- *   origin: Array<string>
- *   credentials: boolean
- * }} CorsOptions
  */
