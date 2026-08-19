@@ -106,10 +106,7 @@ export default class AdminGraphqlServerEngine extends BaseAppGraphqlServerEngine
   /** @override */
   get schemasToSkipFiltering () {
     return [
-      'signUp',
-      'signIn',
-      'renewAccessToken',
-      'signOut',
+      'healthCheck',
     ]
   }
 

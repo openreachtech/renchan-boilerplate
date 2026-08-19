@@ -1,11 +1,11 @@
 import {
-  BaseMutationResolver,
+  BaseQueryResolver,
 } from '@openreachtech/renchan'
 
-export default class SignOutMutationResolver extends BaseMutationResolver {
+export default class HealthCheckQueryResolver extends BaseQueryResolver {
   /** @override */
   static get schema () {
-    return 'signOut'
+    return 'healthCheck'
   }
 
   /** @override */
@@ -17,8 +17,6 @@ export default class SignOutMutationResolver extends BaseMutationResolver {
 
   /** @override */
   async resolve () {
-    return {
-      isSignedOut: true,
-    }
+    return true
   }
 }
