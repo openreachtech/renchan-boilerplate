@@ -3,52 +3,5 @@
 ################################################################################
 
 type Query {
-  customers: [Customer!]!
-}
-
-################################################################################
-#### MUTATION
-################################################################################
-
-type Mutation {
-  signIn(input: SignInInput): AuthResult!
-  signUp(input: SignUpInput): AuthResult!
-  renewAccessToken: RenewAccessTokenResult!
-  signOut: SignOutResult!
-}
-
-################################################################################
-#### TYPES
-################################################################################
-
-type Customer {
-  id: Int!
-  name: String!
-  inviteCode: String!
-}
-
-type AuthResult {
-  accessToken: String!
-}
-
-type RenewAccessTokenResult {
-  accessToken: String!
-}
-
-type SignOutResult {
-  isSignedOut: Boolean!
-}
-
-################################################################################
-#### INPUT
-################################################################################
-
-input SignUpInput {
-  email: String!
-  password: String!
-}
-
-input SignInInput {
-  email: String!
-  password: String!
+  healthCheck: Boolean!
 }
