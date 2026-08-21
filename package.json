@@ -38,7 +38,7 @@
     "@openreachtech/mentsu-logger": "^2.0.2",
     "@openreachtech/renchan": "^2.9.2",
     "@openreachtech/renchan-env": "^1.0.5",
-    "@openreachtech/renchan-sequelize": "^2.0.2",
+    "@openreachtech/renchan-sequelize": "^2.2.1",
     "@steweucen/fertile-forest-sequelize": "^0.1.1",
     "cookie": "^0.7.1",
     "cors": "^2.8.5",
