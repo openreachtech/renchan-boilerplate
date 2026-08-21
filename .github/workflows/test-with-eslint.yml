@@ -42,9 +42,6 @@ jobs:
           # sweep to bump a pinned major across all of them. Pin a concrete version
           # here only in a repository that genuinely needs one.
           node-version: lts/*
-          # Some @openreachtech packages are published to GitHub Packages only, so
-          # npm ci below cannot resolve them from npmjs alone.
-          registry-url: https://npm.pkg.github.com
 
       - name: 🖨️ Print environment
         env:
@@ -57,8 +54,6 @@ jobs:
 
       - name: 📦 Install packages
         run: npm ci
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.TO_REPO_OF_ORT_PRIVATE }}
 
       - name: 🧵 ESLint
         run: npm run lint
