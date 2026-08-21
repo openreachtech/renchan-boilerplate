@@ -5,25 +5,60 @@ on:
     branches:
       - '**'
 
-jobs:
-  test:
-    runs-on: [self-hosted, light]
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
-    strategy:
-      matrix:
-        node-version: [20.x]
+permissions:
+  contents: read
+
+jobs:
+  ci:
+    # ⚠️ Keep this name fixed. Required status checks are configured per-organization
+    # by check name, so renaming the job here silently exempts this repository
+    # from the merge gate.
+    name: CI Test
+
+    # private repository: self-hosted
+    # public repository: github-hosted
+    runs-on: ${{ fromJSON(github.event.repository.private && '["self-hosted", "light"]' || '["ubuntu-latest"]') }}
+
+    timeout-minutes: 60
+
+    # Declared for the whole job rather than exported into $GITHUB_ENV from a step,
+    # so the value is readable here instead of in the log of a step that ran earlier.
+    env:
+      NODE_ENV: development
 
     steps:
-      - name: 🛎 Checkout repository code
-        uses: actions/checkout@v4
+      - name: 🛎️ Checkout repository code
+        uses: actions/checkout@v7
 
-      - name: 🏗 Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v4
+      - name: 🏗️ Use Node.js
+        uses: actions/setup-node@v7
         with:
-          cache: 'npm'
-          cache-dependency-path: '**/package-lock.json'
-          node-version: ${{ matrix.node-version }}
+          # ⚠️ The npm cache only pays off where ~/.npm is discarded between jobs.
+          # On a persistent [self-hosted] runner it re-ships what is already on disk,
+          # adding a measured 2.7 GB and ~2m30s to this step so that the next one,
+          # npm ci, can finish in 5s instead of 7s.
+          cache: ${{ runner.environment == 'github-hosted' && 'npm' || '' }}
+          package-manager-cache: false
+          # A floating LTS alias keeps every repository current without a scheduled
+          # sweep to bump a pinned major across all of them. Pin a concrete version
+          # here only in a repository that genuinely needs one.
+          node-version: lts/*
+          # Some @openreachtech packages are published to GitHub Packages only, so
+          # npm ci below cannot resolve them from npmjs alone.
           registry-url: https://npm.pkg.github.com
+
+      - name: 🖨️ Print environment
+        env:
+          RUNNER_ENVIRONMENT: ${{ runner.environment }}
+        run: |
+          echo
+          echo "runner: $RUNNER_ENVIRONMENT"
+          echo "node  : $(node -v)"
+          echo "npm   : $(npm -v)"
 
       - name: 📦 Install packages
         run: npm ci
@@ -31,8 +66,7 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.TO_REPO_OF_ORT_PRIVATE }}
 
       - name: 🧪 Jest
-        run: echo "NODE_ENV=development" >> $GITHUB_ENV
-      - run: npm test --empty --maxWorkers=3 tests/empty/__tests__/
+        run: npm test --empty --maxWorkers=3 tests/empty/__tests__/
       - run: npm test --empty --maxWorkers=3 tests/empty/_orders/
       - run: npm test --seeded --maxWorkers=3 tests/__tests__/
       - run: npm test --seeded --maxWorkers=3 tests/_orders/
