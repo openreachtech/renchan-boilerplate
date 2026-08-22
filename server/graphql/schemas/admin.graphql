@@ -1,54 +1,7 @@
-scalar DateTime
-scalar Upload
-
 ################################################################################
 #### QUERY
 ################################################################################
 
 type Query {
-  customers: [Customer!]!
-  assets: [Asset!]!
-}
-
-################################################################################
-#### MUTATION
-################################################################################
-
-type Mutation {
-  signIn(input: SignInInput): AuthResult!
-  signUp(input: SignUpInput): AuthResult!
-}
-
-################################################################################
-#### TYPES
-################################################################################
-
-type Customer {
-  id: Int!
-  name: String!
-  inviteCode: String!
-}
-
-type Asset {
-  customerId: Int!
-  stakedAmount: String!
-  rewardsAmount: String!
-}
-
-type AuthResult {
-  accessToken: String!
-}
-
-################################################################################
-#### INPUT
-################################################################################
-
-input SignUpInput {
-  email: String!
-  password: String!
-}
-
-input SignInInput {
-  email: String!
-  password: String!
+  healthCheck: Boolean!
 }

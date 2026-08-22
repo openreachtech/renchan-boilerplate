@@ -2,9 +2,6 @@ import express from 'express'
 import cors from 'cors'
 
 import {
-  BaseGraphqlServerEngine,
-  BigNumberScalar,
-  DateTimeScalar,
   graphqlUploadExpressWithResolvingContentType,
 } from '@openreachtech/renchan'
 
@@ -12,17 +9,26 @@ import {
   rootPath,
 } from '../../app/globals/_.js'
 
+import AUTH_CONSTANT_HASH from '../../app/constants/authConstants.js'
+
+import BaseAppGraphqlServerEngine from './BaseAppGraphqlServerEngine.js'
+
 import CustomerGraphqlShare from './contexts/CustomerGraphqlShare.js'
 import CustomerGraphqlContext from './contexts/CustomerGraphqlContext.js'
+
+const {
+  REFRESH_TOKEN_COOKIE,
+} = AUTH_CONSTANT_HASH
 
 /**
  * Renchan server engine for customer.
  */
-export default class CustomerGraphqlServerEngine extends BaseGraphqlServerEngine {
+export default class CustomerGraphqlServerEngine extends BaseAppGraphqlServerEngine {
   /** @override */
   static get config () {
     return {
       graphqlEndpoint: '/graphql-customer',
+      refreshTokenCookie: this.buildRefreshTokenCookieConfig(),
       staticPath: rootPath.to('public/'),
       schemaPath: rootPath.to('server/graphql/schemas/customer.graphql'),
       actualResolversPath: rootPath.to('server/graphql/resolvers/customer/actual/'),
@@ -38,6 +44,18 @@ export default class CustomerGraphqlServerEngine extends BaseGraphqlServerEngine
       //   host: 'localhost',
       //   port: 6379,
       // },
+    }
+  }
+
+  /**
+   * Build the refresh-token cookie config for this audience.
+   *
+   * @returns {import('./contexts/tools/RefreshTokenExpressCookieClerk.js').RefreshTokenCookieConfig} - Cookie config.
+   */
+  static buildRefreshTokenCookieConfig () {
+    return {
+      ...this.refreshTokenCookieConfig,
+      name: REFRESH_TOKEN_COOKIE.CUSTOMER.NAME,
     }
   }
 
@@ -88,21 +106,7 @@ export default class CustomerGraphqlServerEngine extends BaseGraphqlServerEngine
   /** @override */
   get schemasToSkipFiltering () {
     return [
-      'companySponsors',
-      'curriculums',
-      'signUp',
-      'signIn',
-
-      'createChatRoom',
-      'postNotification',
-      'sendChatMessage',
-      'chatMessages',
-      'chatRooms',
-
-      'onObserveChatStates',
-      'onReceiveMessage',
-      'onUpdateChatRooms',
-      'onBroadcastNotifications',
+      'healthCheck',
     ]
   }
 
@@ -190,9 +194,6 @@ export default class CustomerGraphqlServerEngine extends BaseGraphqlServerEngine
 
   /** @override */
   async collectScalars () {
-    return [
-      BigNumberScalar,
-      DateTimeScalar,
-    ]
+    return []
   }
 }

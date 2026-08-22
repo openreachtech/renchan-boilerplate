@@ -1,13 +1,10 @@
 import {
-  BaseGraphqlServerEngine,
-  DateTimeScalar,
-} from '@openreachtech/renchan'
-
-import {
   rootPath,
 } from '../../../../app/globals/_.js'
 
 import AdminGraphqlServerEngine from '../../../../server/graphql/AdminGraphqlServerEngine.js'
+
+import BaseAppGraphqlServerEngine from '../../../../server/graphql/BaseAppGraphqlServerEngine.js'
 
 import AdminGraphqlContext from '../../../../server/graphql/contexts/AdminGraphqlContext.js'
 import AdminGraphqlShare from '../../../../server/graphql/contexts/AdminGraphqlShare.js'
@@ -18,7 +15,7 @@ describe('AdminGraphqlServerEngine', () => {
       const actual = AdminGraphqlServerEngine.prototype
 
       expect(actual)
-        .toBeInstanceOf(BaseGraphqlServerEngine)
+        .toBeInstanceOf(BaseAppGraphqlServerEngine)
     })
   })
 })
@@ -28,6 +25,13 @@ describe('AdminGraphqlServerEngine', () => {
     test('to be fixed value', () => {
       const expected = {
         graphqlEndpoint: '/graphql-admin',
+        refreshTokenCookie: {
+          lifetimeDays: 14,
+          secure: true,
+          sameSite: 'lax',
+          httpOnly: true,
+          name: 'admin_refresh_token',
+        },
         staticPath: rootPath.to('public/'),
         schemaPath: rootPath.to('server/graphql/schemas/admin.graphql'),
         actualResolversPath: rootPath.to('server/graphql/resolvers/admin/actual/'),
@@ -40,6 +44,27 @@ describe('AdminGraphqlServerEngine', () => {
 
       expect(actual)
         .toStrictEqual(expected)
+    })
+  })
+})
+
+describe('AdminGraphqlServerEngine', () => {
+  describe('.buildRefreshTokenCookieConfig()', () => {
+    describe('to combine the shared config with the audience cookie name', () => {
+      test('should be the admin cookie config', () => {
+        const expected = {
+          lifetimeDays: 14,
+          secure: true,
+          sameSite: 'lax',
+          httpOnly: true,
+          name: 'admin_refresh_token',
+        }
+
+        const actual = AdminGraphqlServerEngine.buildRefreshTokenCookieConfig()
+
+        expect(actual)
+          .toEqual(expected)
+      })
     })
   })
 })
@@ -319,9 +344,7 @@ describe('AdminGraphqlServerEngine', () => {
     test('to be fixed value', async () => {
       const engine = await AdminGraphqlServerEngine.createAsync()
 
-      const expected = [
-        DateTimeScalar,
-      ]
+      const expected = []
 
       const actual = await engine.collectScalars()
 
