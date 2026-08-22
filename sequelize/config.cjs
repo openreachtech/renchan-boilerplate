@@ -27,7 +27,7 @@ module.exports = {
     password: 'staging-password',
 
     dialect: 'mysql',
-    host: 'http://staging.sample.openreach.tech',
+    host: 'http://sample.example.com',
     port: 3306,
   },
   production: {
