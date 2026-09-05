@@ -82,20 +82,35 @@ else
 fi
 
 if [ $# = 0 ]; then
-  testWithEmpty "$defaultMaxWorkers"
-  testWithSeeded "$defaultMaxWorkers"
+  testWithEmpty $defaultMaxWorkers
+  testWithSeeded $defaultMaxWorkers
 
   exit 0
 fi
 
 mode="${1:-all}"
-target="$2"
+shift
+
+# What follows the mode is jest flags until the first argument that is not one,
+# and that one is the target. Reading $2 alone put a flag in the target slot,
+# so a call that named no group ran jest with no group either.
+target=''
+for it in "$@"; do
+  case "$it" in
+    -* )
+      ;;
+    * )
+      target="$it"
+      break
+      ;;
+  esac
+done
 
 if [ "$mode" = '--empty' ]; then
   if [ -z "$target" ]; then
-    testWithEmpty "$defaultMaxWorkers"
+    testWithEmpty $defaultMaxWorkers "$@"
   else
-    jestCommand "${@:2}"
+    jestCommand "$@"
   fi
 
   exit 0
@@ -103,14 +118,14 @@ fi
 
 if [ "$mode" = '--seeded' ]; then
   if [ -z "$target" ]; then
-    testWithSeeded "$defaultMaxWorkers"
+    testWithSeeded $defaultMaxWorkers "$@"
   else
     npm run db:seed:dev
-    jestCommand "${@:2}"
+    jestCommand "$@"
   fi
 
   exit 0
 fi
 
 npm run db:seed:dev
-jestCommand "$@"
+jestCommand "$mode" "$@"
