@@ -61,7 +61,7 @@ jobs:
         run: npm ci
 
       - name: 🧪 Jest
-        run: npm test --empty --maxWorkers=3 tests/empty/__tests__/
-      - run: npm test --empty --maxWorkers=3 tests/empty/_orders/
-      - run: npm test --seeded --maxWorkers=3 tests/__tests__/
-      - run: npm test --seeded --maxWorkers=3 tests/_orders/
+        run: npm test --empty tests/empty/__tests__/
+      - run: npm test --empty tests/empty/_orders/
+      - run: npm test --seeded tests/__tests__/
+      - run: npm test --seeded tests/_orders/

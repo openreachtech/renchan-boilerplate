@@ -4,22 +4,6 @@ set -e
 
 ############################################################## declare functions
 
-function includes () {
-  local target="$1"
-  shift
-
-  local it
-  for it in "$@"; do
-    case "$it" in
-      "$target" | "$target="* )
-        return 0
-        ;;
-    esac
-  done
-
-  return 1
-}
-
 function jestCommand () {
   echo "🔥 npx jest --passWithNoTests $@"
 
@@ -64,15 +48,9 @@ function terminalize () {
 
 initialize
 
-if includes --maxWorkers "$@"; then
-  defaultMaxWorkers=''
-else
-  defaultMaxWorkers='--maxWorkers=5'
-fi
-
 if [ $# = 0 ]; then
-  testWithEmpty $defaultMaxWorkers
-  testWithSeeded $defaultMaxWorkers
+  testWithEmpty
+  testWithSeeded
 
   exit 0
 fi
@@ -97,7 +75,7 @@ done
 
 if [ "$mode" = '--empty' ]; then
   if [ -z "$target" ]; then
-    testWithEmpty $defaultMaxWorkers "$@"
+    testWithEmpty "$@"
   else
     jestCommand "$@"
   fi
@@ -107,7 +85,7 @@ fi
 
 if [ "$mode" = '--seeded' ]; then
   if [ -z "$target" ]; then
-    testWithSeeded $defaultMaxWorkers "$@"
+    testWithSeeded "$@"
   else
     jestCommand "$@"
   fi
