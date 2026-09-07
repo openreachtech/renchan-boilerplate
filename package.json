@@ -35,9 +35,9 @@
   "dependencies": {
     "@graphql-tools/schema": "^10.0.25",
     "@graphql-tools/utils": "^10.9.1",
-    "@openreachtech/mentsu-logger": "^2.0.2",
-    "@openreachtech/renchan": "^2.9.2",
-    "@openreachtech/renchan-env": "^1.0.5",
+    "@openreachtech/mentsu-logger": "^2.0.3",
+    "@openreachtech/renchan": "^2.9.3",
+    "@openreachtech/renchan-env": "^1.0.6",
     "@openreachtech/renchan-sequelize": "^2.2.2",
     "@steweucen/fertile-forest-sequelize": "^0.1.3",
     "cookie": "^0.7.1",
@@ -65,5 +65,10 @@
     "sequelize-cli": "^6.6.3",
     "sequelize-mig": "^3.1.3",
     "sqlite3": "^5.1.7"
+  },
+  "overrides": {
+    "@openreachtech/renchan-sequelize": {
+      "@openreachtech/mentsu-random-text-generator": "1.0.3"
+    }
   }
 }
