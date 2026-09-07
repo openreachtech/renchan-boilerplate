@@ -65,5 +65,10 @@
     "sequelize-cli": "^6.6.3",
     "sequelize-mig": "^3.1.3",
     "sqlite3": "^5.1.7"
+  },
+  "overrides": {
+    "@openreachtech/renchan-sequelize": {
+      "@openreachtech/mentsu-random-text-generator": "1.0.3"
+    }
   }
 }
