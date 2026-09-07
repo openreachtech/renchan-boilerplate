@@ -89,10 +89,12 @@ jobs:
       - run: npm run db:seed:master
 
       - name: 🧪 Jest
-        run: npm run test:live --empty --maxWorkers=3 tests/empty/__tests__/
-      - run: npm run test:live --empty --maxWorkers=3 tests/empty/_live/
-      - run: npm run test:live --empty --maxWorkers=3 tests/empty/_orders/
+        # ⚠️ Keep the `--` before the mode. Without it npm eats `--empty` / `--seeded`
+        # as its own config, and test-live.sh takes the path as the mode instead.
+        run: npm run test:live -- --empty tests/empty/__tests__/
+      - run: npm run test:live -- --empty tests/empty/_live/
+      - run: npm run test:live -- --empty tests/empty/_orders/
       - run: npm run db:seed:dev
-      - run: npm run test:live --seeded --maxWorkers=3 tests/__tests__/
-      - run: npm run test:live --seeded --maxWorkers=3 tests/_live/
-      - run: npm run test:live --seeded --maxWorkers=3 tests/_orders/
+      - run: npm run test:live -- --seeded tests/__tests__/
+      - run: npm run test:live -- --seeded tests/_live/
+      - run: npm run test:live -- --seeded tests/_orders/

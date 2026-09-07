@@ -61,7 +61,8 @@ jobs:
         run: npm ci
 
       - name: 🧪 Jest
-        run: npm test --empty --maxWorkers=3 tests/empty/__tests__/
-      - run: npm test --empty --maxWorkers=3 tests/empty/_orders/
-      - run: npm test --seeded --maxWorkers=3 tests/__tests__/
-      - run: npm test --seeded --maxWorkers=3 tests/_orders/
+        # ⚠️ Keep the `--` before the mode. Without it npm eats `--empty` / `--seeded`
+        # as its own config, and test.sh falls through to a branch that names no group
+        # and runs jest without the `--detectOpenHandles` that `_orders/` is given.
+        run: npm test -- --empty
+      - run: npm test -- --seeded
