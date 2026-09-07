@@ -36,7 +36,7 @@
     "@graphql-tools/schema": "^10.0.25",
     "@graphql-tools/utils": "^10.9.1",
     "@openreachtech/mentsu-logger": "^2.0.3",
-    "@openreachtech/renchan": "^2.9.2",
+    "@openreachtech/renchan": "^2.9.3",
     "@openreachtech/renchan-env": "^1.0.5",
     "@openreachtech/renchan-sequelize": "^2.2.2",
     "@steweucen/fertile-forest-sequelize": "^0.1.3",
