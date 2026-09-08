@@ -62,7 +62,7 @@
     "@openreachtech/eslint-config": "^4.5.0",
     "@openreachtech/jest-constructor-spy": "^1.1.2",
     "@types/jest": "^30.0.0",
-    "eslint": "^9.36.0",
+    "eslint": "^9.39.5",
     "jest": "^30.2.0",
     "nodemon": "^3.1.10",
     "sequelize-cli": "^6.6.3",
