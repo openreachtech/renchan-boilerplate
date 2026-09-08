@@ -73,5 +73,8 @@
     "@openreachtech/renchan-sequelize": {
       "@openreachtech/mentsu-random-text-generator": "1.0.3"
     }
+  },
+  "allowScripts": {
+    "sqlite3@6.0.1": true
   }
 }
