@@ -32,6 +32,9 @@
     "url": "https://github.com/openreachtech/renchan-boilerplate/issues"
   },
   "homepage": "https://github.com/openreachtech/renchan-boilerplate#readme",
+  "engines": {
+    "node": ">=22.18.0"
+  },
   "dependencies": {
     "@graphql-tools/schema": "^10.0.25",
     "@graphql-tools/utils": "^10.9.1",
