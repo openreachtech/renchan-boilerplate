@@ -54,7 +54,7 @@
     "graphql-ws": "^5.16.2",
     "ioredis": "^5.11.1",
     "mariadb": "^3.5.3",
-    "sequelize": "^6.37.7",
+    "sequelize": "^6.37.8",
     "ws": "^8.18.3"
   },
   "devDependencies": {
