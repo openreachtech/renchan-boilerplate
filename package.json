@@ -72,7 +72,8 @@
   "overrides": {
     "@openreachtech/renchan-sequelize": {
       "@openreachtech/mentsu-random-text-generator": "1.0.3"
-    }
+    },
+    "qs": "^6.16.0"
   },
   "allowScripts": {
     "fsevents": false,
