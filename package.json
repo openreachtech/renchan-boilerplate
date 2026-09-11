@@ -41,7 +41,7 @@
     "@openreachtech/mentsu-logger": "^2.0.3",
     "@openreachtech/renchan": "^2.9.3",
     "@openreachtech/renchan-env": "^1.0.6",
-    "@openreachtech/renchan-sequelize": "^2.2.2",
+    "@openreachtech/renchan-sequelize": "^2.3.0",
     "@steweucen/fertile-forest-sequelize": "^0.1.3",
     "cookie": "^0.7.2",
     "cors": "^2.8.6",
@@ -53,7 +53,7 @@
     "graphql-upload": "^17.1.0",
     "graphql-ws": "^5.16.2",
     "ioredis": "^5.11.1",
-    "mariadb": "^3.5.3",
+    "mariadb": "^3.5.4",
     "sequelize": "^6.37.8",
     "ws": "^8.21.3"
   },
@@ -63,7 +63,7 @@
     "@openreachtech/jest-constructor-spy": "^1.1.2",
     "@types/jest": "^30.0.0",
     "eslint": "^9.39.5",
-    "jest": "^30.4.2",
+    "jest": "^30.5.1",
     "nodemon": "^3.1.14",
     "sequelize-cli": "^6.6.5",
     "sequelize-mig": "^3.1.3",
@@ -73,10 +73,13 @@
     "@openreachtech/renchan-sequelize": {
       "@openreachtech/mentsu-random-text-generator": "1.0.3"
     },
+    "js-yaml": "^4.3.2",
+    "multer": "^2.3.0",
     "qs": "^6.16.0",
     "uuid": "^11.1.1"
   },
   "allowScripts": {
+    "@parcel/watcher": false,
     "fsevents": false,
     "sqlite3@6.0.1": true,
     "unrs-resolver@1.12.2": true
