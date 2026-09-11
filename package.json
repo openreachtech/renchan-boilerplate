@@ -63,7 +63,7 @@
     "@openreachtech/jest-constructor-spy": "^1.1.2",
     "@types/jest": "^30.0.0",
     "eslint": "^9.39.5",
-    "jest": "^30.4.2",
+    "jest": "^30.5.1",
     "nodemon": "^3.1.14",
     "sequelize-cli": "^6.6.5",
     "sequelize-mig": "^3.1.3",
