@@ -149,7 +149,7 @@ stub があることで、クエリの実装前でもフロントエンドはそ
 
 ### データベース
 
-`sequelize/config.cjs` は `NODE_ENV` ごとにエントリーを持ちます。`development` は `sequelize/storage/` 配下の SQLite、`live` と `staging` は MariaDB と MySQL、`production` は上記の変数から組み立てます。
+`sequelize/config.cjs` は `NODE_ENV` ごとにエントリーを持ちます。`development` は `sequelize/storage/` 配下の SQLite、`live` は MariaDB、`staging` と `production` は上記の変数から組み立てます。
 
 development はファイル 1 つで動くため、`npm run db:refresh` はデータベースを捨てて作り直すところまでを一息で行えます。
 
