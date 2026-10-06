@@ -70,8 +70,13 @@
     "sqlite3": "^6.0.1"
   },
   "overrides": {
+    "@graphql-tools/utils": "$@graphql-tools/utils",
     "@openreachtech/renchan-sequelize": {
       "@openreachtech/mentsu-random-text-generator": "1.0.3"
+    },
+    "graphql-middleware": {
+      "@graphql-tools/delegate": "^12.2.0",
+      "@graphql-tools/schema": "$@graphql-tools/schema"
     },
     "js-yaml": "^4.3.2",
     "qs": "^6.16.0",
