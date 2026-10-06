@@ -66,7 +66,7 @@ In production the servers run under PM2, whose configuration is `pm2.config.cjs`
 
 | command | what it does |
 | :-- | :-- |
-| `npm run dev` | run `server/` under nodemon with `NODE_ENV=development` |
+| `npm run dev` | run `server/` with `NODE_ENV=development`, restarting on changes (`node --watch`) |
 | `npm test` | rebuild the database, seed it, and run Jest (`test.sh`) |
 | `npm run test:live` | run Jest against the `live` environment, leaving the database alone (`test-live.sh`) |
 | `npm run lint` | ESLint over the repository (alias: `npm run l`) |
@@ -149,7 +149,7 @@ Variables are read through `@openreachtech/renchan-env`, which loads the dotenv 
 
 ### Database
 
-`sequelize/config.cjs` carries one entry per `NODE_ENV`: `development` on SQLite in `sequelize/storage/`, `live` and `staging` on MariaDB and MySQL, and `production` built from the variables above.
+`sequelize/config.cjs` carries one entry per `NODE_ENV`: `development` on SQLite in `sequelize/storage/`, `live` on MariaDB, and `staging` and `production` built from the variables above.
 
 Development runs on a file, which is why `npm run db:refresh` can throw the database away and rebuild it in one step.
 
