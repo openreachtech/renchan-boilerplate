@@ -66,7 +66,7 @@ curl -X POST http://127.0.0.1:3900/graphql-customer \
 
 | コマンド | 内容 |
 | :-- | :-- |
-| `npm run dev` | `NODE_ENV=development` で `server/` を nodemon 実行する |
+| `npm run dev` | `NODE_ENV=development` で `server/` を実行し、変更のたびに再起動する（`node --watch`） |
 | `npm test` | データベースを作り直し、シードを投入して Jest を実行する（`test.sh`） |
 | `npm run test:live` | データベースには手を付けず、`live` 環境に対して Jest を実行する（`test-live.sh`） |
 | `npm run lint` | リポジトリ全体に ESLint をかける（別名: `npm run l`） |
@@ -149,7 +149,7 @@ stub があることで、クエリの実装前でもフロントエンドはそ
 
 ### データベース
 
-`sequelize/config.cjs` は `NODE_ENV` ごとにエントリーを持ちます。`development` は `sequelize/storage/` 配下の SQLite、`live` と `staging` は MariaDB と MySQL、`production` は上記の変数から組み立てます。
+`sequelize/config.cjs` は `NODE_ENV` ごとにエントリーを持ちます。`development` は `sequelize/storage/` 配下の SQLite、`live` は MariaDB、`staging` と `production` は上記の変数から組み立てます。
 
 development はファイル 1 つで動くため、`npm run db:refresh` はデータベースを捨てて作り直すところまでを一息で行えます。
 

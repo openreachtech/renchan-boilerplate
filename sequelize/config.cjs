@@ -22,13 +22,13 @@ module.exports = {
     port: '3306',
   },
   staging: {
-    database: 'staging_database',
-    username: 'admin-staging',
-    password: 'staging-password',
+    database: env.DATABASE_NAME,
+    username: env.DATABASE_USERNAME,
+    password: env.DATABASE_PASSWORD,
 
-    dialect: 'mysql',
-    host: 'http://sample.example.com',
-    port: 3306,
+    dialect: env.DATABASE_DIALECT,
+    host: env.DATABASE_HOST,
+    port: env.DATABASE_PORT,
   },
   production: {
     database: env.DATABASE_NAME,
