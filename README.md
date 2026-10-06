@@ -66,7 +66,7 @@ In production the servers run under PM2, whose configuration is `pm2.config.cjs`
 
 | command | what it does |
 | :-- | :-- |
-| `npm run dev` | run `server/` under nodemon with `NODE_ENV=development` |
+| `npm run dev` | run `server/` with `NODE_ENV=development`, restarting on changes (`node --watch`) |
 | `npm test` | rebuild the database, seed it, and run Jest (`test.sh`) |
 | `npm run test:live` | run Jest against the `live` environment, leaving the database alone (`test-live.sh`) |
 | `npm run lint` | ESLint over the repository (alias: `npm run l`) |

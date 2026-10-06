@@ -66,7 +66,7 @@ curl -X POST http://127.0.0.1:3900/graphql-customer \
 
 | コマンド | 内容 |
 | :-- | :-- |
-| `npm run dev` | `NODE_ENV=development` で `server/` を nodemon 実行する |
+| `npm run dev` | `NODE_ENV=development` で `server/` を実行し、変更のたびに再起動する（`node --watch`） |
 | `npm test` | データベースを作り直し、シードを投入して Jest を実行する（`test.sh`） |
 | `npm run test:live` | データベースには手を付けず、`live` 環境に対して Jest を実行する（`test-live.sh`） |
 | `npm run lint` | リポジトリ全体に ESLint をかける（別名: `npm run l`） |
