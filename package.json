@@ -12,7 +12,7 @@
     "db:teardown": "rm sequelize/storage/*.sqlite3",
     "db:refresh": "export NODE_ENV=development; npm run db:teardown; npm run db:setup; npm run db:seed:master; npm run db:seed:dev;",
     "r": "npm run db:refresh",
-    "dev": "export NODE_ENV=development; nodemon server",
+    "dev": "export NODE_ENV=development; node --watch server/index.js",
     "jest": "jest --detectOpenHandles --passWithNoTests",
     "l": "npm run lint",
     "lint": "eslint .",
@@ -64,7 +64,6 @@
     "@types/jest": "^30.0.0",
     "eslint": "^9.39.5",
     "jest": "^30.5.1",
-    "nodemon": "^3.1.14",
     "sequelize-cli": "^6.6.5",
     "sequelize-mig": "^3.1.3",
     "sqlite3": "^6.0.1"
