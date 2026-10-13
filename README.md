@@ -137,6 +137,17 @@ server/graphql/resolvers/customer/
 
 A stub lets the frontend develop against a field before its query is implemented. Note that the authentication filter is built from the actual resolvers alone, so a field served by a stub is reached without it.
 
+### File uploads
+
+Neither GraphQL engine accepts uploads as shipped, so a multipart request gets `415`. An engine that serves an operation taking a file sets `uploadOptions` in its `config` to the options of the upload middleware, and only that engine mounts it.
+
+```js
+uploadOptions: {
+  maxFileSize: 10000000,
+  maxFiles: 10,
+},
+```
+
 ### Environment variables
 
 Variables are read through `@openreachtech/renchan-env`, which loads the dotenv file named after `NODE_ENV` from the repository root — so `NODE_ENV=development` reads the development one. Under `NODE_ENV=production` no file is read at all, and the process environment is the only source.
