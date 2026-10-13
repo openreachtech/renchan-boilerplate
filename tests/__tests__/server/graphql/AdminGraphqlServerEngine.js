@@ -32,9 +32,6 @@ describe('AdminGraphqlServerEngine', () => {
           httpOnly: true,
           name: 'admin_refresh_token',
         },
-        allowedOrigins: [
-          'http://localhost:3000',
-        ],
         staticPath: rootPath.to('public/'),
         schemaPath: rootPath.to('server/graphql/schemas/admin.graphql'),
         actualResolversPath: rootPath.to('server/graphql/resolvers/admin/actual/'),
@@ -48,23 +45,6 @@ describe('AdminGraphqlServerEngine', () => {
 
       expect(actual)
         .toStrictEqual(expected)
-    })
-  })
-})
-
-describe('AdminGraphqlServerEngine', () => {
-  describe('.get:allowedOrigins', () => {
-    describe('to be the origins the environment declares', () => {
-      test('should be the development origin', () => {
-        const expected = [
-          'http://localhost:3000',
-        ]
-
-        const actual = AdminGraphqlServerEngine.allowedOrigins
-
-        expect(actual)
-          .toEqual(expected)
-      })
     })
   })
 })
@@ -318,10 +298,11 @@ describe('AdminGraphqlServerEngine', () => {
         const engine = new AdminGraphqlServerEngine({
           config: /** @type {*} */ ({
             staticPath: rootPath.to('public/'),
-            allowedOrigins: [],
             uploadOptions: null,
           }),
-          share: /** @type {*} */ ({}),
+          share: /** @type {*} */ ({
+            generateAllowedOrigins: () => [],
+          }),
           errorHash: {},
         })
 
@@ -344,13 +325,14 @@ describe('AdminGraphqlServerEngine', () => {
         const engine = new AdminGraphqlServerEngine({
           config: /** @type {*} */ ({
             staticPath: rootPath.to('public/'),
-            allowedOrigins: [],
             uploadOptions: {
               maxFileSize: 10000000,
               maxFiles: 10,
             },
           }),
-          share: /** @type {*} */ ({}),
+          share: /** @type {*} */ ({
+            generateAllowedOrigins: () => [],
+          }),
           errorHash: {},
         })
 
@@ -373,7 +355,7 @@ describe('AdminGraphqlServerEngine', () => {
 
 describe('AdminGraphqlServerEngine', () => {
   describe('#collectMiddleware()', () => {
-    describe('to allow an origin the config declares', () => {
+    describe('to allow an origin the share declares', () => {
       const cases = [
         {
           input: {
@@ -391,12 +373,13 @@ describe('AdminGraphqlServerEngine', () => {
         const engine = new AdminGraphqlServerEngine({
           config: /** @type {*} */ ({
             staticPath: rootPath.to('public/'),
-            allowedOrigins: [
+          }),
+          share: /** @type {*} */ ({
+            generateAllowedOrigins: () => [
               'https://alpha.example',
               'https://beta.example',
             ],
           }),
-          share: /** @type {*} */ ({}),
           errorHash: {},
         })
 
@@ -421,7 +404,7 @@ describe('AdminGraphqlServerEngine', () => {
       })
     })
 
-    describe('to refuse an origin the config does not declare', () => {
+    describe('to refuse an origin the share does not declare', () => {
       const cases = [
         {
           input: {
@@ -439,11 +422,12 @@ describe('AdminGraphqlServerEngine', () => {
         const engine = new AdminGraphqlServerEngine({
           config: /** @type {*} */ ({
             staticPath: rootPath.to('public/'),
-            allowedOrigins: [
+          }),
+          share: /** @type {*} */ ({
+            generateAllowedOrigins: () => [
               'https://alpha.example',
             ],
           }),
-          share: /** @type {*} */ ({}),
           errorHash: {},
         })
 
@@ -470,7 +454,7 @@ describe('AdminGraphqlServerEngine', () => {
       })
     })
 
-    describe('to refuse every origin when the config declares none', () => {
+    describe('to refuse every origin when the share declares none', () => {
       const cases = [
         {
           input: {
@@ -488,9 +472,10 @@ describe('AdminGraphqlServerEngine', () => {
         const engine = new AdminGraphqlServerEngine({
           config: /** @type {*} */ ({
             staticPath: rootPath.to('public/'),
-            allowedOrigins: [],
           }),
-          share: /** @type {*} */ ({}),
+          share: /** @type {*} */ ({
+            generateAllowedOrigins: () => [],
+          }),
           errorHash: {},
         })
 
