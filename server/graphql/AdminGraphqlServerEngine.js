@@ -2,10 +2,6 @@ import express from 'express'
 import cors from 'cors'
 
 import {
-  graphqlUploadExpressWithResolvingContentType,
-} from '@openreachtech/renchan'
-
-import {
   rootPath,
 } from '../../app/globals/_.js'
 
@@ -34,6 +30,7 @@ export default class AdminGraphqlServerEngine extends BaseAppGraphqlServerEngine
       actualResolversPath: rootPath.to('server/graphql/resolvers/admin/actual/'),
       stubResolversPath: rootPath.to('server/graphql/resolvers/admin/stub/'),
       postWorkersPath: null,
+      uploadOptions: null,
 
       /*
        * NOTE: Uncomment the following line to enable Redis PubSub
@@ -88,10 +85,7 @@ export default class AdminGraphqlServerEngine extends BaseAppGraphqlServerEngine
         this.config.staticPath
       ),
 
-      graphqlUploadExpressWithResolvingContentType({
-        maxFileSize: 10000000, // 10 MB
-        maxFiles: 10,
-      }),
+      ...this.collectUploadMiddleware(),
 
       express.urlencoded({
         extended: true,
