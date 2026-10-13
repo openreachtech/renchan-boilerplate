@@ -157,6 +157,7 @@ Variables are read through `@openreachtech/renchan-env`, which loads the dotenv 
 | :-- | :-- | :-- |
 | `AUTH_REFRESH_TOKEN_TTL_DAYS` | how long the refresh-token cookie lives, in days | 14 |
 | `AUTH_COOKIE_SECURE` | whether that cookie carries `Secure`; only the exact string `false` turns it off | on |
+| `CORS_CUSTOMER_ORIGINS`, `CORS_ADMIN_ORIGINS`, `CORS_RESTFUL_API_ORIGINS` | the origins a browser may call each engine from, comma-separated and matched exactly, so `*` matches nothing | none; `.env.development` allows `http://localhost:3000` |
 | `DATABASE_NAME`, `DATABASE_USERNAME`, `DATABASE_PASSWORD`, `DATABASE_DIALECT`, `DATABASE_HOST`, `DATABASE_PORT` | the connection of `development`, `staging` and `production` in `sequelize/config.cjs` | SQLite, for `development` |
 
 ### Database
