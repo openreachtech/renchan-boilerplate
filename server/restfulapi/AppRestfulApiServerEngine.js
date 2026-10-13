@@ -5,12 +5,7 @@ import {
   BaseRestfulApiServerEngine,
 } from '@openreachtech/renchan'
 
-import {
-  env,
-  rootPath,
-} from '../../app/globals/_.js'
-
-import AllowedOriginsParser from '../tools/AllowedOriginsParser.js'
+import rootPath from '../../app/globals/root-path.js'
 
 import AppRestfulApiShare from './contexts/AppRestfulApiShare.js'
 import AppRestfulApiContext from './contexts/AppRestfulApiContext.js'
@@ -25,20 +20,7 @@ export default class AppRestfulApiServerEngine extends BaseRestfulApiServerEngin
       pathPrefix: '/v1', // nul: none
       renderersPath: rootPath.to('server/restfulapi/renderers/v1/'),
       staticPath: rootPath.to('public/'),
-      allowedOrigins: this.allowedOrigins,
     }
-  }
-
-  /**
-   * get: Origins a browser may call this engine from.
-   *
-   * @returns {Array<string>} - Allowed origins, none when `CORS_RESTFUL_API_ORIGINS` declares none.
-   */
-  static get allowedOrigins () {
-    return AllowedOriginsParser.create({
-      originsText: env.CORS_RESTFUL_API_ORIGINS,
-    })
-      .parseOrigins()
   }
 
   /** @override */
@@ -146,7 +128,7 @@ export default class AppRestfulApiServerEngine extends BaseRestfulApiServerEngin
 
     return [
       cors({
-        origin: this.config.allowedOrigins,
+        origin: this.share.generateAllowedOrigins(),
       }),
 
       express.static(

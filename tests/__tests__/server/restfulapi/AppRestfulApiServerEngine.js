@@ -5,25 +5,8 @@ import {
 import AppRestfulApiServerEngine from '../../../../server/restfulapi/AppRestfulApiServerEngine.js'
 
 describe('AppRestfulApiServerEngine', () => {
-  describe('.get:allowedOrigins', () => {
-    describe('to be the origins the environment declares', () => {
-      test('should be the development origin', () => {
-        const expected = [
-          'http://localhost:3000',
-        ]
-
-        const actual = AppRestfulApiServerEngine.allowedOrigins
-
-        expect(actual)
-          .toEqual(expected)
-      })
-    })
-  })
-})
-
-describe('AppRestfulApiServerEngine', () => {
   describe('#collectMiddleware()', () => {
-    describe('to allow an origin the config declares', () => {
+    describe('to allow an origin the share declares', () => {
       const cases = [
         {
           input: {
@@ -41,12 +24,13 @@ describe('AppRestfulApiServerEngine', () => {
         const engine = new AppRestfulApiServerEngine({
           config: /** @type {*} */ ({
             staticPath: rootPath.to('public/'),
-            allowedOrigins: [
+          }),
+          share: /** @type {*} */ ({
+            generateAllowedOrigins: () => [
               'https://alpha.example',
               'https://beta.example',
             ],
           }),
-          share: /** @type {*} */ ({}),
           errorResponseHash: {},
         })
 
@@ -71,7 +55,7 @@ describe('AppRestfulApiServerEngine', () => {
       })
     })
 
-    describe('to refuse an origin the config does not declare', () => {
+    describe('to refuse an origin the share does not declare', () => {
       const cases = [
         {
           input: {
@@ -89,11 +73,12 @@ describe('AppRestfulApiServerEngine', () => {
         const engine = new AppRestfulApiServerEngine({
           config: /** @type {*} */ ({
             staticPath: rootPath.to('public/'),
-            allowedOrigins: [
+          }),
+          share: /** @type {*} */ ({
+            generateAllowedOrigins: () => [
               'https://alpha.example',
             ],
           }),
-          share: /** @type {*} */ ({}),
           errorResponseHash: {},
         })
 
@@ -120,7 +105,7 @@ describe('AppRestfulApiServerEngine', () => {
       })
     })
 
-    describe('to refuse every origin when the config declares none', () => {
+    describe('to refuse every origin when the share declares none', () => {
       const cases = [
         {
           input: {
@@ -138,9 +123,10 @@ describe('AppRestfulApiServerEngine', () => {
         const engine = new AppRestfulApiServerEngine({
           config: /** @type {*} */ ({
             staticPath: rootPath.to('public/'),
-            allowedOrigins: [],
           }),
-          share: /** @type {*} */ ({}),
+          share: /** @type {*} */ ({
+            generateAllowedOrigins: () => [],
+          }),
           errorResponseHash: {},
         })
 
