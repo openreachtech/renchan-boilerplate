@@ -157,6 +157,7 @@ uploadOptions: {
 | :-- | :-- | :-- |
 | `AUTH_REFRESH_TOKEN_TTL_DAYS` | リフレッシュトークン Cookie の寿命（日数） | 14 |
 | `AUTH_COOKIE_SECURE` | その Cookie に `Secure` を付けるかどうか。文字列 `false` のときだけ外れる | 付ける |
+| `CORS_CUSTOMER_ORIGINS`, `CORS_ADMIN_ORIGINS`, `CORS_RESTFUL_API_ORIGINS` | ブラウザーから各エンジンを呼べるオリジン。カンマ区切りで完全一致のため、`*` はどれにも一致しない | なし。`.env.development` は `http://localhost:3000` を許可する |
 | `DATABASE_NAME`, `DATABASE_USERNAME`, `DATABASE_PASSWORD`, `DATABASE_DIALECT`, `DATABASE_HOST`, `DATABASE_PORT` | `sequelize/config.cjs` の `development`・`staging`・`production` の接続設定 | `development` は SQLite |
 
 ### データベース
