@@ -2,16 +2,41 @@
 
 const env = require('../app/globals/env.cjs')
 
-module.exports = {
-  development: {
-    database: 'development_database',
-    username: null,
-    password: null,
+/**
+ * Build the development entry, on SQLite until `DATABASE_DIALECT` names another dialect.
+ *
+ * @returns {object} - Development entry.
+ */
+function buildDevelopmentConfig () {
+  if (
+    !env.DATABASE_DIALECT
+    || env.DATABASE_DIALECT === 'sqlite'
+  ) {
+    return {
+      database: 'development_database',
+      username: null,
+      password: null,
 
-    dialect: 'sqlite',
-    storage: 'sequelize/storage/development.sqlite3',
+      dialect: 'sqlite',
+      storage: 'sequelize/storage/development.sqlite3',
+      logging: false,
+    }
+  }
+
+  return {
+    database: env.DATABASE_NAME,
+    username: env.DATABASE_USERNAME,
+    password: env.DATABASE_PASSWORD,
+
+    dialect: env.DATABASE_DIALECT,
+    host: env.DATABASE_HOST,
+    port: env.DATABASE_PORT,
     logging: false,
-  },
+  }
+}
+
+module.exports = {
+  development: buildDevelopmentConfig(),
   live: {
     username: 'root',
     password: 'password',
