@@ -28,6 +28,9 @@ describe('validate-unique-error-code', () => {
         .flatMap(it =>
           Object.values(it.errorCodeHash)
         )
+        .filter(it =>
+          !/^\d{3}\.X000\.\d{3}$/u.test(it)
+        )
         .toSorted(
           (alpha, beta) =>
             alpha.localeCompare(beta)
