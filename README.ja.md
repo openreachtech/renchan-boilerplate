@@ -138,6 +138,17 @@ server/graphql/resolvers/customer/
 
 stub があることで、クエリの実装前でもフロントエンドはそのフィールドに対して開発を進められます。なお認証フィルターは actual のリゾルバーだけから組み立てられるため、stub が応答するフィールドはフィルターを通らずに到達されます。
 
+### ファイルのアップロード
+
+同梱の状態ではどちらの GraphQL エンジンもアップロードを受け付けず、multipart のリクエストには `415` を返します。ファイルを受け取るオペレーションを持つエンジンは、`config` の `uploadOptions` にアップロード用ミドルウェアのオプションを設定します。ミドルウェアを載せるのはそのエンジンだけです。
+
+```js
+uploadOptions: {
+  maxFileSize: 10000000,
+  maxFiles: 10,
+},
+```
+
 ### 環境変数
 
 環境変数は `@openreachtech/renchan-env` 経由で読みます。リポジトリルートの、`NODE_ENV` の名前が付いた dotenv ファイルを読み込むので、`NODE_ENV=development` なら development のものを読みます。`NODE_ENV=production` ではファイルを一切読まず、プロセスの環境変数だけが情報源になります。
