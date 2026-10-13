@@ -25,5 +25,8 @@ module.exports = /** @type {*} */ (
  *   AUTH_COOKIE_SAME_SITE: string
  *   AUTH_COOKIE_PATH: string
  *   AUTH_COOKIE_DOMAIN: string
+ *   CORS_CUSTOMER_ORIGINS: string
+ *   CORS_ADMIN_ORIGINS: string
+ *   CORS_RESTFUL_API_ORIGINS: string
  * }} EnvType
  */
