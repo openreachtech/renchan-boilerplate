@@ -140,13 +140,13 @@ stub があることで、クエリの実装前でもフロントエンドはそ
 
 ### ファイルのアップロード
 
-同梱の状態ではどちらの GraphQL エンジンもアップロードを受け付けず、multipart のリクエストには `415` を返します。ファイルを受け取るオペレーションを持つエンジンは、`config` の `uploadOptions` にアップロード用ミドルウェアのオプションを設定します。ミドルウェアを載せるのはそのエンジンだけです。
+同梱の状態ではどちらの GraphQL エンジンもアップロードを受け付けず、multipart のリクエストには `415` を返します。ファイルを受け取るオペレーションを持つエンジンは `#collectMiddleware()` をオーバーライドし、`@openreachtech/renchan` の `graphqlUploadExpressWithResolvingContentType` を `express.static` と `express.urlencoded` の間に並べます。ミドルウェアを載せるのはそのエンジンだけです。
 
 ```js
-uploadOptions: {
+graphqlUploadExpressWithResolvingContentType({
   maxFileSize: 10000000,
   maxFiles: 10,
-},
+}),
 ```
 
 ### 環境変数

@@ -1,6 +1,5 @@
 import {
   BaseGraphqlServerEngine,
-  graphqlUploadExpressWithResolvingContentType,
 } from '@openreachtech/renchan'
 
 import {
@@ -61,23 +60,18 @@ export default class BaseAppGraphqlServerEngine extends BaseGraphqlServerEngine 
     return env.AUTH_COOKIE_SECURE !== 'false'
   }
 
-  /**
-   * Collect the upload middleware, mounted only when `config.uploadOptions` is set.
-   *
-   * @returns {Array<import('express').RequestHandler>} - Upload middleware, or none.
-   */
-  collectUploadMiddleware () {
-    const {
-      uploadOptions,
-    } = this.config
+  /** @override */
+  static get standardErrorCodeHash () {
+    return {
+      Unknown: '100.X000.001',
+      ConcreteMemberNotFound: '101.X000.001',
+      Unauthenticated: '102.X000.001',
+      Unauthorized: '102.X000.002',
+      DeniedSchemaPermission: '102.X000.003',
+      Database: '104.X000.001',
 
-    if (!uploadOptions) {
-      return []
+      CanNotSubscribe: '102.S000.001',
     }
-
-    return [
-      graphqlUploadExpressWithResolvingContentType(uploadOptions),
-    ]
   }
 }
 

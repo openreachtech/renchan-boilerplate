@@ -140,13 +140,13 @@ A stub lets the frontend develop against a field before its query is implemented
 
 ### File uploads
 
-Neither GraphQL engine accepts uploads as shipped, so a multipart request gets `415`. An engine that serves an operation taking a file sets `uploadOptions` in its `config` to the options of the upload middleware, and only that engine mounts it.
+Neither GraphQL engine accepts uploads as shipped, so a multipart request gets `415`. An engine that serves an operation taking a file overrides `#collectMiddleware()` and lists `graphqlUploadExpressWithResolvingContentType` from `@openreachtech/renchan` between `express.static` and `express.urlencoded`, so only that engine mounts it.
 
 ```js
-uploadOptions: {
+graphqlUploadExpressWithResolvingContentType({
   maxFileSize: 10000000,
   maxFiles: 10,
-},
+}),
 ```
 
 ### Environment variables

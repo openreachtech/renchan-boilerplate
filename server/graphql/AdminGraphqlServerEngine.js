@@ -30,7 +30,6 @@ export default class AdminGraphqlServerEngine extends BaseAppGraphqlServerEngine
       actualResolversPath: rootPath.to('server/graphql/resolvers/admin/actual/'),
       stubResolversPath: rootPath.to('server/graphql/resolvers/admin/stub/'),
       postWorkersPath: null,
-      uploadOptions: null,
 
       /*
        * NOTE: Uncomment the following line to enable Redis PubSub
@@ -57,20 +56,6 @@ export default class AdminGraphqlServerEngine extends BaseAppGraphqlServerEngine
   }
 
   /** @override */
-  static get standardErrorCodeHash () {
-    return {
-      Unknown: '100.X000.001',
-      ConcreteMemberNotFound: '101.X000.001',
-      Unauthenticated: '102.X000.001',
-      Unauthorized: '102.X000.002',
-      DeniedSchemaPermission: '102.X000.003',
-      Database: '104.X000.001',
-
-      CanNotSubscribe: '102.S000.001',
-    }
-  }
-
-  /** @override */
   collectMiddleware () {
     return [
       cors({
@@ -84,8 +69,6 @@ export default class AdminGraphqlServerEngine extends BaseAppGraphqlServerEngine
       express.static(
         this.config.staticPath
       ),
-
-      ...this.collectUploadMiddleware(),
 
       express.urlencoded({
         extended: true,

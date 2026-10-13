@@ -62,77 +62,22 @@ describe('BaseAppGraphqlServerEngine', () => {
 })
 
 describe('BaseAppGraphqlServerEngine', () => {
-  describe('#collectUploadMiddleware()', () => {
-    describe('to mount the upload middleware when the config sets its options', () => {
-      const cases = [
-        {
-          input: {
-            config: {
-              uploadOptions: {
-                maxFileSize: 10000000,
-                maxFiles: 10,
-              },
-            },
-          },
-        },
-        {
-          input: {
-            config: {
-              uploadOptions: {
-                maxFileSize: 1000000,
-                maxFiles: 1,
-              },
-            },
-          },
-        },
-      ]
+  describe('.get:standardErrorCodeHash', () => {
+    test('to be fixed value', () => {
+      const expected = {
+        Unknown: '100.X000.001',
+        ConcreteMemberNotFound: '101.X000.001',
+        Unauthenticated: '102.X000.001',
+        Unauthorized: '102.X000.002',
+        DeniedSchemaPermission: '102.X000.003',
+        Database: '104.X000.001',
 
-      test.each(cases)('uploadOptions: $input.config.uploadOptions', ({ input }) => {
-        const engine = new BaseAppGraphqlServerEngine({
-          config: /** @type {*} */ (input.config),
-          share: /** @type {*} */ ({}),
-          errorHash: {},
-        })
+        CanNotSubscribe: '102.S000.001',
+      }
+      const actual = BaseAppGraphqlServerEngine.standardErrorCodeHash
 
-        const expected = [
-          expect.any(Function),
-        ]
-
-        const actual = engine.collectUploadMiddleware()
-
-        expect(actual)
-          .toEqual(expected)
-      })
-    })
-
-    describe('to mount nothing when the config sets no options', () => {
-      const cases = [
-        {
-          input: {
-            config: {
-              uploadOptions: null,
-            },
-          },
-        },
-        {
-          input: {
-            config: {},
-          },
-        },
-      ]
-
-      test.each(cases)('config: $input.config', ({ input }) => {
-        const engine = new BaseAppGraphqlServerEngine({
-          config: /** @type {*} */ (input.config),
-          share: /** @type {*} */ ({}),
-          errorHash: {},
-        })
-
-        const actual = engine.collectUploadMiddleware()
-
-        expect(actual)
-          .toEqual([])
-      })
+      expect(actual)
+        .toStrictEqual(expected)
     })
   })
 })
