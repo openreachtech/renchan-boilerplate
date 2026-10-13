@@ -2,10 +2,13 @@ import express from 'express'
 import cors from 'cors'
 
 import {
+  env,
   rootPath,
 } from '../../app/globals/_.js'
 
 import AUTH_CONSTANT_HASH from '../../app/constants/authConstants.js'
+
+import AllowedOriginsParser from '../tools/AllowedOriginsParser.js'
 
 import BaseAppGraphqlServerEngine from './BaseAppGraphqlServerEngine.js'
 
@@ -25,6 +28,7 @@ export default class CustomerGraphqlServerEngine extends BaseAppGraphqlServerEng
     return {
       graphqlEndpoint: '/graphql-customer',
       refreshTokenCookie: this.buildRefreshTokenCookieConfig(),
+      allowedOrigins: this.allowedOrigins,
       staticPath: rootPath.to('public/'),
       schemaPath: rootPath.to('server/graphql/schemas/customer.graphql'),
       actualResolversPath: rootPath.to('server/graphql/resolvers/customer/actual/'),
@@ -56,6 +60,18 @@ export default class CustomerGraphqlServerEngine extends BaseAppGraphqlServerEng
     }
   }
 
+  /**
+   * get: Origins a browser may call this engine from.
+   *
+   * @returns {Array<string>} - Allowed origins, none when `CORS_CUSTOMER_ORIGINS` declares none.
+   */
+  static get allowedOrigins () {
+    return AllowedOriginsParser.create({
+      originsText: env.CORS_CUSTOMER_ORIGINS,
+    })
+      .parseOrigins()
+  }
+
   /** @override */
   static get standardErrorCodeHash () {
     return {
@@ -74,7 +90,7 @@ export default class CustomerGraphqlServerEngine extends BaseAppGraphqlServerEng
   collectMiddleware () {
     return [
       cors({
-        origin: '*',
+        origin: this.config.allowedOrigins,
       }),
 
       express.json({
