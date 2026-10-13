@@ -32,6 +32,9 @@ describe('AdminGraphqlServerEngine', () => {
           httpOnly: true,
           name: 'admin_refresh_token',
         },
+        allowedOrigins: [
+          'http://localhost:3000',
+        ],
         staticPath: rootPath.to('public/'),
         schemaPath: rootPath.to('server/graphql/schemas/admin.graphql'),
         actualResolversPath: rootPath.to('server/graphql/resolvers/admin/actual/'),
@@ -44,6 +47,23 @@ describe('AdminGraphqlServerEngine', () => {
 
       expect(actual)
         .toStrictEqual(expected)
+    })
+  })
+})
+
+describe('AdminGraphqlServerEngine', () => {
+  describe('.get:allowedOrigins', () => {
+    describe('to be the origins the environment declares', () => {
+      test('should be the development origin', () => {
+        const expected = [
+          'http://localhost:3000',
+        ]
+
+        const actual = AdminGraphqlServerEngine.allowedOrigins
+
+        expect(actual)
+          .toEqual(expected)
+      })
     })
   })
 })
@@ -296,6 +316,7 @@ describe('AdminGraphqlServerEngine', () => {
       const engine = new AdminGraphqlServerEngine({
         config: /** @type {*} */ ({
           staticPath: rootPath.to('public/'),
+          allowedOrigins: [],
         }),
         share: /** @type {*} */ ({}),
         errorHash: {},
@@ -313,6 +334,154 @@ describe('AdminGraphqlServerEngine', () => {
 
       expect(actual)
         .toEqual(expected)
+    })
+  })
+})
+
+describe('AdminGraphqlServerEngine', () => {
+  describe('#collectMiddleware()', () => {
+    describe('to allow an origin the config declares', () => {
+      const cases = [
+        {
+          input: {
+            origin: 'https://alpha.example',
+          },
+        },
+        {
+          input: {
+            origin: 'https://beta.example',
+          },
+        },
+      ]
+
+      test.each(cases)('origin: $input.origin', ({ input }) => {
+        const engine = new AdminGraphqlServerEngine({
+          config: /** @type {*} */ ({
+            staticPath: rootPath.to('public/'),
+            allowedOrigins: [
+              'https://alpha.example',
+              'https://beta.example',
+            ],
+          }),
+          share: /** @type {*} */ ({}),
+          errorHash: {},
+        })
+
+        const [corsMiddleware] = engine.collectMiddleware()
+
+        const requestMock = /** @type {*} */ ({
+          method: 'GET',
+          headers: {
+            origin: input.origin,
+          },
+        })
+        const responseMock = /** @type {*} */ ({
+          getHeader: jest.fn(),
+          setHeader: jest.fn(),
+        })
+        const nextMock = jest.fn()
+
+        corsMiddleware(requestMock, responseMock, nextMock)
+
+        expect(responseMock.setHeader)
+          .toHaveBeenCalledWith('Access-Control-Allow-Origin', input.origin)
+      })
+    })
+
+    describe('to refuse an origin the config does not declare', () => {
+      const cases = [
+        {
+          input: {
+            origin: 'https://gamma.example',
+          },
+        },
+        {
+          input: {
+            origin: 'http://localhost:3000',
+          },
+        },
+      ]
+
+      test.each(cases)('origin: $input.origin', ({ input }) => {
+        const engine = new AdminGraphqlServerEngine({
+          config: /** @type {*} */ ({
+            staticPath: rootPath.to('public/'),
+            allowedOrigins: [
+              'https://alpha.example',
+            ],
+          }),
+          share: /** @type {*} */ ({}),
+          errorHash: {},
+        })
+
+        const [corsMiddleware] = engine.collectMiddleware()
+
+        const requestMock = /** @type {*} */ ({
+          method: 'GET',
+          headers: {
+            origin: input.origin,
+          },
+        })
+        const responseMock = /** @type {*} */ ({
+          getHeader: jest.fn(),
+          setHeader: jest.fn(),
+        })
+        const nextMock = jest.fn()
+
+        corsMiddleware(requestMock, responseMock, nextMock)
+
+        expect(responseMock.setHeader)
+          .toHaveBeenCalledTimes(1)
+        expect(responseMock.setHeader)
+          .toHaveBeenCalledWith('Vary', 'Origin')
+      })
+    })
+
+    describe('to refuse every origin when the config declares none', () => {
+      const cases = [
+        {
+          input: {
+            origin: 'https://alpha.example',
+          },
+        },
+        {
+          input: {
+            origin: 'http://localhost:3000',
+          },
+        },
+      ]
+
+      test.each(cases)('origin: $input.origin', ({ input }) => {
+        const engine = new AdminGraphqlServerEngine({
+          config: /** @type {*} */ ({
+            staticPath: rootPath.to('public/'),
+            allowedOrigins: [],
+          }),
+          share: /** @type {*} */ ({}),
+          errorHash: {},
+        })
+
+        const [corsMiddleware] = engine.collectMiddleware()
+
+        const requestMock = /** @type {*} */ ({
+          method: 'GET',
+          headers: {
+            origin: input.origin,
+          },
+        })
+        const responseMock = /** @type {*} */ ({
+          getHeader: jest.fn(),
+          setHeader: jest.fn(),
+        })
+        const nextMock = jest.fn()
+
+        corsMiddleware(requestMock, responseMock, nextMock)
+
+        expect(responseMock.setHeader)
+          .toHaveBeenCalledTimes(1)
+        expect(responseMock.setHeader)
+          .toHaveBeenCalledWith('Vary', 'Origin')
+      })
     })
   })
 })

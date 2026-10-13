@@ -6,10 +6,13 @@ import {
 } from '@openreachtech/renchan'
 
 import {
+  env,
   rootPath,
 } from '../../app/globals/_.js'
 
 import AUTH_CONSTANT_HASH from '../../app/constants/authConstants.js'
+
+import AllowedOriginsParser from '../tools/AllowedOriginsParser.js'
 
 import BaseAppGraphqlServerEngine from './BaseAppGraphqlServerEngine.js'
 
@@ -29,6 +32,7 @@ export default class AdminGraphqlServerEngine extends BaseAppGraphqlServerEngine
     return {
       graphqlEndpoint: '/graphql-admin',
       refreshTokenCookie: this.buildRefreshTokenCookieConfig(),
+      allowedOrigins: this.allowedOrigins,
       staticPath: rootPath.to('public/'),
       schemaPath: rootPath.to('server/graphql/schemas/admin.graphql'),
       actualResolversPath: rootPath.to('server/graphql/resolvers/admin/actual/'),
@@ -59,6 +63,18 @@ export default class AdminGraphqlServerEngine extends BaseAppGraphqlServerEngine
     }
   }
 
+  /**
+   * get: Origins a browser may call this engine from.
+   *
+   * @returns {Array<string>} - Allowed origins, none when `CORS_ADMIN_ORIGINS` declares none.
+   */
+  static get allowedOrigins () {
+    return AllowedOriginsParser.create({
+      originsText: env.CORS_ADMIN_ORIGINS,
+    })
+      .parseOrigins()
+  }
+
   /** @override */
   static get standardErrorCodeHash () {
     return {
@@ -77,7 +93,7 @@ export default class AdminGraphqlServerEngine extends BaseAppGraphqlServerEngine
   collectMiddleware () {
     return [
       cors({
-        origin: '*',
+        origin: this.config.allowedOrigins,
       }),
 
       express.json({
