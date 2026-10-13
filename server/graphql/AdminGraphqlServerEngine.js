@@ -30,7 +30,6 @@ export default class AdminGraphqlServerEngine extends BaseAppGraphqlServerEngine
       actualResolversPath: rootPath.to('server/graphql/resolvers/admin/actual/'),
       stubResolversPath: rootPath.to('server/graphql/resolvers/admin/stub/'),
       postWorkersPath: null,
-      uploadOptions: null,
 
       /*
        * NOTE: Uncomment the following line to enable Redis PubSub
@@ -84,8 +83,6 @@ export default class AdminGraphqlServerEngine extends BaseAppGraphqlServerEngine
       express.static(
         this.config.staticPath
       ),
-
-      ...this.collectUploadMiddleware(),
 
       express.urlencoded({
         extended: true,

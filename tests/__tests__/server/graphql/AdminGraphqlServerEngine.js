@@ -37,7 +37,6 @@ describe('AdminGraphqlServerEngine', () => {
         actualResolversPath: rootPath.to('server/graphql/resolvers/admin/actual/'),
         stubResolversPath: rootPath.to('server/graphql/resolvers/admin/stub/'),
         postWorkersPath: null,
-        uploadOptions: null,
         redisOptions: null,
       }
 
@@ -293,12 +292,11 @@ describe('AdminGraphqlServerEngine', () => {
 
 describe('AdminGraphqlServerEngine', () => {
   describe('#collectMiddleware()', () => {
-    describe('to leave the upload middleware out when the config sets no upload options', () => {
+    describe('to mount no upload middleware', () => {
       test('should be four middleware', () => {
         const engine = new AdminGraphqlServerEngine({
           config: /** @type {*} */ ({
             staticPath: rootPath.to('public/'),
-            uploadOptions: null,
           }),
           share: /** @type {*} */ ({
             generateAllowedOrigins: () => [],
@@ -307,37 +305,6 @@ describe('AdminGraphqlServerEngine', () => {
         })
 
         const expected = [
-          expect.any(Function),
-          expect.any(Function),
-          expect.any(Function),
-          expect.any(Function),
-        ]
-
-        const actual = engine.collectMiddleware()
-
-        expect(actual)
-          .toEqual(expected)
-      })
-    })
-
-    describe('to mount the upload middleware when the config sets upload options', () => {
-      test('should be five middleware', () => {
-        const engine = new AdminGraphqlServerEngine({
-          config: /** @type {*} */ ({
-            staticPath: rootPath.to('public/'),
-            uploadOptions: {
-              maxFileSize: 10000000,
-              maxFiles: 10,
-            },
-          }),
-          share: /** @type {*} */ ({
-            generateAllowedOrigins: () => [],
-          }),
-          errorHash: {},
-        })
-
-        const expected = [
-          expect.any(Function),
           expect.any(Function),
           expect.any(Function),
           expect.any(Function),

@@ -1,6 +1,5 @@
 import {
   BaseGraphqlServerEngine,
-  graphqlUploadExpressWithResolvingContentType,
 } from '@openreachtech/renchan'
 
 import {
@@ -59,25 +58,6 @@ export default class BaseAppGraphqlServerEngine extends BaseGraphqlServerEngine 
    */
   static get usesSecureRefreshTokenCookie () {
     return env.AUTH_COOKIE_SECURE !== 'false'
-  }
-
-  /**
-   * Collect the upload middleware, mounted only when `config.uploadOptions` is set.
-   *
-   * @returns {Array<import('express').RequestHandler>} - Upload middleware, or none.
-   */
-  collectUploadMiddleware () {
-    const {
-      uploadOptions,
-    } = this.config
-
-    if (!uploadOptions) {
-      return []
-    }
-
-    return [
-      graphqlUploadExpressWithResolvingContentType(uploadOptions),
-    ]
   }
 }
 
