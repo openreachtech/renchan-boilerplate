@@ -2,6 +2,8 @@ import {
   BaseGraphqlShare,
 } from '@openreachtech/renchan'
 
+import AllowedOriginsParser from '../../tools/AllowedOriginsParser.js'
+
 /**
  * GraphQL shared object for Admin.
  */
@@ -25,6 +27,18 @@ export default class AdminGraphqlShare extends BaseGraphqlShare {
       env: this.generateEnv(),
       broker,
     })
+  }
+
+  /**
+   * Generate the origins a browser may call the engine from.
+   *
+   * @returns {Array<string>} - Allowed origins, none when `CORS_ADMIN_ORIGINS` declares none.
+   */
+  generateAllowedOrigins () {
+    return AllowedOriginsParser.create({
+      originsText: this.env.CORS_ADMIN_ORIGINS,
+    })
+      .parseOrigins()
   }
 }
 
