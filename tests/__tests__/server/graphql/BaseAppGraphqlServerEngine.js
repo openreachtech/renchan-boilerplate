@@ -60,3 +60,79 @@ describe('BaseAppGraphqlServerEngine', () => {
     })
   })
 })
+
+describe('BaseAppGraphqlServerEngine', () => {
+  describe('#collectUploadMiddleware()', () => {
+    describe('to mount the upload middleware when the config sets its options', () => {
+      const cases = [
+        {
+          input: {
+            config: {
+              uploadOptions: {
+                maxFileSize: 10000000,
+                maxFiles: 10,
+              },
+            },
+          },
+        },
+        {
+          input: {
+            config: {
+              uploadOptions: {
+                maxFileSize: 1000000,
+                maxFiles: 1,
+              },
+            },
+          },
+        },
+      ]
+
+      test.each(cases)('uploadOptions: $input.config.uploadOptions', ({ input }) => {
+        const engine = new BaseAppGraphqlServerEngine({
+          config: /** @type {*} */ (input.config),
+          share: /** @type {*} */ ({}),
+          errorHash: {},
+        })
+
+        const expected = [
+          expect.any(Function),
+        ]
+
+        const actual = engine.collectUploadMiddleware()
+
+        expect(actual)
+          .toEqual(expected)
+      })
+    })
+
+    describe('to mount nothing when the config sets no options', () => {
+      const cases = [
+        {
+          input: {
+            config: {
+              uploadOptions: null,
+            },
+          },
+        },
+        {
+          input: {
+            config: {},
+          },
+        },
+      ]
+
+      test.each(cases)('config: $input.config', ({ input }) => {
+        const engine = new BaseAppGraphqlServerEngine({
+          config: /** @type {*} */ (input.config),
+          share: /** @type {*} */ ({}),
+          errorHash: {},
+        })
+
+        const actual = engine.collectUploadMiddleware()
+
+        expect(actual)
+          .toEqual([])
+      })
+    })
+  })
+})
