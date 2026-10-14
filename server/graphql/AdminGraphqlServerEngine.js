@@ -2,6 +2,10 @@ import express from 'express'
 import cors from 'cors'
 
 import {
+  graphqlUploadExpressWithResolvingContentType,
+} from '@openreachtech/renchan'
+
+import {
   rootPath,
 } from '../../app/globals/_.js'
 
@@ -69,6 +73,11 @@ export default class AdminGraphqlServerEngine extends BaseAppGraphqlServerEngine
       express.static(
         this.config.staticPath
       ),
+
+      graphqlUploadExpressWithResolvingContentType({
+        maxFileSize: 10000000, // 10 MB
+        maxFiles: 10,
+      }),
 
       express.urlencoded({
         extended: true,
