@@ -158,13 +158,13 @@ Variables are read through `@openreachtech/renchan-env`, which loads the dotenv 
 | `AUTH_REFRESH_TOKEN_TTL_DAYS` | how long the refresh-token cookie lives, in days | 14 |
 | `AUTH_COOKIE_SECURE` | whether that cookie carries `Secure`; only the exact string `false` turns it off | on |
 | `CORS_CUSTOMER_ORIGINS`, `CORS_ADMIN_ORIGINS`, `CORS_RESTFUL_API_ORIGINS` | the origins a browser may call each engine from, comma-separated and matched exactly, so `*` matches nothing | none; `.env.development` allows `http://localhost:3000` |
-| `DATABASE_NAME`, `DATABASE_USERNAME`, `DATABASE_PASSWORD`, `DATABASE_DIALECT`, `DATABASE_HOST`, `DATABASE_PORT` | the connection of `development`, `staging` and `production` in `sequelize/config.cjs` | SQLite, for `development` |
+| `DATABASE_NAME`, `DATABASE_USERNAME`, `DATABASE_PASSWORD`, `DATABASE_DIALECT`, `DATABASE_HOST`, `DATABASE_PORT` | the production connection in `sequelize/config.cjs` | — |
 
 ### Database
 
-`sequelize/config.cjs` carries one entry per `NODE_ENV`: `development` on SQLite in `sequelize/storage/` until `DATABASE_DIALECT` names another dialect, `live` on MariaDB, and `staging` and `production` built from the variables above.
+`sequelize/config.cjs` carries one entry per `NODE_ENV`: `development` on SQLite in `sequelize/storage/`, `live` on MariaDB, and `staging` and `production` built from the variables above.
 
-Development runs on a file by default, which is why `npm run db:refresh` can throw the database away and rebuild it in one step. `npm run db:teardown` deletes that file and nothing else, so once `DATABASE_DIALECT` points development at a database server, neither `npm run db:refresh` nor `npm test` resets it. Undo the migrations there with `npx sequelize-cli db:migrate:undo:all` instead.
+Development runs on a file, which is why `npm run db:refresh` can throw the database away and rebuild it in one step.
 
 Every model in `sequelize/models/` extends `BaseAppRenchanModel` from `sequelize/baseModel/`, the one place to add behavior all models share. It stays outside `sequelize/models/` because the loader initializes every model it finds there.
 
