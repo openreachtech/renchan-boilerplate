@@ -128,7 +128,7 @@ export default class AppRestfulApiServerEngine extends BaseRestfulApiServerEngin
 
     return [
       cors({
-        origin: this.share.generateAllowedOrigins(),
+        origin: this.share.allowedCorsOriginCollection.extractOrigins(),
       }),
 
       express.static(
