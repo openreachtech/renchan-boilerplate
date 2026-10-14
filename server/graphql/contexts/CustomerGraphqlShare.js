@@ -2,7 +2,7 @@ import {
   BaseGraphqlShare,
 } from '@openreachtech/renchan'
 
-import AllowedOriginsParser from '../../tools/AllowedOriginsParser.js'
+import AllowedCorsOriginCollection from '../../tools/AllowedCorsOriginCollection.js'
 
 /**
  * GraphQL shared object for Customer.
@@ -35,10 +35,10 @@ export default class CustomerGraphqlShare extends BaseGraphqlShare {
    * @returns {Array<string>} - Allowed origins, none when `CORS_CUSTOMER_ORIGINS` declares none.
    */
   generateAllowedOrigins () {
-    return AllowedOriginsParser.create({
-      originsText: this.env.CORS_CUSTOMER_ORIGINS,
+    return AllowedCorsOriginCollection.create({
+      originsString: this.env.CORS_CUSTOMER_ORIGINS,
     })
-      .parseOrigins()
+      .extractOrigins()
   }
 }
 

@@ -2,7 +2,7 @@ import {
   BaseRestfulApiShare,
 } from '@openreachtech/renchan'
 
-import AllowedOriginsParser from '../../tools/AllowedOriginsParser.js'
+import AllowedCorsOriginCollection from '../../tools/AllowedCorsOriginCollection.js'
 
 export default class AppRestfulApiShare extends BaseRestfulApiShare {
   /**
@@ -11,9 +11,9 @@ export default class AppRestfulApiShare extends BaseRestfulApiShare {
    * @returns {Array<string>} - Allowed origins, none when `CORS_RESTFUL_API_ORIGINS` declares none.
    */
   generateAllowedOrigins () {
-    return AllowedOriginsParser.create({
-      originsText: this.env.CORS_RESTFUL_API_ORIGINS,
+    return AllowedCorsOriginCollection.create({
+      originsString: this.env.CORS_RESTFUL_API_ORIGINS,
     })
-      .parseOrigins()
+      .extractOrigins()
   }
 }
