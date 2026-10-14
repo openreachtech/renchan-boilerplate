@@ -9,6 +9,8 @@ import BaseAppGraphqlServerEngine from '../../../../server/graphql/BaseAppGraphq
 import CustomerGraphqlContext from '../../../../server/graphql/contexts/CustomerGraphqlContext.js'
 import CustomerGraphqlShare from '../../../../server/graphql/contexts/CustomerGraphqlShare.js'
 
+import AllowedCorsOriginCollection from '../../../../server/tools/AllowedCorsOriginCollection.js'
+
 describe('CustomerGraphqlServerEngine', () => {
   describe('super class', () => {
     test('to be instance of base class', () => {
@@ -277,8 +279,10 @@ describe('CustomerGraphqlServerEngine', () => {
           config: /** @type {*} */ ({
             staticPath: rootPath.to('public/'),
           }),
-          share: /** @type {*} */ ({
-            generateAllowedOrigins: () => [],
+          share: CustomerGraphqlShare.create({
+            allowedCorsOriginCollection: AllowedCorsOriginCollection.create({
+              originsString: null,
+            }),
           }),
           errorHash: {},
         })
@@ -320,11 +324,10 @@ describe('CustomerGraphqlServerEngine', () => {
           config: /** @type {*} */ ({
             staticPath: rootPath.to('public/'),
           }),
-          share: /** @type {*} */ ({
-            generateAllowedOrigins: () => [
-              'https://alpha.example',
-              'https://beta.example',
-            ],
+          share: CustomerGraphqlShare.create({
+            allowedCorsOriginCollection: AllowedCorsOriginCollection.create({
+              originsString: 'https://alpha.example,https://beta.example',
+            }),
           }),
           errorHash: {},
         })
@@ -369,10 +372,10 @@ describe('CustomerGraphqlServerEngine', () => {
           config: /** @type {*} */ ({
             staticPath: rootPath.to('public/'),
           }),
-          share: /** @type {*} */ ({
-            generateAllowedOrigins: () => [
-              'https://alpha.example',
-            ],
+          share: CustomerGraphqlShare.create({
+            allowedCorsOriginCollection: AllowedCorsOriginCollection.create({
+              originsString: 'https://alpha.example',
+            }),
           }),
           errorHash: {},
         })
@@ -419,8 +422,10 @@ describe('CustomerGraphqlServerEngine', () => {
           config: /** @type {*} */ ({
             staticPath: rootPath.to('public/'),
           }),
-          share: /** @type {*} */ ({
-            generateAllowedOrigins: () => [],
+          share: CustomerGraphqlShare.create({
+            allowedCorsOriginCollection: AllowedCorsOriginCollection.create({
+              originsString: null,
+            }),
           }),
           errorHash: {},
         })

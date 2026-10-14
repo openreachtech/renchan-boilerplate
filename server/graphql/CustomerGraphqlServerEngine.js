@@ -59,7 +59,7 @@ export default class CustomerGraphqlServerEngine extends BaseAppGraphqlServerEng
   collectMiddleware () {
     return [
       cors({
-        origin: this.share.generateAllowedOrigins(),
+        origin: this.share.allowedCorsOriginCollection.extractOrigins(),
       }),
 
       express.json({
