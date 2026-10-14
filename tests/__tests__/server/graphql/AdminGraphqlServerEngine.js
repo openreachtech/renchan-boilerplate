@@ -273,8 +273,8 @@ describe('AdminGraphqlServerEngine', () => {
 
 describe('AdminGraphqlServerEngine', () => {
   describe('#collectMiddleware()', () => {
-    describe('to mount no upload middleware', () => {
-      test('should be four middleware', () => {
+    describe('to mount the upload middleware', () => {
+      test('should be five middleware', () => {
         const engine = new AdminGraphqlServerEngine({
           config: /** @type {*} */ ({
             staticPath: rootPath.to('public/'),
@@ -288,6 +288,7 @@ describe('AdminGraphqlServerEngine', () => {
         })
 
         const expected = [
+          expect.any(Function),
           expect.any(Function),
           expect.any(Function),
           expect.any(Function),
