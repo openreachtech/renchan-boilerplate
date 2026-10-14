@@ -9,6 +9,8 @@ import BaseAppGraphqlServerEngine from '../../../../server/graphql/BaseAppGraphq
 import AdminGraphqlContext from '../../../../server/graphql/contexts/AdminGraphqlContext.js'
 import AdminGraphqlShare from '../../../../server/graphql/contexts/AdminGraphqlShare.js'
 
+import AllowedCorsOriginCollection from '../../../../server/tools/AllowedCorsOriginCollection.js'
+
 describe('AdminGraphqlServerEngine', () => {
   describe('super class', () => {
     test('to be instance of base class', () => {
@@ -277,8 +279,10 @@ describe('AdminGraphqlServerEngine', () => {
           config: /** @type {*} */ ({
             staticPath: rootPath.to('public/'),
           }),
-          share: /** @type {*} */ ({
-            generateAllowedOrigins: () => [],
+          share: AdminGraphqlShare.create({
+            allowedCorsOriginCollection: AllowedCorsOriginCollection.create({
+              originsString: null,
+            }),
           }),
           errorHash: {},
         })
@@ -320,11 +324,10 @@ describe('AdminGraphqlServerEngine', () => {
           config: /** @type {*} */ ({
             staticPath: rootPath.to('public/'),
           }),
-          share: /** @type {*} */ ({
-            generateAllowedOrigins: () => [
-              'https://alpha.example',
-              'https://beta.example',
-            ],
+          share: AdminGraphqlShare.create({
+            allowedCorsOriginCollection: AllowedCorsOriginCollection.create({
+              originsString: 'https://alpha.example,https://beta.example',
+            }),
           }),
           errorHash: {},
         })
@@ -369,10 +372,10 @@ describe('AdminGraphqlServerEngine', () => {
           config: /** @type {*} */ ({
             staticPath: rootPath.to('public/'),
           }),
-          share: /** @type {*} */ ({
-            generateAllowedOrigins: () => [
-              'https://alpha.example',
-            ],
+          share: AdminGraphqlShare.create({
+            allowedCorsOriginCollection: AllowedCorsOriginCollection.create({
+              originsString: 'https://alpha.example',
+            }),
           }),
           errorHash: {},
         })
@@ -419,8 +422,10 @@ describe('AdminGraphqlServerEngine', () => {
           config: /** @type {*} */ ({
             staticPath: rootPath.to('public/'),
           }),
-          share: /** @type {*} */ ({
-            generateAllowedOrigins: () => [],
+          share: AdminGraphqlShare.create({
+            allowedCorsOriginCollection: AllowedCorsOriginCollection.create({
+              originsString: null,
+            }),
           }),
           errorHash: {},
         })

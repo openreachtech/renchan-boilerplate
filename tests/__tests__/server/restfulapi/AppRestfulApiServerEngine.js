@@ -4,6 +4,10 @@ import {
 
 import AppRestfulApiServerEngine from '../../../../server/restfulapi/AppRestfulApiServerEngine.js'
 
+import AppRestfulApiShare from '../../../../server/restfulapi/contexts/AppRestfulApiShare.js'
+
+import AllowedCorsOriginCollection from '../../../../server/tools/AllowedCorsOriginCollection.js'
+
 describe('AppRestfulApiServerEngine', () => {
   describe('#collectMiddleware()', () => {
     describe('to allow an origin the share declares', () => {
@@ -25,11 +29,10 @@ describe('AppRestfulApiServerEngine', () => {
           config: /** @type {*} */ ({
             staticPath: rootPath.to('public/'),
           }),
-          share: /** @type {*} */ ({
-            generateAllowedOrigins: () => [
-              'https://alpha.example',
-              'https://beta.example',
-            ],
+          share: AppRestfulApiShare.create({
+            allowedCorsOriginCollection: AllowedCorsOriginCollection.create({
+              originsString: 'https://alpha.example,https://beta.example',
+            }),
           }),
           errorResponseHash: {},
         })
@@ -74,10 +77,10 @@ describe('AppRestfulApiServerEngine', () => {
           config: /** @type {*} */ ({
             staticPath: rootPath.to('public/'),
           }),
-          share: /** @type {*} */ ({
-            generateAllowedOrigins: () => [
-              'https://alpha.example',
-            ],
+          share: AppRestfulApiShare.create({
+            allowedCorsOriginCollection: AllowedCorsOriginCollection.create({
+              originsString: 'https://alpha.example',
+            }),
           }),
           errorResponseHash: {},
         })
@@ -124,8 +127,10 @@ describe('AppRestfulApiServerEngine', () => {
           config: /** @type {*} */ ({
             staticPath: rootPath.to('public/'),
           }),
-          share: /** @type {*} */ ({
-            generateAllowedOrigins: () => [],
+          share: AppRestfulApiShare.create({
+            allowedCorsOriginCollection: AllowedCorsOriginCollection.create({
+              originsString: null,
+            }),
           }),
           errorResponseHash: {},
         })
