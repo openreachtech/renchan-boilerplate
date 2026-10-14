@@ -158,13 +158,13 @@ graphqlUploadExpressWithResolvingContentType({
 | `AUTH_REFRESH_TOKEN_TTL_DAYS` | リフレッシュトークン Cookie の寿命（日数） | 14 |
 | `AUTH_COOKIE_SECURE` | その Cookie に `Secure` を付けるかどうか。文字列 `false` のときだけ外れる | 付ける |
 | `CORS_CUSTOMER_ORIGINS`, `CORS_ADMIN_ORIGINS`, `CORS_RESTFUL_API_ORIGINS` | ブラウザーから各エンジンを呼べるオリジン。カンマ区切りで完全一致のため、`*` はどれにも一致しない | なし。`.env.development` は `http://localhost:3000` を許可する |
-| `DATABASE_NAME`, `DATABASE_USERNAME`, `DATABASE_PASSWORD`, `DATABASE_DIALECT`, `DATABASE_HOST`, `DATABASE_PORT` | `sequelize/config.cjs` の `development`・`staging`・`production` の接続設定 | `development` は SQLite |
+| `DATABASE_NAME`, `DATABASE_USERNAME`, `DATABASE_PASSWORD`, `DATABASE_DIALECT`, `DATABASE_HOST`, `DATABASE_PORT` | `sequelize/config.cjs` の production の接続設定 | — |
 
 ### データベース
 
-`sequelize/config.cjs` は `NODE_ENV` ごとにエントリーを持ちます。`development` は `DATABASE_DIALECT` が別の方言を指定するまで `sequelize/storage/` 配下の SQLite、`live` は MariaDB、`staging` と `production` は上記の変数から組み立てます。
+`sequelize/config.cjs` は `NODE_ENV` ごとにエントリーを持ちます。`development` は `sequelize/storage/` 配下の SQLite、`live` は MariaDB、`staging` と `production` は上記の変数から組み立てます。
 
-development は既定ではファイル 1 つで動くため、`npm run db:refresh` はデータベースを捨てて作り直すところまでを一息で行えます。`npm run db:teardown` が削除するのはそのファイルだけなので、`DATABASE_DIALECT` で development をデータベースサーバーに向けると、`npm run db:refresh` も `npm test` もそのデータベースをリセットしません。その場合は `npx sequelize-cli db:migrate:undo:all` でマイグレーションを戻してください。
+development はファイル 1 つで動くため、`npm run db:refresh` はデータベースを捨てて作り直すところまでを一息で行えます。
 
 `sequelize/models/` のモデルはすべて `sequelize/baseModel/` の `BaseAppRenchanModel` を継承します。全モデルで共有する振る舞いはここに足します。ローダーは `sequelize/models/` で見つけたモデルをすべて初期化するため、このクラスはその外に置いています。
 
