@@ -89,6 +89,47 @@ export default class CustomerGraphqlServerEngine extends BaseAppGraphqlServerEng
   }
 
   /** @override */
+  get schemasToSkipFiltering () {
+    return [
+      'healthCheck',
+    ]
+  }
+
+  /** @override */
+  get visaIssuers () {
+    return {
+      hasAuthenticated: async ({
+        expressRequest,
+        userEntity,
+        engine,
+      }) => userEntity !== null,
+      hasAuthorized: async ({
+        expressRequest,
+        userEntity,
+        engine,
+      }) => true,
+      generateSchemaPermissionHash: async ({
+        expressRequest,
+        userEntity,
+        engine,
+      }) =>
+        /**
+         * @type {Record<string, boolean> | null} - Schema permission hash. (null means that all schemas have permission)
+         * @example
+         * ```js
+         * return {
+         *   customer: true,
+         *   statistics: false,
+         *   ...
+         * }
+         * ```
+         */ (
+          null
+        ),
+    }
+  }
+
+  /** @override */
   static get Share () {
     return CustomerGraphqlShare
   }
