@@ -89,13 +89,6 @@ export default class AdminGraphqlServerEngine extends BaseAppGraphqlServerEngine
   }
 
   /** @override */
-  get schemasToSkipFiltering () {
-    return [
-      'healthCheck',
-    ]
-  }
-
-  /** @override */
   generateFilterHandler () {
     return async ({
       variables,

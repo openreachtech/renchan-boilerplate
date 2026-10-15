@@ -86,6 +86,13 @@ export default class BaseAppGraphqlServerEngine extends BaseGraphqlServerEngine 
       CorsExpressMiddleware,
     ]
   }
+
+  /** @override */
+  get schemasToSkipFiltering () {
+    return [
+      'healthCheck',
+    ]
+  }
 }
 
 /**
