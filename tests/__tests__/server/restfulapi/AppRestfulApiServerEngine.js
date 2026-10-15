@@ -1,12 +1,17 @@
-import {
-  rootPath,
-} from '../../../../app/globals/_.js'
+import Env from '@openreachtech/renchan-env'
 
 import AppRestfulApiServerEngine from '../../../../server/restfulapi/AppRestfulApiServerEngine.js'
 
 import AppRestfulApiShare from '../../../../server/restfulapi/contexts/AppRestfulApiShare.js'
 
 import AppRestfulApiCorsExpressMiddleware from '../../../../server/middleware/AppRestfulApiCorsExpressMiddleware.js'
+
+import MockExpressRequest from '../../../mocks/MockExpressRequest.js'
+import MockExpressResponse from '../../../mocks/MockExpressResponse.js'
+
+const {
+  EnvironmentFacade,
+} = Env
 
 describe('AppRestfulApiServerEngine', () => {
   describe('.get:ExpressMiddleware', () => {
@@ -30,13 +35,14 @@ describe('AppRestfulApiServerEngine', () => {
     describe('to mount the middleware', () => {
       test('should be four middleware', () => {
         const engine = new AppRestfulApiServerEngine({
-          config: /** @type {*} */ ({
-            staticPath: rootPath.to('public/'),
-          }),
+          config: AppRestfulApiServerEngine.config,
           share: AppRestfulApiShare.create({
-            env: /** @type {*} */ ({
-              CORS_RESTFUL_API_ORIGINS: null,
-            }),
+            env: new EnvironmentFacade({
+              environmentHash: {
+                CORS_RESTFUL_API_ORIGINS: null,
+              },
+            })
+              .generateFacade(),
           }),
           errorResponseHash: {},
         })
@@ -75,35 +81,29 @@ describe('AppRestfulApiServerEngine', () => {
 
       test.each(cases)('origin: $input.origin', ({ input }) => {
         const engine = new AppRestfulApiServerEngine({
-          config: /** @type {*} */ ({
-            staticPath: rootPath.to('public/'),
-          }),
+          config: AppRestfulApiServerEngine.config,
           share: AppRestfulApiShare.create({
-            env: /** @type {*} */ ({
-              CORS_RESTFUL_API_ORIGINS: 'https://alpha.example,https://beta.example',
-            }),
+            env: new EnvironmentFacade({
+              environmentHash: {
+                CORS_RESTFUL_API_ORIGINS: 'https://alpha.example,https://beta.example',
+              },
+            })
+              .generateFacade(),
           }),
           errorResponseHash: {},
         })
 
         const [corsMiddleware] = engine.collectMiddleware()
-
-        const requestMock = /** @type {*} */ ({
+        const mockRequest = MockExpressRequest.create({
           method: 'GET',
-          headers: {
-            origin: input.origin,
-          },
+          origin: input.origin,
         })
-        const responseMock = /** @type {*} */ ({
-          getHeader: jest.fn(),
-          setHeader: jest.fn(),
-        })
-        const nextMock = jest.fn()
+        const mockResponse = MockExpressResponse.create()
 
-        corsMiddleware(requestMock, responseMock, nextMock)
+        corsMiddleware(mockRequest, mockResponse, () => {})
 
-        expect(responseMock.setHeader)
-          .toHaveBeenCalledWith('Access-Control-Allow-Origin', input.origin)
+        expect(mockResponse.getHeader('Access-Control-Allow-Origin'))
+          .toBe(input.origin)
       })
     })
 
@@ -123,37 +123,31 @@ describe('AppRestfulApiServerEngine', () => {
 
       test.each(cases)('origin: $input.origin', ({ input }) => {
         const engine = new AppRestfulApiServerEngine({
-          config: /** @type {*} */ ({
-            staticPath: rootPath.to('public/'),
-          }),
+          config: AppRestfulApiServerEngine.config,
           share: AppRestfulApiShare.create({
-            env: /** @type {*} */ ({
-              CORS_RESTFUL_API_ORIGINS: 'https://alpha.example',
-            }),
+            env: new EnvironmentFacade({
+              environmentHash: {
+                CORS_RESTFUL_API_ORIGINS: 'https://alpha.example',
+              },
+            })
+              .generateFacade(),
           }),
           errorResponseHash: {},
         })
 
         const [corsMiddleware] = engine.collectMiddleware()
-
-        const requestMock = /** @type {*} */ ({
+        const mockRequest = MockExpressRequest.create({
           method: 'GET',
-          headers: {
-            origin: input.origin,
-          },
+          origin: input.origin,
         })
-        const responseMock = /** @type {*} */ ({
-          getHeader: jest.fn(),
-          setHeader: jest.fn(),
-        })
-        const nextMock = jest.fn()
+        const mockResponse = MockExpressResponse.create()
 
-        corsMiddleware(requestMock, responseMock, nextMock)
+        corsMiddleware(mockRequest, mockResponse, () => {})
 
-        expect(responseMock.setHeader)
-          .toHaveBeenCalledTimes(1)
-        expect(responseMock.setHeader)
-          .toHaveBeenCalledWith('Vary', 'Origin')
+        expect(mockResponse.getHeader('Access-Control-Allow-Origin'))
+          .toBeUndefined()
+        expect(mockResponse.getHeader('Vary'))
+          .toBe('Origin')
       })
     })
 
@@ -173,37 +167,31 @@ describe('AppRestfulApiServerEngine', () => {
 
       test.each(cases)('origin: $input.origin', ({ input }) => {
         const engine = new AppRestfulApiServerEngine({
-          config: /** @type {*} */ ({
-            staticPath: rootPath.to('public/'),
-          }),
+          config: AppRestfulApiServerEngine.config,
           share: AppRestfulApiShare.create({
-            env: /** @type {*} */ ({
-              CORS_RESTFUL_API_ORIGINS: null,
-            }),
+            env: new EnvironmentFacade({
+              environmentHash: {
+                CORS_RESTFUL_API_ORIGINS: null,
+              },
+            })
+              .generateFacade(),
           }),
           errorResponseHash: {},
         })
 
         const [corsMiddleware] = engine.collectMiddleware()
-
-        const requestMock = /** @type {*} */ ({
+        const mockRequest = MockExpressRequest.create({
           method: 'GET',
-          headers: {
-            origin: input.origin,
-          },
+          origin: input.origin,
         })
-        const responseMock = /** @type {*} */ ({
-          getHeader: jest.fn(),
-          setHeader: jest.fn(),
-        })
-        const nextMock = jest.fn()
+        const mockResponse = MockExpressResponse.create()
 
-        corsMiddleware(requestMock, responseMock, nextMock)
+        corsMiddleware(mockRequest, mockResponse, () => {})
 
-        expect(responseMock.setHeader)
-          .toHaveBeenCalledTimes(1)
-        expect(responseMock.setHeader)
-          .toHaveBeenCalledWith('Vary', 'Origin')
+        expect(mockResponse.getHeader('Access-Control-Allow-Origin'))
+          .toBeUndefined()
+        expect(mockResponse.getHeader('Vary'))
+          .toBe('Origin')
       })
     })
   })
@@ -227,13 +215,14 @@ describe('AppRestfulApiServerEngine', () => {
 
       test.each(cases)('originsString: $input.originsString', ({ input }) => {
         const engine = new AppRestfulApiServerEngine({
-          config: /** @type {*} */ ({
-            staticPath: rootPath.to('public/'),
-          }),
+          config: AppRestfulApiServerEngine.config,
           share: AppRestfulApiShare.create({
-            env: /** @type {*} */ ({
-              CORS_RESTFUL_API_ORIGINS: input.originsString,
-            }),
+            env: new EnvironmentFacade({
+              environmentHash: {
+                CORS_RESTFUL_API_ORIGINS: input.originsString,
+              },
+            })
+              .generateFacade(),
           }),
           errorResponseHash: {},
         })
