@@ -9,6 +9,8 @@ import BaseAppGraphqlServerEngine from '../../../../server/graphql/BaseAppGraphq
 import AdminGraphqlContext from '../../../../server/graphql/contexts/AdminGraphqlContext.js'
 import AdminGraphqlShare from '../../../../server/graphql/contexts/AdminGraphqlShare.js'
 
+import CorsExpressMiddleware from '../../../../server/middleware/CorsExpressMiddleware.js'
+
 import AllowedCorsOriginCollection from '../../../../server/tools/AllowedCorsOriginCollection.js'
 
 describe('AdminGraphqlServerEngine', () => {
@@ -272,6 +274,23 @@ describe('AdminGraphqlServerEngine', () => {
 })
 
 describe('AdminGraphqlServerEngine', () => {
+  describe('.get:ExpressMiddleware', () => {
+    describe('when called as is', () => {
+      test('should be the CORS middleware', () => {
+        const expected = [
+          CorsExpressMiddleware,
+        ]
+
+        const received = AdminGraphqlServerEngine.ExpressMiddleware
+
+        expect(received)
+          .toStrictEqual(expected)
+      })
+    })
+  })
+})
+
+describe('AdminGraphqlServerEngine', () => {
   describe('#collectMiddleware()', () => {
     describe('to mount the upload middleware', () => {
       test('should be five middleware', () => {
@@ -451,6 +470,44 @@ describe('AdminGraphqlServerEngine', () => {
           .toHaveBeenCalledTimes(1)
         expect(responseMock.setHeader)
           .toHaveBeenCalledWith('Vary', 'Origin')
+      })
+    })
+  })
+})
+
+describe('AdminGraphqlServerEngine', () => {
+  describe('#composeExpressMiddleware()', () => {
+    describe('should compose the middleware of .get:ExpressMiddleware', () => {
+      const cases = [
+        {
+          input: {
+            originsString: 'https://alpha.example',
+          },
+        },
+        {
+          input: {
+            originsString: null,
+          },
+        },
+      ]
+
+      test.each(cases)('originsString: $input.originsString', ({ input }) => {
+        const engine = new AdminGraphqlServerEngine({
+          config: /** @type {*} */ ({
+            staticPath: rootPath.to('public/'),
+          }),
+          share: AdminGraphqlShare.create({
+            allowedCorsOriginCollection: AllowedCorsOriginCollection.create(input),
+          }),
+          errorHash: {},
+        })
+
+        const received = engine.composeExpressMiddleware()
+
+        expect(received)
+          .toEqual([
+            expect.any(Function),
+          ])
       })
     })
   })
