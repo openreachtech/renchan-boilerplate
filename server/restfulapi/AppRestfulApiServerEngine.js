@@ -6,7 +6,7 @@ import {
 
 import rootPath from '../../app/globals/root-path.js'
 
-import CorsExpressMiddleware from '../middleware/CorsExpressMiddleware.js'
+import AppRestfulApiCorsExpressMiddleware from '../middleware/AppRestfulApiCorsExpressMiddleware.js'
 
 import AppRestfulApiShare from './contexts/AppRestfulApiShare.js'
 import AppRestfulApiContext from './contexts/AppRestfulApiContext.js'
@@ -122,7 +122,7 @@ export default class AppRestfulApiServerEngine extends BaseRestfulApiServerEngin
    */
   static get ExpressMiddleware () {
     return [
-      CorsExpressMiddleware,
+      AppRestfulApiCorsExpressMiddleware,
     ]
   }
 
