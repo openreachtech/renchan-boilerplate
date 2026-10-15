@@ -12,8 +12,6 @@ import AUTH_CONSTANT_HASH from '../../app/constants/authConstants.js'
 
 import BaseAppGraphqlServerEngine from './BaseAppGraphqlServerEngine.js'
 
-import CorsExpressMiddleware from '../middleware/CorsExpressMiddleware.js'
-
 import AdminGraphqlShare from './contexts/AdminGraphqlShare.js'
 import AdminGraphqlContext from './contexts/AdminGraphqlContext.js'
 
@@ -58,17 +56,6 @@ export default class AdminGraphqlServerEngine extends BaseAppGraphqlServerEngine
       ...this.refreshTokenCookieConfig,
       name: REFRESH_TOKEN_COOKIE.ADMIN.NAME,
     }
-  }
-
-  /**
-   * get: Express middleware classes the engine composes, in mounting order.
-   *
-   * @returns {Array<ExpressType.MiddlewareFamilyMemberCtor>} - Middleware classes.
-   */
-  static get ExpressMiddleware () {
-    return [
-      CorsExpressMiddleware,
-    ]
   }
 
   /** @override */

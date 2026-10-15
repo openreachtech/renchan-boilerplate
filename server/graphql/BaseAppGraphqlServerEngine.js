@@ -6,6 +6,8 @@ import {
   env,
 } from '../../app/globals/_.js'
 
+import CorsExpressMiddleware from '../middleware/CorsExpressMiddleware.js'
+
 const DEFAULT_REFRESH_TOKEN_LIFETIME_DAYS = 14
 
 /**
@@ -72,6 +74,17 @@ export default class BaseAppGraphqlServerEngine extends BaseGraphqlServerEngine 
 
       CanNotSubscribe: '102.S000.001',
     }
+  }
+
+  /**
+   * get: Express middleware classes the engine composes, in mounting order.
+   *
+   * @returns {Array<ExpressType.MiddlewareFamilyMemberCtor>} - Middleware classes.
+   */
+  static get ExpressMiddleware () {
+    return [
+      CorsExpressMiddleware,
+    ]
   }
 }
 
