@@ -8,4 +8,5 @@ import {
  *
  * @extends {RenchanModel}
  */
-export default class BaseAppRenchanModel extends RenchanModel {}
+export default class BaseAppRenchanModel extends RenchanModel {
+}
