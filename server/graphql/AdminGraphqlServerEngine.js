@@ -96,6 +96,44 @@ export default class AdminGraphqlServerEngine extends BaseAppGraphqlServerEngine
   }
 
   /** @override */
+  generateFilterHandler () {
+    return async ({
+      variables,
+      context,
+      information,
+      parent,
+    }) => {
+      const schema = information.fieldName
+
+      const canResolve = context.canResolve({
+        schema,
+      })
+
+      if (canResolve) {
+        return
+      }
+
+      if (!context.hasAuthenticated()) {
+        throw this.errorHash.Unauthenticated.create()
+      }
+
+      if (!context.hasAuthorized()) {
+        throw this.errorHash.Unauthorized.create()
+      }
+
+      if (!context.hasSchemaPermission({
+        schema,
+      })) {
+        throw this.errorHash.DeniedSchemaPermission.create({
+          value: {
+            schema,
+          },
+        })
+      }
+    }
+  }
+
+  /** @override */
   get visaIssuers () {
     return {
       hasAuthenticated: async ({
@@ -137,5 +175,10 @@ export default class AdminGraphqlServerEngine extends BaseAppGraphqlServerEngine
   /** @override */
   static get Context () {
     return AdminGraphqlContext
+  }
+
+  /** @override */
+  async collectScalars () {
+    return []
   }
 }
