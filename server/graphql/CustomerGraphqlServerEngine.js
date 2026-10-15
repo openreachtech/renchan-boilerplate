@@ -97,9 +97,4 @@ export default class CustomerGraphqlServerEngine extends BaseAppGraphqlServerEng
   static get Context () {
     return CustomerGraphqlContext
   }
-
-  /** @override */
-  async collectScalars () {
-    return []
-  }
 }

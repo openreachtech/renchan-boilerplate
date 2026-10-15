@@ -165,6 +165,11 @@ export default class BaseAppGraphqlServerEngine extends BaseGraphqlServerEngine 
         ),
     }
   }
+
+  /** @override */
+  async collectScalars () {
+    return []
+  }
 }
 
 /**

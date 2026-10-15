@@ -97,9 +97,4 @@ export default class AdminGraphqlServerEngine extends BaseAppGraphqlServerEngine
   static get Context () {
     return AdminGraphqlContext
   }
-
-  /** @override */
-  async collectScalars () {
-    return []
-  }
 }
