@@ -1,5 +1,4 @@
 import express from 'express'
-import cors from 'cors'
 
 import {
   graphqlUploadExpressWithResolvingContentType,
@@ -12,6 +11,8 @@ import {
 import AUTH_CONSTANT_HASH from '../../app/constants/authConstants.js'
 
 import BaseAppGraphqlServerEngine from './BaseAppGraphqlServerEngine.js'
+
+import CorsExpressMiddleware from '../middleware/CorsExpressMiddleware.js'
 
 import AdminGraphqlShare from './contexts/AdminGraphqlShare.js'
 import AdminGraphqlContext from './contexts/AdminGraphqlContext.js'
@@ -59,12 +60,23 @@ export default class AdminGraphqlServerEngine extends BaseAppGraphqlServerEngine
     }
   }
 
+  /**
+   * get: Express middleware classes the engine composes, in mounting order.
+   *
+   * @returns {Array<ExpressType.MiddlewareFamilyMemberCtor>} - Middleware classes.
+   */
+  static get ExpressMiddleware () {
+    return [
+      CorsExpressMiddleware,
+    ]
+  }
+
   /** @override */
   collectMiddleware () {
+    const composedExpressMiddleware = this.composeExpressMiddleware()
+
     return [
-      cors({
-        origin: this.share.allowedCorsOriginCollection.extractOrigins(),
-      }),
+      ...composedExpressMiddleware,
 
       express.json({
         limit: '10mb',
