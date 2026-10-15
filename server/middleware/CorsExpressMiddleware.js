@@ -4,8 +4,10 @@ import {
   BaseExpressMiddleware,
 } from '@openreachtech/renchan'
 
+import AllowedCorsOriginCollection from '../tools/AllowedCorsOriginCollection.js'
+
 /**
- * Express middleware that allows the CORS origins the share declares.
+ * Express middleware that allows the CORS origins a derived class reads from the environment.
  *
  * @extends {BaseExpressMiddleware<import('../graphql/BaseAppGraphqlServerEngine.js').default | import('../restfulapi/AppRestfulApiServerEngine.js').default>}
  */
@@ -25,17 +27,39 @@ export default class CorsExpressMiddleware extends BaseExpressMiddleware {
   }
 
   /**
-   * get: Collection of the allowed CORS origins, from the share.
+   * get: Environment of the share.
    *
-   * @returns {import('../tools/AllowedCorsOriginCollection.js').default} - Allowed origins.
+   * @returns {renchan.RenchanEnv} - Environment.
    */
-  get allowedCorsOriginCollection () {
-    return this.share.allowedCorsOriginCollection
+  get env () {
+    return this.share.env
+  }
+
+  /**
+   * get: Allowed CORS origins as one comma-separated string.
+   *
+   * @abstract
+   * @returns {string | null} - Comma-separated origins.
+   * @throws {Error} - When a derived class does not override it.
+   */
+  get originsString () {
+    throw new Error(`101.X000.001 {"memberName":"${this.constructor.name}#get:originsString"}`)
   }
 
   /** @override */
   composeMiddleware () {
     return this.Ctor.corsClient(this.buildOptionHash())
+  }
+
+  /**
+   * Create the collection of the allowed CORS origins.
+   *
+   * @returns {AllowedCorsOriginCollection} - Allowed origins.
+   */
+  createAllowedCorsOriginCollection () {
+    return AllowedCorsOriginCollection.create({
+      originsString: this.originsString,
+    })
   }
 
   /**
@@ -45,7 +69,8 @@ export default class CorsExpressMiddleware extends BaseExpressMiddleware {
    */
   buildOptionHash () {
     return {
-      origin: this.allowedCorsOriginCollection.extractOrigins(),
+      origin: this.createAllowedCorsOriginCollection()
+        .extractOrigins(),
     }
   }
 }

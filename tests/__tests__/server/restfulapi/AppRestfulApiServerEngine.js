@@ -6,16 +6,14 @@ import AppRestfulApiServerEngine from '../../../../server/restfulapi/AppRestfulA
 
 import AppRestfulApiShare from '../../../../server/restfulapi/contexts/AppRestfulApiShare.js'
 
-import CorsExpressMiddleware from '../../../../server/middleware/CorsExpressMiddleware.js'
-
-import AllowedCorsOriginCollection from '../../../../server/tools/AllowedCorsOriginCollection.js'
+import AppRestfulApiCorsExpressMiddleware from '../../../../server/middleware/AppRestfulApiCorsExpressMiddleware.js'
 
 describe('AppRestfulApiServerEngine', () => {
   describe('.get:ExpressMiddleware', () => {
     describe('when called as is', () => {
       test('should be the CORS middleware', () => {
         const expected = [
-          CorsExpressMiddleware,
+          AppRestfulApiCorsExpressMiddleware,
         ]
 
         const received = AppRestfulApiServerEngine.ExpressMiddleware
@@ -36,8 +34,8 @@ describe('AppRestfulApiServerEngine', () => {
             staticPath: rootPath.to('public/'),
           }),
           share: AppRestfulApiShare.create({
-            allowedCorsOriginCollection: AllowedCorsOriginCollection.create({
-              originsString: null,
+            env: /** @type {*} */ ({
+              CORS_RESTFUL_API_ORIGINS: null,
             }),
           }),
           errorResponseHash: {},
@@ -81,8 +79,8 @@ describe('AppRestfulApiServerEngine', () => {
             staticPath: rootPath.to('public/'),
           }),
           share: AppRestfulApiShare.create({
-            allowedCorsOriginCollection: AllowedCorsOriginCollection.create({
-              originsString: 'https://alpha.example,https://beta.example',
+            env: /** @type {*} */ ({
+              CORS_RESTFUL_API_ORIGINS: 'https://alpha.example,https://beta.example',
             }),
           }),
           errorResponseHash: {},
@@ -129,8 +127,8 @@ describe('AppRestfulApiServerEngine', () => {
             staticPath: rootPath.to('public/'),
           }),
           share: AppRestfulApiShare.create({
-            allowedCorsOriginCollection: AllowedCorsOriginCollection.create({
-              originsString: 'https://alpha.example',
+            env: /** @type {*} */ ({
+              CORS_RESTFUL_API_ORIGINS: 'https://alpha.example',
             }),
           }),
           errorResponseHash: {},
@@ -179,8 +177,8 @@ describe('AppRestfulApiServerEngine', () => {
             staticPath: rootPath.to('public/'),
           }),
           share: AppRestfulApiShare.create({
-            allowedCorsOriginCollection: AllowedCorsOriginCollection.create({
-              originsString: null,
+            env: /** @type {*} */ ({
+              CORS_RESTFUL_API_ORIGINS: null,
             }),
           }),
           errorResponseHash: {},
@@ -233,7 +231,9 @@ describe('AppRestfulApiServerEngine', () => {
             staticPath: rootPath.to('public/'),
           }),
           share: AppRestfulApiShare.create({
-            allowedCorsOriginCollection: AllowedCorsOriginCollection.create(input),
+            env: /** @type {*} */ ({
+              CORS_RESTFUL_API_ORIGINS: input.originsString,
+            }),
           }),
           errorResponseHash: {},
         })

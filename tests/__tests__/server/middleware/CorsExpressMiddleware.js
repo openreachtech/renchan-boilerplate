@@ -165,16 +165,16 @@ describe('CorsExpressMiddleware', () => {
 })
 
 describe('CorsExpressMiddleware', () => {
-  describe('#get:allowedCorsOriginCollection', () => {
-    describe('should be the collection of the share', () => {
+  describe('#get:env', () => {
+    describe('should be the env of the share', () => {
       const cases = [
         {
           input: {
             engine: /** @type {*} */ ({
               share: {
-                allowedCorsOriginCollection: AllowedCorsOriginCollection.create({
-                  originsString: 'https://alpha.example',
-                }),
+                env: {
+                  CORS_ADMIN_ORIGINS: 'https://alpha.example',
+                },
               },
             }),
           },
@@ -183,22 +183,78 @@ describe('CorsExpressMiddleware', () => {
           input: {
             engine: /** @type {*} */ ({
               share: {
-                allowedCorsOriginCollection: AllowedCorsOriginCollection.create({
-                  originsString: null,
-                }),
+                env: {
+                  CORS_CUSTOMER_ORIGINS: 'https://beta.example',
+                },
               },
             }),
           },
         },
       ]
 
-      test.each(cases)('originsString: $input.engine.share.allowedCorsOriginCollection.originsString', ({ input }) => {
+      test.each(cases)('env: $input.engine.share.env', ({ input }) => {
         const middleware = CorsExpressMiddleware.create(input)
 
-        const received = middleware.allowedCorsOriginCollection
+        const received = middleware.env
 
         expect(received)
-          .toBe(input.engine.share.allowedCorsOriginCollection) // same reference
+          .toBe(input.engine.share.env) // same reference
+      })
+    })
+  })
+})
+
+describe('CorsExpressMiddleware', () => {
+  describe('#get:originsString', () => {
+    describe('should throw when a derived class does not override it', () => {
+      test('with no override', () => {
+        const middleware = CorsExpressMiddleware.create({
+          engine: /** @type {*} */ ({}),
+        })
+
+        expect(() => middleware.originsString)
+          .toThrow('101.X000.001 {"memberName":"CorsExpressMiddleware#get:originsString"}')
+      })
+    })
+  })
+})
+
+describe('CorsExpressMiddleware', () => {
+  describe('#createAllowedCorsOriginCollection()', () => {
+    describe('should keep the origins string of the derived class', () => {
+      const cases = [
+        {
+          input: {
+            originsString: 'https://alpha.example',
+          },
+          expected: 'https://alpha.example',
+        },
+        {
+          input: {
+            originsString: null,
+          },
+          expected: null,
+        },
+      ]
+
+      test.each(cases)('originsString: $input.originsString', ({ input, expected }) => {
+        class OriginsCorsExpressMiddleware extends CorsExpressMiddleware {
+          /** @override */
+          get originsString () {
+            return input.originsString
+          }
+        }
+
+        const middleware = OriginsCorsExpressMiddleware.create({
+          engine: /** @type {*} */ ({}),
+        })
+
+        const received = middleware.createAllowedCorsOriginCollection()
+
+        expect(received)
+          .toBeInstanceOf(AllowedCorsOriginCollection)
+        expect(received)
+          .toHaveProperty('originsString', expected)
       })
     })
   })
@@ -247,14 +303,15 @@ describe('CorsExpressMiddleware', () => {
           static get corsClient () {
             return /** @type {*} */ (corsClientSpy)
           }
+
+          /** @override */
+          get originsString () {
+            return input.originsString
+          }
         }
 
         const middleware = SpiedCorsExpressMiddleware.create({
-          engine: /** @type {*} */ ({
-            share: {
-              allowedCorsOriginCollection: AllowedCorsOriginCollection.create(input),
-            },
-          }),
+          engine: /** @type {*} */ ({}),
         })
 
         middleware.composeMiddleware()
@@ -288,16 +345,15 @@ describe('CorsExpressMiddleware', () => {
           static get corsClient () {
             return /** @type {*} */ (() => input.composed)
           }
+
+          /** @override */
+          get originsString () {
+            return null
+          }
         }
 
         const middleware = SpiedCorsExpressMiddleware.create({
-          engine: /** @type {*} */ ({
-            share: {
-              allowedCorsOriginCollection: AllowedCorsOriginCollection.create({
-                originsString: null,
-              }),
-            },
-          }),
+          engine: /** @type {*} */ ({}),
         })
 
         const received = middleware.composeMiddleware()
@@ -311,7 +367,7 @@ describe('CorsExpressMiddleware', () => {
 
 describe('CorsExpressMiddleware', () => {
   describe('#buildOptionHash()', () => {
-    describe('should declare the origins of the collection', () => {
+    describe('should declare the origins the derived class reads', () => {
       const cases = [
         {
           input: {
@@ -345,12 +401,15 @@ describe('CorsExpressMiddleware', () => {
       ]
 
       test.each(cases)('originsString: $input.originsString', ({ input, expected }) => {
-        const middleware = CorsExpressMiddleware.create({
-          engine: /** @type {*} */ ({
-            share: {
-              allowedCorsOriginCollection: AllowedCorsOriginCollection.create(input),
-            },
-          }),
+        class OriginsCorsExpressMiddleware extends CorsExpressMiddleware {
+          /** @override */
+          get originsString () {
+            return input.originsString
+          }
+        }
+
+        const middleware = OriginsCorsExpressMiddleware.create({
+          engine: /** @type {*} */ ({}),
         })
 
         const received = middleware.buildOptionHash()
