@@ -1,5 +1,14 @@
+import Env from '@openreachtech/renchan-env'
+
 import CorsExpressMiddleware from '../../../../server/middleware/CorsExpressMiddleware.js'
 import CustomerCorsExpressMiddleware from '../../../../server/middleware/CustomerCorsExpressMiddleware.js'
+
+import CustomerGraphqlServerEngine from '../../../../server/graphql/CustomerGraphqlServerEngine.js'
+import CustomerGraphqlShare from '../../../../server/graphql/contexts/CustomerGraphqlShare.js'
+
+const {
+  EnvironmentFacade,
+} = Env
 
 describe('CustomerCorsExpressMiddleware', () => {
   describe('inheritance', () => {
@@ -18,7 +27,7 @@ describe('CustomerCorsExpressMiddleware', () => {
       const cases = [
         {
           input: {
-            env: {
+            environmentHash: {
               CORS_CUSTOMER_ORIGINS: 'https://alpha.example,https://beta.example',
             },
           },
@@ -26,7 +35,7 @@ describe('CustomerCorsExpressMiddleware', () => {
         },
         {
           input: {
-            env: {
+            environmentHash: {
               CORS_CUSTOMER_ORIGINS: null,
             },
           },
@@ -34,13 +43,19 @@ describe('CustomerCorsExpressMiddleware', () => {
         },
       ]
 
-      test.each(cases)('CORS_CUSTOMER_ORIGINS: $input.env.CORS_CUSTOMER_ORIGINS', ({ input, expected }) => {
-        const middleware = CustomerCorsExpressMiddleware.create({
-          engine: /** @type {*} */ ({
-            share: {
-              env: input.env,
-            },
+      test.each(cases)('CORS_CUSTOMER_ORIGINS: $input.environmentHash.CORS_CUSTOMER_ORIGINS', ({ input, expected }) => {
+        const engine = new CustomerGraphqlServerEngine({
+          config: CustomerGraphqlServerEngine.config,
+          share: CustomerGraphqlShare.create({
+            env: new EnvironmentFacade({
+              environmentHash: input.environmentHash,
+            })
+              .generateFacade(),
           }),
+          errorHash: {},
+        })
+        const middleware = CustomerCorsExpressMiddleware.create({
+          engine,
         })
 
         const received = middleware.originsString
