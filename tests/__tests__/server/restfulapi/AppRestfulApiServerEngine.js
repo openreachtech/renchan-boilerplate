@@ -6,7 +6,58 @@ import AppRestfulApiServerEngine from '../../../../server/restfulapi/AppRestfulA
 
 import AppRestfulApiShare from '../../../../server/restfulapi/contexts/AppRestfulApiShare.js'
 
+import CorsExpressMiddleware from '../../../../server/middleware/CorsExpressMiddleware.js'
+
 import AllowedCorsOriginCollection from '../../../../server/tools/AllowedCorsOriginCollection.js'
+
+describe('AppRestfulApiServerEngine', () => {
+  describe('.get:ExpressMiddleware', () => {
+    describe('when called as is', () => {
+      test('should be the CORS middleware', () => {
+        const expected = [
+          CorsExpressMiddleware,
+        ]
+
+        const received = AppRestfulApiServerEngine.ExpressMiddleware
+
+        expect(received)
+          .toStrictEqual(expected)
+      })
+    })
+  })
+})
+
+describe('AppRestfulApiServerEngine', () => {
+  describe('#collectMiddleware()', () => {
+    describe('to mount the middleware', () => {
+      test('should be four middleware', () => {
+        const engine = new AppRestfulApiServerEngine({
+          config: /** @type {*} */ ({
+            staticPath: rootPath.to('public/'),
+          }),
+          share: AppRestfulApiShare.create({
+            allowedCorsOriginCollection: AllowedCorsOriginCollection.create({
+              originsString: null,
+            }),
+          }),
+          errorResponseHash: {},
+        })
+
+        const expected = [
+          expect.any(Function),
+          expect.any(Function),
+          expect.any(Function),
+          expect.any(Function),
+        ]
+
+        const received = engine.collectMiddleware()
+
+        expect(received)
+          .toEqual(expected)
+      })
+    })
+  })
+})
 
 describe('AppRestfulApiServerEngine', () => {
   describe('#collectMiddleware()', () => {
@@ -155,6 +206,44 @@ describe('AppRestfulApiServerEngine', () => {
           .toHaveBeenCalledTimes(1)
         expect(responseMock.setHeader)
           .toHaveBeenCalledWith('Vary', 'Origin')
+      })
+    })
+  })
+})
+
+describe('AppRestfulApiServerEngine', () => {
+  describe('#composeExpressMiddleware()', () => {
+    describe('should compose the middleware of .get:ExpressMiddleware', () => {
+      const cases = [
+        {
+          input: {
+            originsString: 'https://alpha.example',
+          },
+        },
+        {
+          input: {
+            originsString: null,
+          },
+        },
+      ]
+
+      test.each(cases)('originsString: $input.originsString', ({ input }) => {
+        const engine = new AppRestfulApiServerEngine({
+          config: /** @type {*} */ ({
+            staticPath: rootPath.to('public/'),
+          }),
+          share: AppRestfulApiShare.create({
+            allowedCorsOriginCollection: AllowedCorsOriginCollection.create(input),
+          }),
+          errorResponseHash: {},
+        })
+
+        const received = engine.composeExpressMiddleware()
+
+        expect(received)
+          .toEqual([
+            expect.any(Function),
+          ])
       })
     })
   })
