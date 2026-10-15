@@ -1,5 +1,14 @@
+import Env from '@openreachtech/renchan-env'
+
 import CorsExpressMiddleware from '../../../../server/middleware/CorsExpressMiddleware.js'
 import AppRestfulApiCorsExpressMiddleware from '../../../../server/middleware/AppRestfulApiCorsExpressMiddleware.js'
+
+import AppRestfulApiServerEngine from '../../../../server/restfulapi/AppRestfulApiServerEngine.js'
+import AppRestfulApiShare from '../../../../server/restfulapi/contexts/AppRestfulApiShare.js'
+
+const {
+  EnvironmentFacade,
+} = Env
 
 describe('AppRestfulApiCorsExpressMiddleware', () => {
   describe('inheritance', () => {
@@ -18,7 +27,7 @@ describe('AppRestfulApiCorsExpressMiddleware', () => {
       const cases = [
         {
           input: {
-            env: {
+            environmentHash: {
               CORS_RESTFUL_API_ORIGINS: 'https://alpha.example,https://beta.example',
             },
           },
@@ -26,7 +35,7 @@ describe('AppRestfulApiCorsExpressMiddleware', () => {
         },
         {
           input: {
-            env: {
+            environmentHash: {
               CORS_RESTFUL_API_ORIGINS: null,
             },
           },
@@ -34,13 +43,19 @@ describe('AppRestfulApiCorsExpressMiddleware', () => {
         },
       ]
 
-      test.each(cases)('CORS_RESTFUL_API_ORIGINS: $input.env.CORS_RESTFUL_API_ORIGINS', ({ input, expected }) => {
-        const middleware = AppRestfulApiCorsExpressMiddleware.create({
-          engine: /** @type {*} */ ({
-            share: {
-              env: input.env,
-            },
+      test.each(cases)('CORS_RESTFUL_API_ORIGINS: $input.environmentHash.CORS_RESTFUL_API_ORIGINS', ({ input, expected }) => {
+        const engine = new AppRestfulApiServerEngine({
+          config: AppRestfulApiServerEngine.config,
+          share: AppRestfulApiShare.create({
+            env: new EnvironmentFacade({
+              environmentHash: input.environmentHash,
+            })
+              .generateFacade(),
           }),
+          errorResponseHash: {},
+        })
+        const middleware = AppRestfulApiCorsExpressMiddleware.create({
+          engine,
         })
 
         const received = middleware.originsString
