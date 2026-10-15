@@ -89,6 +89,13 @@ export default class AdminGraphqlServerEngine extends BaseAppGraphqlServerEngine
   }
 
   /** @override */
+  get schemasToSkipFiltering () {
+    return [
+      'healthCheck',
+    ]
+  }
+
+  /** @override */
   static get Share () {
     return AdminGraphqlShare
   }

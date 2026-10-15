@@ -89,6 +89,13 @@ export default class CustomerGraphqlServerEngine extends BaseAppGraphqlServerEng
   }
 
   /** @override */
+  get schemasToSkipFiltering () {
+    return [
+      'healthCheck',
+    ]
+  }
+
+  /** @override */
   static get Share () {
     return CustomerGraphqlShare
   }

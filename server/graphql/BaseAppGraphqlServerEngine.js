@@ -88,13 +88,6 @@ export default class BaseAppGraphqlServerEngine extends BaseGraphqlServerEngine 
   }
 
   /** @override */
-  get schemasToSkipFiltering () {
-    return [
-      'healthCheck',
-    ]
-  }
-
-  /** @override */
   generateFilterHandler () {
     return async ({
       variables,
