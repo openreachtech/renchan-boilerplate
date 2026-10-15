@@ -1,3 +1,5 @@
+import Env from '@openreachtech/renchan-env'
+
 import {
   rootPath,
 } from '../../../../app/globals/_.js'
@@ -8,6 +10,15 @@ import BaseAppGraphqlServerEngine from '../../../../server/graphql/BaseAppGraphq
 
 import AdminGraphqlContext from '../../../../server/graphql/contexts/AdminGraphqlContext.js'
 import AdminGraphqlShare from '../../../../server/graphql/contexts/AdminGraphqlShare.js'
+
+import AdminCorsExpressMiddleware from '../../../../server/middleware/AdminCorsExpressMiddleware.js'
+
+import MockExpressRequest from '../../../mocks/MockExpressRequest.js'
+import MockExpressResponse from '../../../mocks/MockExpressResponse.js'
+
+const {
+  EnvironmentFacade,
+} = Env
 
 describe('AdminGraphqlServerEngine', () => {
   describe('super class', () => {
@@ -65,27 +76,6 @@ describe('AdminGraphqlServerEngine', () => {
         expect(actual)
           .toEqual(expected)
       })
-    })
-  })
-})
-
-describe('AdminGraphqlServerEngine', () => {
-  describe('.get:standardErrorCodeHash', () => {
-    test('to be fixed value', () => {
-      const expected = {
-        Unknown: '100.X000.001',
-        ConcreteMemberNotFound: '101.X000.001',
-        Unauthenticated: '102.X000.001',
-        Unauthorized: '102.X000.002',
-        DeniedSchemaPermission: '102.X000.003',
-        Database: '104.X000.001',
-
-        CanNotSubscribe: '102.S000.001',
-      }
-      const actual = AdminGraphqlServerEngine.standardErrorCodeHash
-
-      expect(actual)
-        .toStrictEqual(expected)
     })
   })
 })
@@ -291,28 +281,227 @@ describe('AdminGraphqlServerEngine', () => {
 })
 
 describe('AdminGraphqlServerEngine', () => {
-  describe('#collectMiddleware()', () => {
-    test('to be fixed value', () => {
-      const engine = new AdminGraphqlServerEngine({
-        config: /** @type {*} */ ({
-          staticPath: rootPath.to('public/'),
-        }),
-        share: /** @type {*} */ ({}),
-        errorHash: {},
-      })
+  describe('.get:ExpressMiddleware', () => {
+    describe('when called as is', () => {
+      test('should be the CORS middleware', () => {
+        const expected = [
+          AdminCorsExpressMiddleware,
+        ]
 
-      const expected = [
-        expect.any(Function),
-        expect.any(Function),
-        expect.any(Function),
-        expect.any(Function),
-        expect.any(Function),
+        const received = AdminGraphqlServerEngine.ExpressMiddleware
+
+        expect(received)
+          .toStrictEqual(expected)
+      })
+    })
+  })
+})
+
+describe('AdminGraphqlServerEngine', () => {
+  describe('#collectMiddleware()', () => {
+    describe('to mount the upload middleware', () => {
+      test('should be five middleware', () => {
+        const engine = new AdminGraphqlServerEngine({
+          config: AdminGraphqlServerEngine.config,
+          share: AdminGraphqlShare.create({
+            env: new EnvironmentFacade({
+              environmentHash: {
+                CORS_ADMIN_ORIGINS: null,
+              },
+            })
+              .generateFacade(),
+          }),
+          errorHash: {},
+        })
+
+        const expected = [
+          expect.any(Function),
+          expect.any(Function),
+          expect.any(Function),
+          expect.any(Function),
+          expect.any(Function),
+        ]
+
+        const actual = engine.collectMiddleware()
+
+        expect(actual)
+          .toEqual(expected)
+      })
+    })
+  })
+})
+
+describe('AdminGraphqlServerEngine', () => {
+  describe('#collectMiddleware()', () => {
+    describe('to allow an origin the share declares', () => {
+      const cases = [
+        {
+          input: {
+            origin: 'https://alpha.example',
+          },
+        },
+        {
+          input: {
+            origin: 'https://beta.example',
+          },
+        },
       ]
 
-      const actual = engine.collectMiddleware()
+      test.each(cases)('origin: $input.origin', ({ input }) => {
+        const engine = new AdminGraphqlServerEngine({
+          config: AdminGraphqlServerEngine.config,
+          share: AdminGraphqlShare.create({
+            env: new EnvironmentFacade({
+              environmentHash: {
+                CORS_ADMIN_ORIGINS: 'https://alpha.example,https://beta.example',
+              },
+            })
+              .generateFacade(),
+          }),
+          errorHash: {},
+        })
 
-      expect(actual)
-        .toEqual(expected)
+        const [corsMiddleware] = engine.collectMiddleware()
+        const mockRequest = MockExpressRequest.create({
+          method: 'GET',
+          origin: input.origin,
+        })
+        const mockResponse = MockExpressResponse.create()
+
+        corsMiddleware(mockRequest, mockResponse, () => {})
+
+        expect(mockResponse.getHeader('Access-Control-Allow-Origin'))
+          .toBe(input.origin)
+      })
+    })
+
+    describe('to refuse an origin the share does not declare', () => {
+      const cases = [
+        {
+          input: {
+            origin: 'https://gamma.example',
+          },
+        },
+        {
+          input: {
+            origin: 'http://localhost:3000',
+          },
+        },
+      ]
+
+      test.each(cases)('origin: $input.origin', ({ input }) => {
+        const engine = new AdminGraphqlServerEngine({
+          config: AdminGraphqlServerEngine.config,
+          share: AdminGraphqlShare.create({
+            env: new EnvironmentFacade({
+              environmentHash: {
+                CORS_ADMIN_ORIGINS: 'https://alpha.example',
+              },
+            })
+              .generateFacade(),
+          }),
+          errorHash: {},
+        })
+
+        const [corsMiddleware] = engine.collectMiddleware()
+        const mockRequest = MockExpressRequest.create({
+          method: 'GET',
+          origin: input.origin,
+        })
+        const mockResponse = MockExpressResponse.create()
+
+        corsMiddleware(mockRequest, mockResponse, () => {})
+
+        expect(mockResponse.getHeader('Access-Control-Allow-Origin'))
+          .toBeUndefined()
+        expect(mockResponse.getHeader('Vary'))
+          .toBe('Origin')
+      })
+    })
+
+    describe('to refuse every origin when the share declares none', () => {
+      const cases = [
+        {
+          input: {
+            origin: 'https://alpha.example',
+          },
+        },
+        {
+          input: {
+            origin: 'http://localhost:3000',
+          },
+        },
+      ]
+
+      test.each(cases)('origin: $input.origin', ({ input }) => {
+        const engine = new AdminGraphqlServerEngine({
+          config: AdminGraphqlServerEngine.config,
+          share: AdminGraphqlShare.create({
+            env: new EnvironmentFacade({
+              environmentHash: {
+                CORS_ADMIN_ORIGINS: null,
+              },
+            })
+              .generateFacade(),
+          }),
+          errorHash: {},
+        })
+
+        const [corsMiddleware] = engine.collectMiddleware()
+        const mockRequest = MockExpressRequest.create({
+          method: 'GET',
+          origin: input.origin,
+        })
+        const mockResponse = MockExpressResponse.create()
+
+        corsMiddleware(mockRequest, mockResponse, () => {})
+
+        expect(mockResponse.getHeader('Access-Control-Allow-Origin'))
+          .toBeUndefined()
+        expect(mockResponse.getHeader('Vary'))
+          .toBe('Origin')
+      })
+    })
+  })
+})
+
+describe('AdminGraphqlServerEngine', () => {
+  describe('#composeExpressMiddleware()', () => {
+    describe('should compose the middleware of .get:ExpressMiddleware', () => {
+      const cases = [
+        {
+          input: {
+            originsString: 'https://alpha.example',
+          },
+        },
+        {
+          input: {
+            originsString: null,
+          },
+        },
+      ]
+
+      test.each(cases)('originsString: $input.originsString', ({ input }) => {
+        const engine = new AdminGraphqlServerEngine({
+          config: AdminGraphqlServerEngine.config,
+          share: AdminGraphqlShare.create({
+            env: new EnvironmentFacade({
+              environmentHash: {
+                CORS_ADMIN_ORIGINS: input.originsString,
+              },
+            })
+              .generateFacade(),
+          }),
+          errorHash: {},
+        })
+
+        const received = engine.composeExpressMiddleware()
+
+        expect(received)
+          .toEqual([
+            expect.any(Function),
+          ])
+      })
     })
   })
 })

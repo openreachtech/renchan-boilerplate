@@ -95,6 +95,7 @@ npm test -- --empty
 ├── constants/              # constants, written as CJS
 ├── public/                 # static files the servers serve
 ├── sequelize/
+│   ├── baseModel/          # BaseAppRenchanModel, which every model extends
 │   ├── config.cjs          # connection settings, per NODE_ENV
 │   ├── migrations/         # write the migrations here
 │   ├── models/             # write the models here
@@ -145,6 +146,7 @@ Variables are read through `@openreachtech/renchan-env`, which loads the dotenv 
 | :-- | :-- | :-- |
 | `AUTH_REFRESH_TOKEN_TTL_DAYS` | how long the refresh-token cookie lives, in days | 14 |
 | `AUTH_COOKIE_SECURE` | whether that cookie carries `Secure`; only the exact string `false` turns it off | on |
+| `CORS_CUSTOMER_ORIGINS`, `CORS_ADMIN_ORIGINS`, `CORS_RESTFUL_API_ORIGINS` | the origins a browser may call each engine from, comma-separated and matched exactly, so `*` matches nothing | none; `.env.development` allows `http://localhost:3000` |
 | `DATABASE_NAME`, `DATABASE_USERNAME`, `DATABASE_PASSWORD`, `DATABASE_DIALECT`, `DATABASE_HOST`, `DATABASE_PORT` | the production connection in `sequelize/config.cjs` | — |
 
 ### Database
@@ -152,6 +154,8 @@ Variables are read through `@openreachtech/renchan-env`, which loads the dotenv 
 `sequelize/config.cjs` carries one entry per `NODE_ENV`: `development` on SQLite in `sequelize/storage/`, `live` on MariaDB, and `staging` and `production` built from the variables above.
 
 Development runs on a file, which is why `npm run db:refresh` can throw the database away and rebuild it in one step.
+
+Every model in `sequelize/models/` extends `BaseAppRenchanModel` from `sequelize/baseModel/`, the one place to add behavior all models share. It stays outside `sequelize/models/` because the loader initializes every model it finds there.
 
 ## API
 
