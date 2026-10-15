@@ -9,6 +9,8 @@ import BaseAppGraphqlServerEngine from '../../../../server/graphql/BaseAppGraphq
 import CustomerGraphqlContext from '../../../../server/graphql/contexts/CustomerGraphqlContext.js'
 import CustomerGraphqlShare from '../../../../server/graphql/contexts/CustomerGraphqlShare.js'
 
+import CorsExpressMiddleware from '../../../../server/middleware/CorsExpressMiddleware.js'
+
 import AllowedCorsOriginCollection from '../../../../server/tools/AllowedCorsOriginCollection.js'
 
 describe('CustomerGraphqlServerEngine', () => {
@@ -272,6 +274,23 @@ describe('CustomerGraphqlServerEngine', () => {
 })
 
 describe('CustomerGraphqlServerEngine', () => {
+  describe('.get:ExpressMiddleware', () => {
+    describe('when called as is', () => {
+      test('should be the CORS middleware', () => {
+        const expected = [
+          CorsExpressMiddleware,
+        ]
+
+        const received = CustomerGraphqlServerEngine.ExpressMiddleware
+
+        expect(received)
+          .toStrictEqual(expected)
+      })
+    })
+  })
+})
+
+describe('CustomerGraphqlServerEngine', () => {
   describe('#collectMiddleware()', () => {
     describe('to mount the upload middleware', () => {
       test('should be five middleware', () => {
@@ -451,6 +470,44 @@ describe('CustomerGraphqlServerEngine', () => {
           .toHaveBeenCalledTimes(1)
         expect(responseMock.setHeader)
           .toHaveBeenCalledWith('Vary', 'Origin')
+      })
+    })
+  })
+})
+
+describe('CustomerGraphqlServerEngine', () => {
+  describe('#composeExpressMiddleware()', () => {
+    describe('should compose the middleware of .get:ExpressMiddleware', () => {
+      const cases = [
+        {
+          input: {
+            originsString: 'https://alpha.example',
+          },
+        },
+        {
+          input: {
+            originsString: null,
+          },
+        },
+      ]
+
+      test.each(cases)('originsString: $input.originsString', ({ input }) => {
+        const engine = new CustomerGraphqlServerEngine({
+          config: /** @type {*} */ ({
+            staticPath: rootPath.to('public/'),
+          }),
+          share: CustomerGraphqlShare.create({
+            allowedCorsOriginCollection: AllowedCorsOriginCollection.create(input),
+          }),
+          errorHash: {},
+        })
+
+        const received = engine.composeExpressMiddleware()
+
+        expect(received)
+          .toEqual([
+            expect.any(Function),
+          ])
       })
     })
   })

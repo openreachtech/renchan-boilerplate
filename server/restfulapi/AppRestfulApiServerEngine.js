@@ -1,11 +1,12 @@
 import express from 'express'
-import cors from 'cors'
 
 import {
   BaseRestfulApiServerEngine,
 } from '@openreachtech/renchan'
 
 import rootPath from '../../app/globals/root-path.js'
+
+import CorsExpressMiddleware from '../middleware/CorsExpressMiddleware.js'
 
 import AppRestfulApiShare from './contexts/AppRestfulApiShare.js'
 import AppRestfulApiContext from './contexts/AppRestfulApiContext.js'
@@ -114,6 +115,17 @@ export default class AppRestfulApiServerEngine extends BaseRestfulApiServerEngin
     }
   }
 
+  /**
+   * get: Express middleware classes the engine composes, in mounting order.
+   *
+   * @returns {Array<ExpressType.MiddlewareFamilyMemberCtor>} - Middleware classes.
+   */
+  static get ExpressMiddleware () {
+    return [
+      CorsExpressMiddleware,
+    ]
+  }
+
   /** @override */
   collectMiddleware () {
     /*
@@ -126,10 +138,10 @@ export default class AppRestfulApiServerEngine extends BaseRestfulApiServerEngin
      */
     const keepRawBody = this.defineKeepRawBodyCallback()
 
+    const composedExpressMiddleware = this.composeExpressMiddleware()
+
     return [
-      cors({
-        origin: this.share.allowedCorsOriginCollection.extractOrigins(),
-      }),
+      ...composedExpressMiddleware,
 
       express.static(
         this.config.staticPath
