@@ -86,11 +86,6 @@ export default class BaseAppGraphqlServerEngine extends BaseGraphqlServerEngine 
       CorsExpressMiddleware,
     ]
   }
-
-  /** @override */
-  async collectScalars () {
-    return []
-  }
 }
 
 /**
