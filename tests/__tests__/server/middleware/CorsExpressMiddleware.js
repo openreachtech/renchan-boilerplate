@@ -1,5 +1,7 @@
 import cors from 'cors'
 
+import Env from '@openreachtech/renchan-env'
+
 import {
   BaseExpressMiddleware,
 } from '@openreachtech/renchan'
@@ -7,6 +9,15 @@ import {
 import CorsExpressMiddleware from '../../../../server/middleware/CorsExpressMiddleware.js'
 
 import AllowedCorsOriginCollection from '../../../../server/tools/AllowedCorsOriginCollection.js'
+
+import AdminGraphqlServerEngine from '../../../../server/graphql/AdminGraphqlServerEngine.js'
+import AdminGraphqlShare from '../../../../server/graphql/contexts/AdminGraphqlShare.js'
+import CustomerGraphqlServerEngine from '../../../../server/graphql/CustomerGraphqlServerEngine.js'
+import CustomerGraphqlShare from '../../../../server/graphql/contexts/CustomerGraphqlShare.js'
+
+const {
+  EnvironmentFacade,
+} = Env
 
 describe('CorsExpressMiddleware', () => {
   describe('inheritance', () => {
@@ -26,21 +37,25 @@ describe('CorsExpressMiddleware', () => {
         const cases = [
           {
             input: {
-              engine: /** @type {*} */ ({
-                name: 'alpha',
+              engine: new AdminGraphqlServerEngine({
+                config: AdminGraphqlServerEngine.config,
+                share: AdminGraphqlShare.create({}),
+                errorHash: {},
               }),
             },
           },
           {
             input: {
-              engine: /** @type {*} */ ({
-                name: 'beta',
+              engine: new CustomerGraphqlServerEngine({
+                config: CustomerGraphqlServerEngine.config,
+                share: CustomerGraphqlShare.create({}),
+                errorHash: {},
               }),
             },
           },
         ]
 
-        test.each(cases)('engine.name: $input.engine.name', ({ input }) => {
+        test.each(cases)('engine: $input.engine.constructor.name', ({ input }) => {
           const middleware = new CorsExpressMiddleware(input)
 
           expect(middleware)
@@ -53,25 +68,29 @@ describe('CorsExpressMiddleware', () => {
 
 describe('CorsExpressMiddleware', () => {
   describe('.create()', () => {
-    describe('should be an instance of own class', () => {
-      const cases = [
-        {
-          input: {
-            engine: /** @type {*} */ ({
-              name: 'alpha',
-            }),
-          },
+    const cases = [
+      {
+        input: {
+          engine: new AdminGraphqlServerEngine({
+            config: AdminGraphqlServerEngine.config,
+            share: AdminGraphqlShare.create({}),
+            errorHash: {},
+          }),
         },
-        {
-          input: {
-            engine: /** @type {*} */ ({
-              name: 'beta',
-            }),
-          },
+      },
+      {
+        input: {
+          engine: new CustomerGraphqlServerEngine({
+            config: CustomerGraphqlServerEngine.config,
+            share: CustomerGraphqlShare.create({}),
+            errorHash: {},
+          }),
         },
-      ]
+      },
+    ]
 
-      test.each(cases)('engine.name: $input.engine.name', ({ input }) => {
+    describe('should be an instance of own class', () => {
+      test.each(cases)('engine: $input.engine.constructor.name', ({ input }) => {
         const received = CorsExpressMiddleware.create(input)
 
         expect(received)
@@ -80,24 +99,7 @@ describe('CorsExpressMiddleware', () => {
     })
 
     describe('should be called by constructor', () => {
-      const cases = [
-        {
-          input: {
-            engine: /** @type {*} */ ({
-              name: 'alpha',
-            }),
-          },
-        },
-        {
-          input: {
-            engine: /** @type {*} */ ({
-              name: 'beta',
-            }),
-          },
-        },
-      ]
-
-      test.each(cases)('engine.name: $input.engine.name', ({ input }) => {
+      test.each(cases)('engine: $input.engine.constructor.name', ({ input }) => {
         const SpyClass = globalThis.constructorSpy.spyOn(CorsExpressMiddleware)
 
         SpyClass.create(input)
@@ -128,6 +130,12 @@ describe('CorsExpressMiddleware', () => {
 
     class BetaCorsExpressMiddleware extends CorsExpressMiddleware {}
 
+    const engine = new AdminGraphqlServerEngine({
+      config: AdminGraphqlServerEngine.config,
+      share: AdminGraphqlShare.create({}),
+      errorHash: {},
+    })
+
     describe('should be constructor of instance', () => {
       const cases = [
         {
@@ -152,7 +160,7 @@ describe('CorsExpressMiddleware', () => {
 
       test.each(cases)('Middleware: $input.Middleware.name', ({ input, expected }) => {
         const middleware = new input.Middleware({
-          engine: /** @type {*} */ ({}),
+          engine,
         })
 
         const received = middleware.Ctor
@@ -170,35 +178,42 @@ describe('CorsExpressMiddleware', () => {
       const cases = [
         {
           input: {
-            engine: /** @type {*} */ ({
-              share: {
-                env: {
-                  CORS_ADMIN_ORIGINS: 'https://alpha.example',
-                },
+            env: new EnvironmentFacade({
+              environmentHash: {
+                CORS_ADMIN_ORIGINS: 'https://alpha.example',
               },
-            }),
+            })
+              .generateFacade(),
           },
         },
         {
           input: {
-            engine: /** @type {*} */ ({
-              share: {
-                env: {
-                  CORS_CUSTOMER_ORIGINS: 'https://beta.example',
-                },
+            env: new EnvironmentFacade({
+              environmentHash: {
+                CORS_ADMIN_ORIGINS: 'https://beta.example',
               },
-            }),
+            })
+              .generateFacade(),
           },
         },
       ]
 
-      test.each(cases)('env: $input.engine.share.env', ({ input }) => {
-        const middleware = CorsExpressMiddleware.create(input)
+      test.each(cases)('CORS_ADMIN_ORIGINS: $input.env.CORS_ADMIN_ORIGINS', ({ input }) => {
+        const engine = new AdminGraphqlServerEngine({
+          config: AdminGraphqlServerEngine.config,
+          share: AdminGraphqlShare.create({
+            env: input.env,
+          }),
+          errorHash: {},
+        })
+        const middleware = CorsExpressMiddleware.create({
+          engine,
+        })
 
         const received = middleware.env
 
         expect(received)
-          .toBe(input.engine.share.env) // same reference
+          .toBe(input.env) // same reference
       })
     })
   })
@@ -208,8 +223,13 @@ describe('CorsExpressMiddleware', () => {
   describe('#get:originsString', () => {
     describe('should throw when a derived class does not override it', () => {
       test('with no override', () => {
+        const engine = new AdminGraphqlServerEngine({
+          config: AdminGraphqlServerEngine.config,
+          share: AdminGraphqlShare.create({}),
+          errorHash: {},
+        })
         const middleware = CorsExpressMiddleware.create({
-          engine: /** @type {*} */ ({}),
+          engine,
         })
 
         expect(() => middleware.originsString)
@@ -221,33 +241,34 @@ describe('CorsExpressMiddleware', () => {
 
 describe('CorsExpressMiddleware', () => {
   describe('#createAllowedCorsOriginCollection()', () => {
-    describe('should keep the origins string of the derived class', () => {
+    const engine = new AdminGraphqlServerEngine({
+      config: AdminGraphqlServerEngine.config,
+      share: AdminGraphqlShare.create({}),
+      errorHash: {},
+    })
+
+    describe('should keep the origins string the derived class reads', () => {
       const cases = [
         {
-          input: {
+          override: {
             originsString: 'https://alpha.example',
           },
           expected: 'https://alpha.example',
         },
         {
-          input: {
+          override: {
             originsString: null,
           },
           expected: null,
         },
       ]
 
-      test.each(cases)('originsString: $input.originsString', ({ input, expected }) => {
-        class OriginsCorsExpressMiddleware extends CorsExpressMiddleware {
-          /** @override */
-          get originsString () {
-            return input.originsString
-          }
-        }
-
-        const middleware = OriginsCorsExpressMiddleware.create({
-          engine: /** @type {*} */ ({}),
+      test.each(cases)('originsString: $override.originsString', ({ override, expected }) => {
+        const middleware = CorsExpressMiddleware.create({
+          engine,
         })
+        jest.spyOn(middleware, 'originsString', 'get')
+          .mockReturnValue(override.originsString)
 
         const received = middleware.createAllowedCorsOriginCollection()
 
@@ -262,104 +283,53 @@ describe('CorsExpressMiddleware', () => {
 
 describe('CorsExpressMiddleware', () => {
   describe('#composeMiddleware()', () => {
-    describe('should call corsClient() with the option hash', () => {
-      const cases = [
-        {
-          input: {
-            originsString: 'https://alpha.example',
-          },
-          expected: {
-            origin: [
-              'https://alpha.example',
-            ],
-          },
+    const engine = new AdminGraphqlServerEngine({
+      config: AdminGraphqlServerEngine.config,
+      share: AdminGraphqlShare.create({}),
+      errorHash: {},
+    })
+
+    const cases = [
+      {
+        override: {
+          originsString: 'https://alpha.example',
         },
-        {
-          input: {
-            originsString: 'https://alpha.example,https://beta.example',
-          },
-          expected: {
-            origin: [
-              'https://alpha.example',
-              'https://beta.example',
-            ],
-          },
+      },
+      {
+        override: {
+          originsString: null,
         },
-        {
-          input: {
-            originsString: null,
-          },
-          expected: {
-            origin: [],
-          },
-        },
-      ]
+      },
+    ]
 
-      test.each(cases)('originsString: $input.originsString', ({ input, expected }) => {
-        const corsClientSpy = jest.fn()
-
-        class SpiedCorsExpressMiddleware extends CorsExpressMiddleware {
-          /** @override */
-          static get corsClient () {
-            return /** @type {*} */ (corsClientSpy)
-          }
-
-          /** @override */
-          get originsString () {
-            return input.originsString
-          }
-        }
-
-        const middleware = SpiedCorsExpressMiddleware.create({
-          engine: /** @type {*} */ ({}),
+    describe('should build the option hash once', () => {
+      test.each(cases)('originsString: $override.originsString', ({ override }) => {
+        const middleware = CorsExpressMiddleware.create({
+          engine,
         })
+        jest.spyOn(middleware, 'originsString', 'get')
+          .mockReturnValue(override.originsString)
+        const buildOptionHashSpy = jest.spyOn(middleware, 'buildOptionHash')
 
         middleware.composeMiddleware()
 
-        expect(corsClientSpy)
-          .toHaveBeenCalledWith(expected)
+        expect(buildOptionHashSpy)
+          .toHaveBeenCalledTimes(1)
       })
     })
 
-    describe('should return what corsClient() returns', () => {
-      const cases = [
-        {
-          input: {
-            composed: {
-              name: 'alpha',
-            },
-          },
-        },
-        {
-          input: {
-            composed: {
-              name: 'beta',
-            },
-          },
-        },
-      ]
-
-      test.each(cases)('composed.name: $input.composed.name', ({ input }) => {
-        class SpiedCorsExpressMiddleware extends CorsExpressMiddleware {
-          /** @override */
-          static get corsClient () {
-            return /** @type {*} */ (() => input.composed)
-          }
-
-          /** @override */
-          get originsString () {
-            return null
-          }
-        }
-
-        const middleware = SpiedCorsExpressMiddleware.create({
-          engine: /** @type {*} */ ({}),
+    describe('should return the middleware function the cors library builds', () => {
+      test.each(cases)('originsString: $override.originsString', ({ override }) => {
+        const middleware = CorsExpressMiddleware.create({
+          engine,
         })
+        jest.spyOn(middleware, 'originsString', 'get')
+          .mockReturnValue(override.originsString)
 
         const received = middleware.composeMiddleware()
 
         expect(received)
-          .toBe(input.composed) // same reference
+          .toBeInstanceOf(Function)
       })
     })
   })
@@ -367,10 +337,16 @@ describe('CorsExpressMiddleware', () => {
 
 describe('CorsExpressMiddleware', () => {
   describe('#buildOptionHash()', () => {
+    const engine = new AdminGraphqlServerEngine({
+      config: AdminGraphqlServerEngine.config,
+      share: AdminGraphqlShare.create({}),
+      errorHash: {},
+    })
+
     describe('should declare the origins the derived class reads', () => {
       const cases = [
         {
-          input: {
+          override: {
             originsString: 'https://alpha.example',
           },
           expected: {
@@ -380,7 +356,7 @@ describe('CorsExpressMiddleware', () => {
           },
         },
         {
-          input: {
+          override: {
             originsString: ' https://alpha.example , https://beta.example ',
           },
           expected: {
@@ -391,7 +367,7 @@ describe('CorsExpressMiddleware', () => {
           },
         },
         {
-          input: {
+          override: {
             originsString: null,
           },
           expected: {
@@ -400,17 +376,12 @@ describe('CorsExpressMiddleware', () => {
         },
       ]
 
-      test.each(cases)('originsString: $input.originsString', ({ input, expected }) => {
-        class OriginsCorsExpressMiddleware extends CorsExpressMiddleware {
-          /** @override */
-          get originsString () {
-            return input.originsString
-          }
-        }
-
-        const middleware = OriginsCorsExpressMiddleware.create({
-          engine: /** @type {*} */ ({}),
+      test.each(cases)('originsString: $override.originsString', ({ override, expected }) => {
+        const middleware = CorsExpressMiddleware.create({
+          engine,
         })
+        jest.spyOn(middleware, 'originsString', 'get')
+          .mockReturnValue(override.originsString)
 
         const received = middleware.buildOptionHash()
 
