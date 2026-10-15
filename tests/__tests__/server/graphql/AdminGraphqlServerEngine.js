@@ -1,3 +1,5 @@
+import Env from '@openreachtech/renchan-env'
+
 import {
   rootPath,
 } from '../../../../app/globals/_.js'
@@ -10,6 +12,13 @@ import AdminGraphqlContext from '../../../../server/graphql/contexts/AdminGraphq
 import AdminGraphqlShare from '../../../../server/graphql/contexts/AdminGraphqlShare.js'
 
 import AdminCorsExpressMiddleware from '../../../../server/middleware/AdminCorsExpressMiddleware.js'
+
+import MockExpressRequest from '../../../mocks/MockExpressRequest.js'
+import MockExpressResponse from '../../../mocks/MockExpressResponse.js'
+
+const {
+  EnvironmentFacade,
+} = Env
 
 describe('AdminGraphqlServerEngine', () => {
   describe('super class', () => {
@@ -293,13 +302,14 @@ describe('AdminGraphqlServerEngine', () => {
     describe('to mount the upload middleware', () => {
       test('should be five middleware', () => {
         const engine = new AdminGraphqlServerEngine({
-          config: /** @type {*} */ ({
-            staticPath: rootPath.to('public/'),
-          }),
+          config: AdminGraphqlServerEngine.config,
           share: AdminGraphqlShare.create({
-            env: /** @type {*} */ ({
-              CORS_ADMIN_ORIGINS: null,
-            }),
+            env: new EnvironmentFacade({
+              environmentHash: {
+                CORS_ADMIN_ORIGINS: null,
+              },
+            })
+              .generateFacade(),
           }),
           errorHash: {},
         })
@@ -339,35 +349,29 @@ describe('AdminGraphqlServerEngine', () => {
 
       test.each(cases)('origin: $input.origin', ({ input }) => {
         const engine = new AdminGraphqlServerEngine({
-          config: /** @type {*} */ ({
-            staticPath: rootPath.to('public/'),
-          }),
+          config: AdminGraphqlServerEngine.config,
           share: AdminGraphqlShare.create({
-            env: /** @type {*} */ ({
-              CORS_ADMIN_ORIGINS: 'https://alpha.example,https://beta.example',
-            }),
+            env: new EnvironmentFacade({
+              environmentHash: {
+                CORS_ADMIN_ORIGINS: 'https://alpha.example,https://beta.example',
+              },
+            })
+              .generateFacade(),
           }),
           errorHash: {},
         })
 
         const [corsMiddleware] = engine.collectMiddleware()
-
-        const requestMock = /** @type {*} */ ({
+        const mockRequest = MockExpressRequest.create({
           method: 'GET',
-          headers: {
-            origin: input.origin,
-          },
+          origin: input.origin,
         })
-        const responseMock = /** @type {*} */ ({
-          getHeader: jest.fn(),
-          setHeader: jest.fn(),
-        })
-        const nextMock = jest.fn()
+        const mockResponse = MockExpressResponse.create()
 
-        corsMiddleware(requestMock, responseMock, nextMock)
+        corsMiddleware(mockRequest, mockResponse, () => {})
 
-        expect(responseMock.setHeader)
-          .toHaveBeenCalledWith('Access-Control-Allow-Origin', input.origin)
+        expect(mockResponse.getHeader('Access-Control-Allow-Origin'))
+          .toBe(input.origin)
       })
     })
 
@@ -387,37 +391,31 @@ describe('AdminGraphqlServerEngine', () => {
 
       test.each(cases)('origin: $input.origin', ({ input }) => {
         const engine = new AdminGraphqlServerEngine({
-          config: /** @type {*} */ ({
-            staticPath: rootPath.to('public/'),
-          }),
+          config: AdminGraphqlServerEngine.config,
           share: AdminGraphqlShare.create({
-            env: /** @type {*} */ ({
-              CORS_ADMIN_ORIGINS: 'https://alpha.example',
-            }),
+            env: new EnvironmentFacade({
+              environmentHash: {
+                CORS_ADMIN_ORIGINS: 'https://alpha.example',
+              },
+            })
+              .generateFacade(),
           }),
           errorHash: {},
         })
 
         const [corsMiddleware] = engine.collectMiddleware()
-
-        const requestMock = /** @type {*} */ ({
+        const mockRequest = MockExpressRequest.create({
           method: 'GET',
-          headers: {
-            origin: input.origin,
-          },
+          origin: input.origin,
         })
-        const responseMock = /** @type {*} */ ({
-          getHeader: jest.fn(),
-          setHeader: jest.fn(),
-        })
-        const nextMock = jest.fn()
+        const mockResponse = MockExpressResponse.create()
 
-        corsMiddleware(requestMock, responseMock, nextMock)
+        corsMiddleware(mockRequest, mockResponse, () => {})
 
-        expect(responseMock.setHeader)
-          .toHaveBeenCalledTimes(1)
-        expect(responseMock.setHeader)
-          .toHaveBeenCalledWith('Vary', 'Origin')
+        expect(mockResponse.getHeader('Access-Control-Allow-Origin'))
+          .toBeUndefined()
+        expect(mockResponse.getHeader('Vary'))
+          .toBe('Origin')
       })
     })
 
@@ -437,37 +435,31 @@ describe('AdminGraphqlServerEngine', () => {
 
       test.each(cases)('origin: $input.origin', ({ input }) => {
         const engine = new AdminGraphqlServerEngine({
-          config: /** @type {*} */ ({
-            staticPath: rootPath.to('public/'),
-          }),
+          config: AdminGraphqlServerEngine.config,
           share: AdminGraphqlShare.create({
-            env: /** @type {*} */ ({
-              CORS_ADMIN_ORIGINS: null,
-            }),
+            env: new EnvironmentFacade({
+              environmentHash: {
+                CORS_ADMIN_ORIGINS: null,
+              },
+            })
+              .generateFacade(),
           }),
           errorHash: {},
         })
 
         const [corsMiddleware] = engine.collectMiddleware()
-
-        const requestMock = /** @type {*} */ ({
+        const mockRequest = MockExpressRequest.create({
           method: 'GET',
-          headers: {
-            origin: input.origin,
-          },
+          origin: input.origin,
         })
-        const responseMock = /** @type {*} */ ({
-          getHeader: jest.fn(),
-          setHeader: jest.fn(),
-        })
-        const nextMock = jest.fn()
+        const mockResponse = MockExpressResponse.create()
 
-        corsMiddleware(requestMock, responseMock, nextMock)
+        corsMiddleware(mockRequest, mockResponse, () => {})
 
-        expect(responseMock.setHeader)
-          .toHaveBeenCalledTimes(1)
-        expect(responseMock.setHeader)
-          .toHaveBeenCalledWith('Vary', 'Origin')
+        expect(mockResponse.getHeader('Access-Control-Allow-Origin'))
+          .toBeUndefined()
+        expect(mockResponse.getHeader('Vary'))
+          .toBe('Origin')
       })
     })
   })
@@ -491,13 +483,14 @@ describe('AdminGraphqlServerEngine', () => {
 
       test.each(cases)('originsString: $input.originsString', ({ input }) => {
         const engine = new AdminGraphqlServerEngine({
-          config: /** @type {*} */ ({
-            staticPath: rootPath.to('public/'),
-          }),
+          config: AdminGraphqlServerEngine.config,
           share: AdminGraphqlShare.create({
-            env: /** @type {*} */ ({
-              CORS_ADMIN_ORIGINS: input.originsString,
-            }),
+            env: new EnvironmentFacade({
+              environmentHash: {
+                CORS_ADMIN_ORIGINS: input.originsString,
+              },
+            })
+              .generateFacade(),
           }),
           errorHash: {},
         })
