@@ -231,7 +231,7 @@ describe('NormalPaginationInputValidator', () => {
 })
 
 describe('NormalPaginationInputValidator', () => {
-  describe('#get:pagination', () => {
+  describe('#extractPagination()', () => {
     describe('with pagination', () => {
       /**
        * @type {Array<{
@@ -264,7 +264,7 @@ describe('NormalPaginationInputValidator', () => {
           },
         })
 
-        const received = validator.pagination
+        const received = validator.extractPagination()
 
         expect(received)
           .toBe(tally) // same reference
@@ -304,7 +304,7 @@ describe('NormalPaginationInputValidator', () => {
       test.each(cases)('input: $input.input', ({ input }) => {
         const validator = NormalPaginationInputValidator.create(input)
 
-        const received = validator.pagination
+        const received = validator.extractPagination()
 
         expect(received)
           .toBeNull()
@@ -314,7 +314,7 @@ describe('NormalPaginationInputValidator', () => {
 })
 
 describe('NormalPaginationInputValidator', () => {
-  describe('#get:limit', () => {
+  describe('#extractLimit()', () => {
     /**
      * @type {Array<{
      *   input: {
@@ -355,7 +355,7 @@ describe('NormalPaginationInputValidator', () => {
         input,
       })
 
-      const received = validator.limit
+      const received = validator.extractLimit()
 
       expect(received)
         .toBe(expected)
@@ -364,7 +364,7 @@ describe('NormalPaginationInputValidator', () => {
 })
 
 describe('NormalPaginationInputValidator', () => {
-  describe('#get:offset', () => {
+  describe('#extractOffset()', () => {
     /**
      * @type {Array<{
      *   input: {
@@ -405,7 +405,7 @@ describe('NormalPaginationInputValidator', () => {
         input,
       })
 
-      const received = validator.offset
+      const received = validator.extractOffset()
 
       expect(received)
         .toBe(expected)
@@ -414,7 +414,7 @@ describe('NormalPaginationInputValidator', () => {
 })
 
 describe('NormalPaginationInputValidator', () => {
-  describe('#get:sort', () => {
+  describe('#extractSort()', () => {
     describe('with sort', () => {
       /**
        * @type {Array<{
@@ -447,7 +447,7 @@ describe('NormalPaginationInputValidator', () => {
           },
         })
 
-        const received = validator.sort
+        const received = validator.extractSort()
 
         expect(received)
           .toBe(tally) // same reference
@@ -486,7 +486,7 @@ describe('NormalPaginationInputValidator', () => {
           input,
         })
 
-        const received = validator.sort
+        const received = validator.extractSort()
 
         expect(received)
           .toBeNull()
