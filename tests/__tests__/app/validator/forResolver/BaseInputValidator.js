@@ -4,6 +4,16 @@ import {
   RenchanGraphqlError,
 } from '@openreachtech/renchan'
 
+/**
+ * @extends {BaseInputValidator<*, { validationEntries: Array<ValidationEntry> }>}
+ */
+class EntryListInputValidator extends BaseInputValidator {
+  /** @override */
+  generateValidationEntries () {
+    return this.input.validationEntries
+  }
+}
+
 describe('BaseInputValidator', () => {
   describe('constructor', () => {
     describe('should keep property', () => {
@@ -202,11 +212,10 @@ describe('BaseInputValidator', () => {
       ]
 
       test.each(cases)('entries: $override.validationEntries.length', ({ override }) => {
-        jest.spyOn(BaseInputValidator.prototype, 'generateValidationEntries')
-          .mockReturnValue(override.validationEntries)
-
-        const validator = BaseInputValidator.create({
-          input: {},
+        const validator = EntryListInputValidator.create({
+          input: {
+            validationEntries: override.validationEntries,
+          },
           errorHash,
         })
 
@@ -260,11 +269,10 @@ describe('BaseInputValidator', () => {
       ]
 
       test.each(cases)('should throw error of the first failed entry: $expected', ({ override, expected }) => {
-        jest.spyOn(BaseInputValidator.prototype, 'generateValidationEntries')
-          .mockReturnValue(override.validationEntries)
-
-        const validator = BaseInputValidator.create({
-          input: {},
+        const validator = EntryListInputValidator.create({
+          input: {
+            validationEntries: override.validationEntries,
+          },
           errorHash,
         })
 
@@ -314,11 +322,10 @@ describe('BaseInputValidator', () => {
       ]
 
       test.each(cases)('entries: $override.validationEntries.length', ({ override }) => {
-        jest.spyOn(BaseInputValidator.prototype, 'generateValidationEntries')
-          .mockReturnValue(override.validationEntries)
-
-        const validator = BaseInputValidator.create({
-          input: {},
+        const validator = EntryListInputValidator.create({
+          input: {
+            validationEntries: override.validationEntries,
+          },
           errorHash,
         })
 
@@ -385,11 +392,10 @@ describe('BaseInputValidator', () => {
 
       describe('should return error of the first failed entry', () => {
         test.each(cases)('message: $expected.message', ({ override, expected }) => {
-          jest.spyOn(BaseInputValidator.prototype, 'generateValidationEntries')
-            .mockReturnValue(override.validationEntries)
-
-          const validator = BaseInputValidator.create({
-            input: {},
+          const validator = EntryListInputValidator.create({
+            input: {
+              validationEntries: override.validationEntries,
+            },
             errorHash,
           })
 
@@ -402,11 +408,10 @@ describe('BaseInputValidator', () => {
 
       describe('should carry the error code as message', () => {
         test.each(cases)('message: $expected.message', ({ override, expected }) => {
-          jest.spyOn(BaseInputValidator.prototype, 'generateValidationEntries')
-            .mockReturnValue(override.validationEntries)
-
-          const validator = BaseInputValidator.create({
-            input: {},
+          const validator = EntryListInputValidator.create({
+            input: {
+              validationEntries: override.validationEntries,
+            },
             errorHash,
           })
 
@@ -467,11 +472,10 @@ describe('BaseInputValidator', () => {
       ]
 
       test.each(cases)('should return the first failed entry: $#', ({ override, expected }) => {
-        jest.spyOn(BaseInputValidator.prototype, 'generateValidationEntries')
-          .mockReturnValue(override.validationEntries)
-
-        const validator = BaseInputValidator.create({
-          input: {},
+        const validator = EntryListInputValidator.create({
+          input: {
+            validationEntries: override.validationEntries,
+          },
           errorHash,
         })
 
@@ -500,11 +504,10 @@ describe('BaseInputValidator', () => {
       ]
 
       test.each(cases)('should return null: $override.validationEntries.length', ({ override }) => {
-        jest.spyOn(BaseInputValidator.prototype, 'generateValidationEntries')
-          .mockReturnValue(override.validationEntries)
-
-        const validator = BaseInputValidator.create({
-          input: {},
+        const validator = EntryListInputValidator.create({
+          input: {
+            validationEntries: override.validationEntries,
+          },
           errorHash,
         })
 
@@ -523,14 +526,13 @@ describe('BaseInputValidator', () => {
         }
         const isValidBetaSpy = jest.spyOn(predicateHash, 'isValidBeta')
 
-        jest.spyOn(BaseInputValidator.prototype, 'generateValidationEntries')
-          .mockReturnValue([
-            [() => predicateHash.isValidAlpha(), errorHash.InvalidAlpha],
-            [() => predicateHash.isValidBeta(), errorHash.InvalidBeta],
-          ])
-
-        const validator = BaseInputValidator.create({
-          input: {},
+        const validator = EntryListInputValidator.create({
+          input: {
+            validationEntries: [
+              [() => predicateHash.isValidAlpha(), errorHash.InvalidAlpha],
+              [() => predicateHash.isValidBeta(), errorHash.InvalidBeta],
+            ],
+          },
           errorHash,
         })
 
@@ -586,3 +588,7 @@ describe('BaseInputValidator', () => {
     })
   })
 })
+
+/**
+ * @typedef {import('../../../../../app/validator/forResolver/BaseInputValidator.js').ValidationEntry} ValidationEntry
+ */
