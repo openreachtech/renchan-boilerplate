@@ -77,45 +77,45 @@ export default class NormalPaginationInputValidator {
   }
 
   /**
-   * get: Pagination of the input.
+   * Extract the pagination of the input.
    *
    * @returns {PaginationInput | null} Pagination, or null when absent.
    */
-  get pagination () {
+  extractPagination () {
     return this.input
       ?.pagination
       ?? null
   }
 
   /**
-   * get: Page size, as it arrived.
+   * Extract the page size, as it arrived.
    *
    * @returns {number | string | null} Limit, or null when absent.
    */
-  get limit () {
-    return this.pagination
+  extractLimit () {
+    return this.extractPagination()
       ?.limit
       ?? null
   }
 
   /**
-   * get: First row of the page, as it arrived.
+   * Extract the first row of the page, as it arrived.
    *
    * @returns {number | string | null} Offset, or null when absent.
    */
-  get offset () {
-    return this.pagination
+  extractOffset () {
+    return this.extractPagination()
       ?.offset
       ?? null
   }
 
   /**
-   * get: Sort of the page.
+   * Extract the sort of the page.
    *
    * @returns {SortInput | null} Sort, or null when absent.
    */
-  get sort () {
-    return this.pagination
+  extractSort () {
+    return this.extractPagination()
       ?.sort
       ?? null
   }
@@ -128,7 +128,7 @@ export default class NormalPaginationInputValidator {
    */
   isValidLimit () {
     const inspector = this.createIntegerValueInspector({
-      value: this.limit,
+      value: this.extractLimit(),
     })
 
     if (!inspector.isSafeIntegerLike()) {
@@ -164,13 +164,15 @@ export default class NormalPaginationInputValidator {
    * @public
    */
   isValidOffset () {
+    const offset = this.extractOffset()
+
     // The inspector reads an empty string as 0.
-    if (this.offset === '') {
+    if (offset === '') {
       return false
     }
 
     const inspector = this.createIntegerValueInspector({
-      value: this.offset,
+      value: offset,
     })
 
     if (!inspector.isSafeIntegerLike()) {
@@ -187,12 +189,14 @@ export default class NormalPaginationInputValidator {
    * @public
    */
   isValidSort () {
-    if (!this.sort) {
+    const sort = this.extractSort()
+
+    if (!sort) {
       return true
     }
 
-    return this.validColumns.includes(this.sort.targetColumn)
-      && this.Ctor.SORT_DIRECTIONS.includes(this.sort.orderBy)
+    return this.validColumns.includes(sort.targetColumn)
+      && this.Ctor.SORT_DIRECTIONS.includes(sort.orderBy)
   }
 }
 
