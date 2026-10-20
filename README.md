@@ -73,7 +73,7 @@ In production the servers run under PM2, whose configuration is `pm2.config.cjs`
 | `npm run db:setup` | run the migrations |
 | `npm run db:seed:master` | seed `sequelize/seeders/dev-master/` |
 | `npm run db:seed:dev` | seed `sequelize/seeders/development/` |
-| `npm run db:teardown` | drop the `development` database: delete the SQLite files under `sequelize/storage/`, or run `sequelize-cli db:drop` for a server dialect (alias: `npm run db:drop`) |
+| `npm run db:teardown` | drop the `development` database: delete the SQLite files under `sequelize/storage/`, or drop the database for a server dialect (alias: `npm run db:drop`) |
 | `npm run db:refresh` | teardown, migrate, then both seed sets (alias: `npm run r`) |
 
 `npm test` takes the same arguments as Jest, plus `--empty` to run only against the master seeds and `--seeded` to run against the development seeds as well.
@@ -155,7 +155,7 @@ Variables are read through `@openreachtech/renchan-env`, which loads the dotenv 
 
 Development runs on a file, which is why `npm run db:refresh` can throw the database away and rebuild it in one step.
 
-`npm run db:teardown` reads the dialect the `development` entry names (`scripts/db-teardown.cjs`). `sqlite` deletes the files, and a server dialect runs `sequelize-cli db:drop`, which supports `mysql`, `postgres` and `mssql` but not `mariadb`. A project that moves `development` onto a server database picks one of those three dialects.
+`npm run db:teardown` reads the dialect the `development` entry names (`scripts/db-teardown.cjs`). `sqlite` deletes the files. A server dialect (`mariadb`, `mysql`, `postgres`, `mssql`) connects with the entry minus its `database` and runs `DROP DATABASE IF EXISTS` through Sequelize, so it needs only the driver that dialect already uses.
 
 Every model in `sequelize/models/` extends `BaseAppRenchanModel` from `sequelize/baseModel/`, the one place to add behavior all models share. It stays outside `sequelize/models/` because the loader initializes every model it finds there.
 
