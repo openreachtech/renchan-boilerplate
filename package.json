@@ -9,7 +9,7 @@
     "db:seed:master": "sequelize-cli db:seed:all --seeders-path sequelize/seeders/dev-master --debug",
     "db:seed:dev": "sequelize-cli db:seed:all --seeders-path sequelize/seeders/development --debug",
     "db:setup": "sequelize-cli db:migrate;",
-    "db:teardown": "rm sequelize/storage/*.sqlite3",
+    "db:teardown": "node scripts/db-teardown.cjs",
     "db:refresh": "export NODE_ENV=development; npm run db:teardown; npm run db:setup; npm run db:seed:master; npm run db:seed:dev;",
     "r": "npm run db:refresh",
     "dev": "export NODE_ENV=development; node --watch server/index.js",
