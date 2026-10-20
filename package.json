@@ -75,7 +75,7 @@
       "@openreachtech/mentsu-random-text-generator": "1.0.3"
     },
     "graphql-middleware": {
-      "@graphql-tools/delegate": "^12.2.0",
+      "@graphql-tools/delegate": "^12.2.1",
       "@graphql-tools/schema": "$@graphql-tools/schema"
     },
     "js-yaml": "^4.3.2",
