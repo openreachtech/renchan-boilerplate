@@ -2,7 +2,10 @@
 
 const fs = require('node:fs')
 const path = require('node:path')
-const childProcess = require('node:child_process')
+
+const {
+  Sequelize,
+} = require('sequelize')
 
 const ENVIRONMENT = 'development'
 
@@ -30,16 +33,25 @@ function removeSqliteFiles () {
 }
 
 /**
- * Drop the database the development entry names, through sequelize-cli.
+ * Drop the database the development entry names, connected without selecting it.
  */
-function dropServerDatabase () {
-  const result = childProcess.spawnSync(
-    'sequelize-cli',
-    ['db:drop', '--env', ENVIRONMENT],
-    { stdio: 'inherit' }
-  )
+async function dropServerDatabase () {
+  const {
+    database,
+    ...connectionOptions
+  } = config[ENVIRONMENT]
 
-  process.exit(result.status ?? 1)
+  const sequelize = new Sequelize({
+    ...connectionOptions,
+    logging: false,
+  })
+
+  try {
+    await sequelize.getQueryInterface()
+      .dropDatabase(database)
+  } finally {
+    await sequelize.close()
+  }
 }
 
 if (config[ENVIRONMENT].dialect === SQLITE_DIALECT) {
