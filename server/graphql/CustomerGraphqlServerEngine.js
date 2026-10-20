@@ -1,5 +1,4 @@
 import express from 'express'
-import cors from 'cors'
 
 import {
   graphqlUploadExpressWithResolvingContentType,
@@ -12,6 +11,8 @@ import {
 import AUTH_CONSTANT_HASH from '../../app/constants/authConstants.js'
 
 import BaseAppGraphqlServerEngine from './BaseAppGraphqlServerEngine.js'
+
+import CustomerCorsExpressMiddleware from '../middleware/CustomerCorsExpressMiddleware.js'
 
 import CustomerGraphqlShare from './contexts/CustomerGraphqlShare.js'
 import CustomerGraphqlContext from './contexts/CustomerGraphqlContext.js'
@@ -59,26 +60,23 @@ export default class CustomerGraphqlServerEngine extends BaseAppGraphqlServerEng
     }
   }
 
-  /** @override */
-  static get standardErrorCodeHash () {
-    return {
-      Unknown: '100.X000.001',
-      ConcreteMemberNotFound: '101.X000.001',
-      Unauthenticated: '102.X000.001',
-      Unauthorized: '102.X000.002',
-      DeniedSchemaPermission: '102.X000.003',
-      Database: '104.X000.001',
-
-      CanNotSubscribe: '102.S000.001',
-    }
+  /**
+   * get: Express middleware classes the engine composes, in mounting order.
+   *
+   * @returns {Array<ExpressType.MiddlewareFamilyMemberCtor>} - Middleware classes.
+   */
+  static get ExpressMiddleware () {
+    return [
+      CustomerCorsExpressMiddleware,
+    ]
   }
 
   /** @override */
   collectMiddleware () {
+    const composedExpressMiddleware = this.composeExpressMiddleware()
+
     return [
-      cors({
-        origin: '*',
-      }),
+      ...composedExpressMiddleware,
 
       express.json({
         limit: '10mb',
