@@ -71,7 +71,7 @@ In production the servers run under PM2, whose configuration is `pm2.config.cjs`
 | `npm run test:live` | run Jest against the `live` environment, leaving the database alone (`test-live.sh`) |
 | `npm run lint` | ESLint over the repository (alias: `npm run l`) |
 | `npm run db:setup` | run the migrations |
-| `npm run db:seed:master` | seed `sequelize/seeders/dev-master/` |
+| `npm run db:seed:dev-master` | seed `sequelize/seeders/dev-master/` |
 | `npm run db:seed:dev` | seed `sequelize/seeders/development/` |
 | `npm run db:teardown` | drop the `development` database: delete the SQLite files under `sequelize/storage/`, or drop the database for a server dialect (alias: `npm run db:drop`) |
 | `npm run db:refresh` | teardown, migrate, then both seed sets (alias: `npm run r`) |
