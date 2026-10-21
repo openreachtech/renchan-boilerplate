@@ -71,7 +71,7 @@ In production the servers run under PM2, whose configuration is `pm2.config.cjs`
 | `npm run test:live` | run Jest against the `live` environment, leaving the database alone (`test-live.sh`) |
 | `npm run lint` | ESLint over the repository (alias: `npm run l`) |
 | `npm run db:setup` | run the migrations |
-| `npm run db:seed:master` | seed `sequelize/seeders/dev-master/` |
+| `npm run db:seed:dev-master` | seed `sequelize/seeders/dev-master/` |
 | `npm run db:seed:dev` | seed `sequelize/seeders/development/` |
 | `npm run db:teardown` | drop the `development` database: delete the SQLite files under `sequelize/storage/`, or drop the database for a server dialect (alias: `npm run db:drop`) |
 | `npm run db:refresh` | teardown, migrate, then both seed sets (alias: `npm run r`) |
@@ -83,7 +83,7 @@ npm test tests/__tests__/server/graphql/
 npm test -- --empty
 ```
 
-`sequelize/seeders/master/` holds the seeds meant for a real deployment. No script points at it — it is seeded deliberately, by hand.
+`sequelize/seeders/master-000001/` holds the seeds meant for a real deployment, and each later release adds the next `master-` directory in six digits. No script points at them. They are seeded deliberately, by hand.
 
 ### Where the application code goes
 
@@ -99,7 +99,7 @@ npm test -- --empty
 │   ├── config.cjs          # connection settings, per NODE_ENV
 │   ├── migrations/         # write the migrations here
 │   ├── models/             # write the models here
-│   └── seeders/            # master, dev-master, development
+│   └── seeders/            # master-000001, dev-master, development
 ├── server/
 │   ├── graphql/
 │   │   ├── contexts/       # context and share, per audience

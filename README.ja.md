@@ -71,7 +71,7 @@ curl -X POST http://127.0.0.1:3900/graphql-customer \
 | `npm run test:live` | データベースには手を付けず、`live` 環境に対して Jest を実行する（`test-live.sh`） |
 | `npm run lint` | リポジトリ全体に ESLint をかける（別名: `npm run l`） |
 | `npm run db:setup` | マイグレーションを実行する |
-| `npm run db:seed:master` | `sequelize/seeders/dev-master/` を投入する |
+| `npm run db:seed:dev-master` | `sequelize/seeders/dev-master/` を投入する |
 | `npm run db:seed:dev` | `sequelize/seeders/development/` を投入する |
 | `npm run db:teardown` | `development` のデータベースを破棄する。SQLite は `sequelize/storage/` 配下のファイルを削除し、サーバー型の dialect はデータベースを破棄する（別名: `npm run db:drop`） |
 | `npm run db:refresh` | teardown → マイグレーション → 両方のシード投入（別名: `npm run r`） |
@@ -83,7 +83,7 @@ npm test tests/__tests__/server/graphql/
 npm test -- --empty
 ```
 
-`sequelize/seeders/master/` には、実際のデプロイ向けのシードが入ります。どのスクリプトからも参照されていません。意図的に、手で投入するものです。
+`sequelize/seeders/master-000001/` には、実際のデプロイ向けのシードが入ります。以降のリリースごとに、6 桁の連番で次の `master-` ディレクトリを足します。どのスクリプトからも参照されていません。意図的に、手で投入するものです。
 
 ### アプリケーションのコードを置く場所
 
@@ -99,7 +99,7 @@ npm test -- --empty
 │   ├── config.cjs          # NODE_ENV ごとの接続設定
 │   ├── migrations/         # マイグレーションはここに書く
 │   ├── models/             # モデルはここに書く
-│   └── seeders/            # master, dev-master, development
+│   └── seeders/            # master-000001, dev-master, development
 ├── server/
 │   ├── graphql/
 │   │   ├── contexts/       # 対象者ごとの context と share
