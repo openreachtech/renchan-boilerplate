@@ -98,7 +98,7 @@ jobs:
 
       - name: 🛠️ Set up database
         run: npm run db:setup
-      - run: npm run db:seed:master
+      - run: npm run db:seed:dev-master
 
       - name: 🧪 Jest
         # ⚠️ Keep the `--` before the mode. Without it npm eats `--empty` / `--seeded`
