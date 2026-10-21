@@ -15,7 +15,7 @@ function setupStorage () {
 
   npm run db:teardown || echo 'skip error on teardown'
   npm run db:setup
-  npm run db:seed:master
+  npm run db:seed:dev-master
 }
 
 function testWithEmpty () {
@@ -57,7 +57,7 @@ function terminalize () {
 
 initialize
 
-setupStorage # teardown > setup > seed:master
+setupStorage # teardown > setup > seed:dev-master
 
 if [ $# = 0 ]; then
   testWithEmpty

@@ -9,6 +9,7 @@ export default {
   },
   testPathIgnorePatterns: [
     '/node_modules/',
+    '/\\.directorykeeper\\.cjs$',
   ],
   transform: {
     '^.+\\.js$': 'babel-jest',

@@ -71,9 +71,9 @@ curl -X POST http://127.0.0.1:3900/graphql-customer \
 | `npm run test:live` | データベースには手を付けず、`live` 環境に対して Jest を実行する（`test-live.sh`） |
 | `npm run lint` | リポジトリ全体に ESLint をかける（別名: `npm run l`） |
 | `npm run db:setup` | マイグレーションを実行する |
-| `npm run db:seed:master` | `sequelize/seeders/dev-master/` を投入する |
+| `npm run db:seed:dev-master` | `sequelize/seeders/dev-master/` を投入する |
 | `npm run db:seed:dev` | `sequelize/seeders/development/` を投入する |
-| `npm run db:teardown` | `sequelize/storage/` 配下の SQLite ファイルを削除する（別名: `npm run db:drop`） |
+| `npm run db:teardown` | `development` のデータベースを破棄する。SQLite は `sequelize/storage/` 配下のファイルを削除し、サーバー型の dialect はデータベースを破棄する（別名: `npm run db:drop`） |
 | `npm run db:refresh` | teardown → マイグレーション → 両方のシード投入（別名: `npm run r`） |
 
 `npm test` は Jest と同じ引数を取ります。加えて `--empty` で master シードのみ、`--seeded` で development シードまで入れた状態を対象にできます。
@@ -83,7 +83,7 @@ npm test tests/__tests__/server/graphql/
 npm test -- --empty
 ```
 
-`sequelize/seeders/master/` には、実際のデプロイ向けのシードが入ります。どのスクリプトからも参照されていません。意図的に、手で投入するものです。
+`sequelize/seeders/master-000001/` には、実際のデプロイ向けのシードが入ります。以降のリリースごとに、6 桁の連番で次の `master-` ディレクトリを足します。どのスクリプトからも参照されていません。意図的に、手で投入するものです。
 
 ### アプリケーションのコードを置く場所
 
@@ -99,7 +99,7 @@ npm test -- --empty
 │   ├── config.cjs          # NODE_ENV ごとの接続設定
 │   ├── migrations/         # マイグレーションはここに書く
 │   ├── models/             # モデルはここに書く
-│   └── seeders/            # master, dev-master, development
+│   └── seeders/            # master-000001, dev-master, development
 ├── server/
 │   ├── graphql/
 │   │   ├── contexts/       # 対象者ごとの context と share
@@ -154,6 +154,8 @@ stub があることで、クエリの実装前でもフロントエンドはそ
 `sequelize/config.cjs` は `NODE_ENV` ごとにエントリーを持ちます。`development` は `sequelize/storage/` 配下の SQLite、`live` は MariaDB、`staging` と `production` は上記の変数から組み立てます。
 
 development はファイル 1 つで動くため、`npm run db:refresh` はデータベースを捨てて作り直すところまでを一息で行えます。
+
+`npm run db:teardown` は `development` エントリが指す dialect を読みます（`scripts/db-teardown.cjs`）。`sqlite` ならファイルを削除します。サーバー型の dialect（`mariadb`、`mysql`、`postgres`、`mssql`）なら、エントリから `database` を除いて接続し、Sequelize で `DROP DATABASE IF EXISTS` を実行します。そのため、その dialect が既に使うドライバー以外は不要です。
 
 `sequelize/models/` のモデルはすべて `sequelize/baseModel/` の `BaseAppRenchanModel` を継承します。全モデルで共有する振る舞いはここに足します。ローダーは `sequelize/models/` で見つけたモデルをすべて初期化するため、このクラスはその外に置いています。
 

@@ -71,9 +71,9 @@ In production the servers run under PM2, whose configuration is `pm2.config.cjs`
 | `npm run test:live` | run Jest against the `live` environment, leaving the database alone (`test-live.sh`) |
 | `npm run lint` | ESLint over the repository (alias: `npm run l`) |
 | `npm run db:setup` | run the migrations |
-| `npm run db:seed:master` | seed `sequelize/seeders/dev-master/` |
+| `npm run db:seed:dev-master` | seed `sequelize/seeders/dev-master/` |
 | `npm run db:seed:dev` | seed `sequelize/seeders/development/` |
-| `npm run db:teardown` | delete the SQLite files under `sequelize/storage/` (alias: `npm run db:drop`) |
+| `npm run db:teardown` | drop the `development` database: delete the SQLite files under `sequelize/storage/`, or drop the database for a server dialect (alias: `npm run db:drop`) |
 | `npm run db:refresh` | teardown, migrate, then both seed sets (alias: `npm run r`) |
 
 `npm test` takes the same arguments as Jest, plus `--empty` to run only against the master seeds and `--seeded` to run against the development seeds as well.
@@ -83,7 +83,7 @@ npm test tests/__tests__/server/graphql/
 npm test -- --empty
 ```
 
-`sequelize/seeders/master/` holds the seeds meant for a real deployment. No script points at it — it is seeded deliberately, by hand.
+`sequelize/seeders/master-000001/` holds the seeds meant for a real deployment, and each later release adds the next `master-` directory in six digits. No script points at them. They are seeded deliberately, by hand.
 
 ### Where the application code goes
 
@@ -99,7 +99,7 @@ npm test -- --empty
 │   ├── config.cjs          # connection settings, per NODE_ENV
 │   ├── migrations/         # write the migrations here
 │   ├── models/             # write the models here
-│   └── seeders/            # master, dev-master, development
+│   └── seeders/            # master-000001, dev-master, development
 ├── server/
 │   ├── graphql/
 │   │   ├── contexts/       # context and share, per audience
@@ -154,6 +154,8 @@ Variables are read through `@openreachtech/renchan-env`, which loads the dotenv 
 `sequelize/config.cjs` carries one entry per `NODE_ENV`: `development` on SQLite in `sequelize/storage/`, `live` on MariaDB, and `staging` and `production` built from the variables above.
 
 Development runs on a file, which is why `npm run db:refresh` can throw the database away and rebuild it in one step.
+
+`npm run db:teardown` reads the dialect the `development` entry names (`scripts/db-teardown.cjs`). `sqlite` deletes the files. A server dialect (`mariadb`, `mysql`, `postgres`, `mssql`) connects with the entry minus its `database` and runs `DROP DATABASE IF EXISTS` through Sequelize, so it needs only the driver that dialect already uses.
 
 Every model in `sequelize/models/` extends `BaseAppRenchanModel` from `sequelize/baseModel/`, the one place to add behavior all models share. It stays outside `sequelize/models/` because the loader initializes every model it finds there.
 
