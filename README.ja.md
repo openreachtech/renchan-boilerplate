@@ -83,7 +83,7 @@ npm test tests/__tests__/server/graphql/
 npm test -- --empty
 ```
 
-`sequelize/seeders/master/` には、実際のデプロイ向けのシードが入ります。どのスクリプトからも参照されていません。意図的に、手で投入するものです。
+`sequelize/seeders/master-000001/` には、実際のデプロイ向けのシードが入ります。以降のリリースごとに、6 桁の連番で次の `master-` ディレクトリを足します。どのスクリプトからも参照されていません。意図的に、手で投入するものです。
 
 ### アプリケーションのコードを置く場所
 
@@ -99,7 +99,7 @@ npm test -- --empty
 │   ├── config.cjs          # NODE_ENV ごとの接続設定
 │   ├── migrations/         # マイグレーションはここに書く
 │   ├── models/             # モデルはここに書く
-│   └── seeders/            # master, dev-master, development
+│   └── seeders/            # master-000001, dev-master, development
 ├── server/
 │   ├── graphql/
 │   │   ├── contexts/       # 対象者ごとの context と share
