@@ -71,7 +71,7 @@ curl -X POST http://127.0.0.1:3900/graphql-customer \
 | `npm run test:live` | データベースには手を付けず、`live` 環境に対して Jest を実行する（`test-live.sh`） |
 | `npm run lint` | リポジトリ全体に ESLint をかける（別名: `npm run l`） |
 | `npm run db:setup` | マイグレーションを実行する |
-| `npm run db:seed:master` | `sequelize/seeders/dev-master/` を投入する |
+| `npm run db:seed:dev-master` | `sequelize/seeders/dev-master/` を投入する |
 | `npm run db:seed:dev` | `sequelize/seeders/development/` を投入する |
 | `npm run db:teardown` | `development` のデータベースを破棄する。SQLite は `sequelize/storage/` 配下のファイルを削除し、サーバー型の dialect はデータベースを破棄する（別名: `npm run db:drop`） |
 | `npm run db:refresh` | teardown → マイグレーション → 両方のシード投入（別名: `npm run r`） |
