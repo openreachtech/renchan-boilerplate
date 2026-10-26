@@ -86,7 +86,6 @@
   },
   "allowScripts": {
     "@parcel/watcher": false,
-    "fsevents": false,
     "sqlite3@6.0.1": true,
     "unrs-resolver@1.12.2": true
   }
