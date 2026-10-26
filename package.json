@@ -36,12 +36,12 @@
     "node": ">=22.18.0"
   },
   "dependencies": {
-    "@graphql-tools/schema": "^10.1.4",
-    "@graphql-tools/utils": "^12.0.4",
+    "@graphql-tools/schema": "^10.1.5",
+    "@graphql-tools/utils": "^12.1.0",
     "@openreachtech/mentsu-logger": "^2.0.3",
     "@openreachtech/mentsu-value-inspector": "^1.1.1",
-    "@openreachtech/renchan": "^2.13.0",
-    "@openreachtech/renchan-env": "^1.0.6",
+    "@openreachtech/renchan": "^2.13.1",
+    "@openreachtech/renchan-env": "^1.1.0",
     "@openreachtech/renchan-sequelize": "^2.3.0",
     "@steweucen/fertile-forest-sequelize": "^0.1.3",
     "cookie": "^0.7.2",
