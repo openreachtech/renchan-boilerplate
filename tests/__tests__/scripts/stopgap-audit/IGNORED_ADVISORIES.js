@@ -42,3 +42,22 @@ describe('IGNORED_ADVISORIES', () => {
     })
   })
 })
+
+describe('IGNORED_ADVISORIES', () => {
+  describe('default export', () => {
+    describe('should carry the deepmerge entry', () => {
+      test('when imported', () => {
+        const expected = {
+          id: 'GHSA-gcqx-w48m-w2h4',
+          package: 'deepmerge',
+          path: 'jest > @jest/core > jest-config > deepmerge',
+        }
+
+        const received = IGNORED_ADVISORIES
+
+        expect(received)
+          .toContainEqual(expect.objectContaining(expected))
+      })
+    })
+  })
+})
