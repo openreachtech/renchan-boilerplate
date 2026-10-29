@@ -18,5 +18,8 @@
     "furo",
     "mentsu",
     "renchan"
+  ],
+  "ignoreWords": [
+    "gcqx"
   ]
 }
