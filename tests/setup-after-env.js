@@ -6,7 +6,13 @@ import {
   ConstructorSpy,
 } from '@openreachtech/jest-constructor-spy'
 
+import {
+  setupExpectEach,
+} from '@openreachtech/jest-expect-each'
+
 import activate from '../sequelize/_.js'
+
+setupExpectEach()
 
 /*
  * Set global variables.
