@@ -3,7 +3,12 @@
     "checkJs": true,
     "moduleResolution": "nodenext",
     "module": "nodenext",
-    "target": "ES2023"
+    "target": "ES2023",
+    "types": [
+      "@openreachtech/mentsu-npm-audit-gate",
+      "jest",
+      "node"
+    ]
   },
   "exclude": [
     "node_modules"
