@@ -80,6 +80,9 @@ jobs:
       - name: 🛡️ npm audit
         run: npm run audit:npm
 
+      - name: 🛡️ Audit action versions
+        run: npm run audit:actions
+
       - name: 🧪 Jest
         # ⚠️ Keep the `--` before the mode. Without it npm eats `--empty` / `--seeded`
         # as its own config, and test.sh falls through to a branch that names no group
