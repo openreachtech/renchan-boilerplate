@@ -1,8 +1,6 @@
-import Env from '@openreachtech/renchan-env'
-
-const {
+import {
   EnvironmentFacade,
-} = Env
+} from '@openreachtech/renchan-env'
 
 const facade = EnvironmentFacade.create()
 
@@ -12,7 +10,7 @@ export default /** @type {*} */ (
 )
 
 /**
- * @typedef {import('@openreachtech/renchan-env').EnvironmentFacade.EnvironmentFacadeInterface & {
+ * @typedef {import('@openreachtech/renchan-env').EnvironmentFacadeInterface & {
  *   NODE_ENV: string
  *   DATABASE_NAME: string
  *   DATABASE_USERNAME: string

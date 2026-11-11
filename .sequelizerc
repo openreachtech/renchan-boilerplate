@@ -1,8 +1,11 @@
-'use strict'
+const config = 'sequelize/config.cjs'
+const migrationsPath = 'sequelize/migrations'
+const modelsPath = 'sequelize/models'
+const seedersPath = 'sequelize/seeders'
 
-module.exports = {
-  'config': 'sequelize/config.cjs',
-  'migrations-path': 'sequelize/migrations',
-  'models-path': 'sequelize/models',
-  'seeders-path': 'sequelize/seeders',
+export {
+  config,
+  migrationsPath as 'migrations-path',
+  modelsPath as 'models-path',
+  seedersPath as 'seeders-path',
 }

@@ -5,6 +5,8 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
+    "audit:actions": "node node_modules/@openreachtech/mentsu-github-actions-inspector/scripts/audit-action-version.js",
+    "audit:npm": "node node_modules/@openreachtech/mentsu-npm-audit-gate/scripts/npm-audit-gate.js scripts/stopgap-audit/IGNORED_ADVISORIES.js",
     "db:drop": "npm run db:teardown",
     "db:seed:dev-master": "sequelize-cli db:seed:all --seeders-path sequelize/seeders/dev-master --debug",
     "db:seed:dev": "sequelize-cli db:seed:all --seeders-path sequelize/seeders/development --debug",
@@ -63,7 +65,10 @@
     "@babel/preset-env": "^7.29.7",
     "@openreachtech/eslint-config": "^4.5.0",
     "@openreachtech/jest-constructor-spy": "^1.1.2",
+    "@openreachtech/jest-deep-containing": "^1.0.2",
     "@openreachtech/jest-expect-each": "^1.0.3",
+    "@openreachtech/mentsu-github-actions-inspector": "^0.1.0",
+    "@openreachtech/mentsu-npm-audit-gate": "^0.1.1",
     "@types/jest": "^30.0.0",
     "eslint": "^9.39.5",
     "jest": "^30.5.2",
@@ -77,11 +82,13 @@
       "@openreachtech/mentsu-random-text-generator": "1.0.3"
     },
     "body-parser": "^1.20.9",
+    "glob": "^14.0.2",
     "graphql-middleware": {
       "@graphql-tools/delegate": "^12.2.1",
       "@graphql-tools/schema": "$@graphql-tools/schema"
     },
     "js-yaml": "^4.3.2",
+    "minimatch": "^11.0.1",
     "qs": "^6.16.1",
     "undici": "^6.29.1",
     "uuid": "^11.1.1"
