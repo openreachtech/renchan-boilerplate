@@ -1,7 +1,15 @@
 {
   "words": [
+    "openreach",
+    "openreachtech",
+    "steweucen",
+    "furo",
+    "mentsu",
+    "renchan",
+
     "ehthumbs",
     "encryptable",
+
     "graphiql",
     "restfulapi",
     "scandir",
@@ -10,14 +18,7 @@
 
     "bignumber",
     "smallint",
-    "tinyint",
-
-    "openreach",
-    "openreachtech",
-    "steweucen",
-    "furo",
-    "mentsu",
-    "renchan"
+    "tinyint"
   ],
   "ignoreWords": [
     "gcqx"
