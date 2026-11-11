@@ -2,9 +2,12 @@
 
 ## Names that must not appear
 
-This repository is public. Nothing you write may name a private party — not code,
-comments, JSDoc, tests, fixtures, documentation, commit messages, branch names,
-issue descriptions, pull request descriptions, or review comments.
+A repository cloned from this boilerplate may be public, and a private one can be
+opened up later without anybody rewriting what is already in it. So the rule holds
+from the first commit whatever the current visibility is: nothing you write may
+name a private party — not code, comments, JSDoc, tests, fixtures, documentation,
+commit messages, branch names, issue descriptions, pull request descriptions, or
+review comments.
 
 Never write:
 

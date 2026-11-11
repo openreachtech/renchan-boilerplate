@@ -45,8 +45,11 @@ jobs:
         options: --health-cmd="mysqladmin ping" --health-interval=5s --health-timeout=2s --health-retries=3
 
     steps:
+      # ⚠️ Actions are named by their major tag, and actions.lock pins the commit each one runs.
+      # Regenerate the lockfile with `gh actions-lock --no-narrow`: without the flag the tool
+      # rewrites a major tag to a full one, and the lockfile stops following the major.
       - name: 🛎️ Checkout repository code
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        uses: actions/checkout@v7
 
       - name: 📍 Verify MariaDB connection / Create database / Set port
         env:
@@ -59,7 +62,7 @@ jobs:
           mysql -uroot -ppassword -h"127.0.0.1" -P"3306" < test.sql
 
       - name: 🏗️ Use Node.js
-        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        uses: actions/setup-node@v7
         with:
           # ⚠️ The npm cache only pays off where ~/.npm is discarded between jobs.
           # On a persistent [self-hosted] runner it re-ships what is already on disk,
@@ -81,36 +84,54 @@ jobs:
           echo "node  : $(node -v)"
           echo "npm   : $(npm -v)"
 
-      # ⚠️ This gate runs before npm ci, and the order is the point: npm ci puts the
-      # vulnerable files on the runner, and the test run then executes them through the
-      # real code path. The advisory has to answer before anything is fetched. Auditing
-      # first is possible because npm audit resolves the tree from package-lock.json
-      # alone and needs no node_modules; skipping a doomed install is a side benefit.
+      - name: 📦 Install packages
+        run: npm ci
+
+      # ⚠️ This gate runs after npm ci and before the database setup and Jest.
+      # The script imports its own dependency from node_modules, so it cannot run before the install.
+      # What still matters is that an advisory answers before the installed files are executed,
+      # and the database setup and Jest are the steps that execute them.
+      # strict-allow-scripts in .npmrc stops npm ci from running install scripts,
+      # so the install itself runs none of that code.
       #
       # ⚠️ The script runs npm audit itself and fails on every advisory except the ones
-      # scripts/stopgap-audit/IGNORED_ADVISORIES.js lists, a stopgap until a release fixes them. An entry
-      # whose advisory is no longer reported fails too, so the list cannot outlive its reason.
+      # the file it is given lists, a stopgap until a release fixes them.
+      # An entry whose advisory is no longer reported fails too, so the list cannot outlive its reason.
       #
       # ⚠️ A 503 from the advisory service leaves npm with no report, and the script says
       # so rather than listing advisories. npm does not retry the bulk POST —
       # `--fetch-retries=4` still sends one request — so rerun the job.
       - name: 🛡️ npm audit
-        run: node scripts/stopgap-audit/npm-audit-gate.js
+        run: npm run audit:npm
 
-      - name: 📦 Install packages
-        run: npm ci
+      - name: 🛡️ Audit action versions
+        run: npm run audit:actions
 
       - name: 🛠️ Set up database
         run: npm run db:setup
-      - run: npm run db:seed:dev-master
 
-      - name: 🧪 Jest
-        # ⚠️ Keep the `--` before the mode. Without it npm eats `--empty` / `--seeded`
-        # as its own config, and test-live.sh takes the path as the mode instead.
+      - name: 🌱 Seed master data
+        run: npm run db:seed:dev-master
+
+      # ⚠️ Keep the `--` before the mode. Without it npm eats `--empty` / `--seeded`
+      # as its own config, and test-live.sh takes the path as the mode instead.
+      - name: 🧪 Jest __tests__/ with empty DB
         run: npm run test:live -- --empty tests/empty/__tests__/
-      - run: npm run test:live -- --empty tests/empty/_live/
-      - run: npm run test:live -- --empty tests/empty/_orders/
-      - run: npm run db:seed:dev
-      - run: npm run test:live -- --seeded tests/__tests__/
-      - run: npm run test:live -- --seeded tests/_live/
-      - run: npm run test:live -- --seeded tests/_orders/
+
+      - name: 🧪 Jest _live/ with empty DB
+        run: npm run test:live -- --empty tests/empty/_live/
+
+      - name: 🧪 Jest _orders/ with empty DB
+        run: npm run test:live -- --empty tests/empty/_orders/
+
+      - name: 🌱 Seed development data
+        run: npm run db:seed:dev
+
+      - name: 🧪 Jest __tests__/ with seeded DB
+        run: npm run test:live -- --seeded tests/__tests__/
+
+      - name: 🧪 Jest _live/ with seeded DB
+        run: npm run test:live -- --seeded tests/_live/
+
+      - name: 🧪 Jest _orders/ with seeded DB
+        run: npm run test:live -- --seeded tests/_orders/

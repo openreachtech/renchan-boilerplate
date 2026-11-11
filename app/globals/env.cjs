@@ -12,7 +12,7 @@ module.exports = /** @type {*} */ (
 )
 
 /**
- * @typedef {import('@openreachtech/renchan-env').EnvironmentFacade.EnvironmentFacadeInterface & {
+ * @typedef {import('@openreachtech/renchan-env').EnvironmentFacadeInterface & {
  *   NODE_ENV: string
  *   DATABASE_NAME: string
  *   DATABASE_USERNAME: string

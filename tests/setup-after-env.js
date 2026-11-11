@@ -19,7 +19,7 @@ setupExpectEach()
  */
 globalThis.jest = jestCore
 globalThis.constructorSpy = ConstructorSpy.create({
-  jest,
+  jest: jestCore,
 })
 
 const activator = await activate()
