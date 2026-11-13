@@ -82,6 +82,7 @@
       "@openreachtech/mentsu-random-text-generator": "1.0.3"
     },
     "body-parser": "^1.20.9",
+    "brace-expansion@5": "^5.0.12",
     "glob": "^14.0.2",
     "graphql-middleware": {
       "@graphql-tools/delegate": "^12.2.1",
