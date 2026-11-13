@@ -1,6 +1,6 @@
 import {
   RootPath,
-} from '@openreachtech/renchan'
+} from '@openreachtech/mentsu-rootpath'
 
 const rootPath = RootPath.create()
 
