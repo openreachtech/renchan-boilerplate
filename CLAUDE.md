@@ -1,13 +1,17 @@
 # CLAUDE.md
 
+This file applies only where the name of this repository is the boilerplate name
+that the heading of `about-boilerplate.md` gives. In a repository made from this
+boilerplate the two differ, and nothing below applies: that repository is built for
+one company and one product, and names them freely.
+
 ## Names that must not appear
 
-A repository cloned from this boilerplate may be public, and a private one can be
-opened up later without anybody rewriting what is already in it. So the rule holds
-from the first commit whatever the current visibility is: nothing you write may
-name a private party — not code, comments, JSDoc, tests, fixtures, documentation,
-commit messages, branch names, issue descriptions, pull request descriptions, or
-review comments.
+Everything committed to this boilerplate is copied into every repository made from
+it, so a name written here travels into all of them, whoever it belongs to. Nothing
+written in this repository may name a private party — not code, comments, JSDoc,
+tests, fixtures, documentation, commit messages, branch names, issue descriptions,
+pull request descriptions, or review comments.
 
 Never write:
 
