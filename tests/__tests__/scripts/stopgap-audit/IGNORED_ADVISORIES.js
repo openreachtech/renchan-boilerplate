@@ -2,22 +2,14 @@ import IGNORED_ADVISORIES from '../../../../scripts/stopgap-audit/IGNORED_ADVISO
 
 describe('IGNORED_ADVISORIES', () => {
   describe('default export', () => {
-    describe('should carry each listed entry', () => {
-      test('when imported', () => {
-        const expected = [
-          expect.objectContaining({
-            id: 'GHSA-gcqx-w48m-w2h4',
-            package: 'deepmerge',
-            path: 'jest > @jest/core > jest-config > deepmerge',
-            reason: expect.stringMatching(/\S/u),
-            removeWhen: expect.stringMatching(/\S/u),
-          }),
-        ]
+    describe('should be empty', () => {
+      test('when no advisory is let through', () => {
+        const expected = []
 
         const received = IGNORED_ADVISORIES
 
-        expect.each(received)
-          .toEqual.each(expected)
+        expect(received)
+          .toEqual(expected)
       })
     })
   })
